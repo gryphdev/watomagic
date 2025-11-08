@@ -1,8 +1,15 @@
-# Privacy Policy - Atomatic Android App
+# 🔒 Política de Privacidad - Watomagic Android
 
-The app does not automatically collect any personally identifiable data without the explicit consent of the user.
+Watomagic **no recopila automáticamente ningún dato personal identificable** sin el consentimiento explícito del usuario.
 
-As of this version, no data is collected directly from the app. This privacy policy will be updated if it changes in the future and the developer will take necessary steps to comply with Google Play store or other other app store policies.
+## 📋 Estado actual
 
-Watomagic is an open source application.
+En esta versión, **ningún dato se recopila directamente desde la app**. Esta política de privacidad se actualizará si cambia en el futuro, y el desarrollador tomará las medidas necesarias para cumplir con las políticas de Google Play Store u otras tiendas de aplicaciones.
 
+## 📦 Código abierto
+
+Watomagic es una aplicación de **código abierto**. Podés revisar el código fuente para verificar cómo funciona y qué datos maneja.
+
+---
+
+*Última actualización: Esta política refleja el estado actual de la aplicación.*
