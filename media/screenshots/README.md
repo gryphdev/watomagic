@@ -1,17 +1,30 @@
-[❰ Back to home](../../README.md)
+[❰ Volver al inicio](../../README.md)
 
-# Screenshots | Atomatic
+# 📸 Capturas de pantalla | Watomagic
 
-| <img src="./1.png" alt="Scr 1"> | <img src="./2.png" alt="scr 2"> | <img src="./3.png" alt="Scr 3"> |
-|---------------------------------|---------------------------------|---------------------------------|
+## Vista previa rápida
 
+| <img src="./1.png" alt="Captura 1"> | <img src="./2.png" alt="Captura 2"> | <img src="./3.png" alt="Captura 3"> |
+|:---:|:---:|:---:|
 
-| Light                                                          | Dark                                                             |
-|----------------------------------------------------------------|------------------------------------------------------------------|
-| ![main screen device light](./wato-1-8-light-main-pixel3a.png) | ![main screen device dark](./wato-1-8-dark-main-pixel3a.png)     |
-| ![editor screen device](./wato-1-8-light-editor-pixel3a.png)   | ![editor screen device dark](./wato-1-8-dark-editor-pixel3a.png) |
-| ![main screen](./wato-1-8-light-main.png)                      | ![main screen dark](./wato-1-8-dark-main.png)                    |
-| ![editor screen](./wato-1-8-light-editor.png)                  | ![editor screen dark](./wato-1-8-dark-editor.png)                |
+---
 
-[❰ Back to home](../../README.md)
+## 🎨 Modo claro y oscuro
 
+### Pantalla principal
+
+| Modo claro | Modo oscuro |
+|:---:|:---:|
+| ![Pantalla principal en dispositivo modo claro](./wato-1-8-light-main-pixel3a.png) | ![Pantalla principal en dispositivo modo oscuro](./wato-1-8-dark-main-pixel3a.png) |
+| ![Pantalla principal modo claro](./wato-1-8-light-main.png) | ![Pantalla principal modo oscuro](./wato-1-8-dark-main.png) |
+
+### Editor de mensajes
+
+| Modo claro | Modo oscuro |
+|:---:|:---:|
+| ![Editor en dispositivo modo claro](./wato-1-8-light-editor-pixel3a.png) | ![Editor en dispositivo modo oscuro](./wato-1-8-dark-editor-pixel3a.png) |
+| ![Editor modo claro](./wato-1-8-light-editor.png) | ![Editor modo oscuro](./wato-1-8-dark-editor.png) |
+
+---
+
+[❰ Volver al inicio](../../README.md)

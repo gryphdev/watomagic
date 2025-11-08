@@ -1,41 +1,58 @@
-# Watomagic - Auto reply for Messaging apps so you can stop using it
+# 🪄 Watomagic - Respuesta automática para apps de mensajería
 
-Watomagic sends an automated reply to everyone contacting you on Messaging apps. This is especially useful if you are planning to migrate away from messaging apps but can also be used as a vacation responder.
+Watomagic envía una respuesta automática a todos los que te contacten en apps de mensajería. Es especialmente útil si estás planeando migrar de estas apps, pero también podés usarlo como un contestador automático cuando estás de vacaciones.
 
-### [Screenshots](./media/screenshots/)
+### 📸 [Capturas de pantalla](./media/screenshots/)
 
-| [<img src="/media/screenshots/1.png" alt="Scr 1">][scr-page-link] | [<img src="/media/screenshots/2.png" alt="scr 2">][scr-page-link] | [<img src="/media/screenshots/3.png" alt="Scr 3">][scr-page-link] |
-|-------------------------------------------------------------------|-------------------------------------------------------------------|-------------------------------------------------------------------|
+| [<img src="/media/screenshots/1.png" alt="Captura 1">][scr-page-link] | [<img src="/media/screenshots/2.png" alt="Captura 2">][scr-page-link] | [<img src="/media/screenshots/3.png" alt="Captura 3">][scr-page-link] |
+|:---:|:---:|:---:|
 
-[**❯ More screenshots**](./media/screenshots/)
+[**❯ Ver más capturas**](./media/screenshots/)
 
-### Features:
-- Auto reply to every message on supported messaging apps
-- Set your own auto reply message
-- Auto reply to group chats
-- Respects your privacy
-  - No analytics or tracking
-- Free and open source
+---
 
-Example:
-WhatsApp's recent privacy policy changes have triggered a huge migration to more privacy friendly apps like Signal and others. But most of us find it difficult to delete WhatsApp because everyone else uses it. Watomagic tries to make your migration easier by letting your friends automatically know that you are moved to another app. Just set an auto reply message something like "I am not using WhatsApp anymore. Please use Signal…" and let it do the work for you.
+## ✨ Características
 
-This app is not associated with any company including WhatsApp, Facebook or Signal.
+- ✅ **Respuesta automática** en todas las apps de mensajería soportadas
+- ✏️ **Personalizá tu mensaje** de respuesta automática
+- 👥 **Funciona en grupos** también
+- 🔒 **Respeto total por tu privacidad**
+  - Sin análisis ni rastreo de datos
+- 🆓 **Gratis y código abierto**
 
-### Troubleshooting
+---
 
-- Auto reply does not work even after Watomagic is enabled
-  
-  Watomagic relies on notifications for auto reply to work. Most users usually have notifications enabled so should work straight out of the box but otherwise please make sure notifications are enabled and app-specific fingerprint lock is disabled for Watomagic to work.
+## 💡 ¿Para qué sirve?
 
-### FAQ
+Los cambios recientes en la política de privacidad de WhatsApp generaron una migración masiva hacia apps más respetuosas de la privacidad como Signal y otras. Pero la mayoría de nosotros encuentra difícil eliminar WhatsApp porque todo el mundo lo usa.
 
-- Why not use WhatsApp business account for auto replies?
-  
-  You cannot use business account without accepting the new privacy policy that everyone is trying to avoid.
+**Watomagic facilita tu migración** dejando que tus contactos sepan automáticamente que te mudaste a otra app. Simplemente configurá un mensaje de respuesta automática como *"Ya no uso WhatsApp. Por favor contactame por Signal…"* y dejá que la app haga el trabajo por vos.
 
-- Will this be available for iOS in the future
-  
-  This app relies on Android specific notification quick replies feature to function. This may not be possible on iOS.
+> ⚠️ **Importante:** Esta app no está asociada con ninguna empresa, incluyendo WhatsApp, Facebook o Signal.
+
+---
+
+## 🔧 Solución de problemas
+
+### La respuesta automática no funciona aunque Watomagic esté habilitado
+
+Watomagic depende de las notificaciones para funcionar. La mayoría de los usuarios ya tiene las notificaciones habilitadas, así que debería funcionar de entrada. Si no funciona, asegurate de que:
+
+- ✅ Las notificaciones estén habilitadas
+- ✅ El bloqueo biométrico específico de la app esté deshabilitado para Watomagic
+
+---
+
+## ❓ Preguntas frecuentes
+
+### ¿Por qué no usar una cuenta de WhatsApp Business para respuestas automáticas?
+
+No podés usar una cuenta business sin aceptar la nueva política de privacidad que todos están tratando de evitar.
+
+### ¿Estará disponible para iOS en el futuro?
+
+Esta app depende de la función de respuestas rápidas desde notificaciones específica de Android. Esto probablemente no sea posible en iOS.
+
+---
 
 [scr-page-link]: ./media/screenshots/
