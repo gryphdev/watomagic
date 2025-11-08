@@ -1,4 +1,4 @@
-package com.parishod.watomatic.activity.customreplyeditor
+package com.parishod.watomagic.activity.customreplyeditor
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.radiobutton.MaterialRadioButton
-import com.parishod.watomatic.R
-import com.parishod.watomatic.network.model.openai.ModelData
+import com.parishod.watomagic.R
+import com.parishod.watomagic.network.model.openai.ModelData
 
 class ModelSelectAdapter(
     private var models: List<ModelData>,

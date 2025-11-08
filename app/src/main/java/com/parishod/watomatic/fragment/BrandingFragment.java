@@ -1,4 +1,4 @@
-package com.parishod.watomatic.fragment;
+package com.parishod.watomagic.fragment;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -18,13 +18,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.parishod.watomatic.BuildConfig;
-import com.parishod.watomatic.R;
-import com.parishod.watomatic.activity.donation.DonationActivity;
-import com.parishod.watomatic.model.GithubReleaseNotes;
-import com.parishod.watomatic.model.preferences.PreferencesManager;
-import com.parishod.watomatic.network.GetReleaseNotesService;
-import com.parishod.watomatic.network.RetrofitInstance;
+import com.parishod.watomagic.BuildConfig;
+import com.parishod.watomagic.R;
+import com.parishod.watomagic.activity.donation.DonationActivity;
+import com.parishod.watomagic.model.GithubReleaseNotes;
+import com.parishod.watomagic.model.preferences.PreferencesManager;
+import com.parishod.watomagic.network.GetReleaseNotesService;
+import com.parishod.watomagic.network.RetrofitInstance;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,33 +44,30 @@ import static android.content.Intent.FLAG_ACTIVITY_REQUIRE_DEFAULT;
 import static android.content.Intent.FLAG_ACTIVITY_REQUIRE_NON_BROWSER;
 
 public class BrandingFragment extends Fragment {
-    private Button watomaticSubredditBtn, whatsNewBtn;
+    private Button watomagicSubredditBtn, whatsNewBtn;
     private List<String> whatsNewUrls;
     private int gitHubReleaseNotesId = -1;
-    private final List<String> communityUrls = Arrays.asList("https://t.me/WatomaticApp",
-            "https://fosstodon.org/@watomatic",
-            "https://twitter.com/watomatic",
-            "https://www.reddit.com/r/watomatic");
+    private final List<String> communityUrls = Arrays.asList();
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_branding, container, false);
 
-        ImageButton githubBtn = view.findViewById(R.id.watomaticGithubBtn);
+        ImageButton githubBtn = view.findViewById(R.id.watomagicGithubBtn);
         ImageButton share_layout = view.findViewById(R.id.share_btn);
-        watomaticSubredditBtn = view.findViewById(R.id.watomaticSubredditBtn);
+        watomagicSubredditBtn = view.findViewById(R.id.watomagicSubredditBtn);
         whatsNewBtn = view.findViewById(R.id.whatsNewBtn);
-        whatsNewBtn.setOnClickListener(v -> launchApp(whatsNewUrls, getString(R.string.watomatic_github_latest_release_url)));
+        whatsNewBtn.setOnClickListener(v -> launchApp(whatsNewUrls, getString(R.string.watomagic_github_latest_release_url)));
 
         share_layout.setOnClickListener(v -> launchShareIntent());
 
-        watomaticSubredditBtn.setOnClickListener(v -> {
-            launchApp(communityUrls, getString(R.string.watomatic_subreddit_url));
+        watomagicSubredditBtn.setOnClickListener(v -> {
+            launchApp(communityUrls, getString(R.string.watomagic_subreddit_url));
         });
 
         githubBtn.setOnClickListener(v -> {
-            String url = getString(R.string.watomatic_github_url);
+            String url = getString(R.string.watomagic_github_url);
             startActivity(
                     new Intent(ACTION_VIEW).setData(Uri.parse(url))
             );
@@ -132,7 +129,7 @@ public class BrandingFragment extends Fragment {
                     null;
             List<ResolveInfo> possibleBrowserIntents = getActivity() != null ?
                     getActivity().getPackageManager()
-                            .queryIntentActivities(new Intent(ACTION_VIEW, Uri.parse("http://www.deekshith.in/")), 0) :
+                            .queryIntentActivities(new Intent(ACTION_VIEW, Uri.parse("")), 0) :
                     null;
 
             Set<String> excludeIntents = new HashSet<>();
@@ -215,7 +212,7 @@ public class BrandingFragment extends Fragment {
     }
 
     private void showHideWhatsNewBtn(boolean show) {
-        watomaticSubredditBtn.setVisibility(show ? View.GONE : View.VISIBLE);
+        watomagicSubredditBtn.setVisibility(show ? View.GONE : View.VISIBLE);
         whatsNewBtn.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 

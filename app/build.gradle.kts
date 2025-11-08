@@ -9,8 +9,8 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        namespace = "com.parishod.watomatic"
-        applicationId = "com.parishod.watomatic"
+        namespace = "com.parishod.watomagic"
+        applicationId = "com.parishod.watomagic"
         minSdk = 24
         targetSdk = 35
         versionCode = 31

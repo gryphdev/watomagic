@@ -1,8 +1,8 @@
-package com.parishod.watomatic.model.logs;
+package com.parishod.watomagic.model.logs;
 
 import android.content.Context;
 
-import com.parishod.watomatic.R;
+import com.parishod.watomagic.R;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;

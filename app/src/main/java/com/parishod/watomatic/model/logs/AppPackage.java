@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.logs;
+package com.parishod.watomagic.model.logs;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;

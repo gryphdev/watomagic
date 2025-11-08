@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model
+package com.parishod.watomagic.model
 
 data class App(
         val name: String,

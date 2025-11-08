@@ -1,4 +1,4 @@
-package com.parishod.watomatic.utils
+package com.parishod.watomagic.utils
 
 import android.content.Context
 import android.util.TypedValue

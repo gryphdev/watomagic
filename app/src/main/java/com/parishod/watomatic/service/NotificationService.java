@@ -1,7 +1,7 @@
-package com.parishod.watomatic.service;
+package com.parishod.watomagic.service;
 
-import static com.parishod.watomatic.model.utils.Constants.DEFAULT_LLM_MODEL;
-import static com.parishod.watomatic.model.utils.Constants.DEFAULT_LLM_PROMPT;
+import static com.parishod.watomagic.model.utils.Constants.DEFAULT_LLM_MODEL;
+import static com.parishod.watomagic.model.utils.Constants.DEFAULT_LLM_PROMPT;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -19,19 +19,19 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.RemoteInput;
 
-import com.parishod.watomatic.NotificationWear;
-import com.parishod.watomatic.model.CustomRepliesData;
-import com.parishod.watomatic.network.OpenAIService;
-import com.parishod.watomatic.network.RetrofitInstance; // Ensure this is available
-import com.parishod.watomatic.network.model.openai.Message;
-import com.parishod.watomatic.network.model.openai.OpenAIErrorResponse; // Added import
-import com.parishod.watomatic.network.model.openai.OpenAIRequest;
-import com.parishod.watomatic.network.model.openai.OpenAIResponse;
-import com.parishod.watomatic.model.preferences.PreferencesManager;
-import com.parishod.watomatic.model.utils.ContactsHelper;
-import com.parishod.watomatic.model.utils.DbUtils;
-import com.parishod.watomatic.model.utils.NotificationHelper;
-import com.parishod.watomatic.model.utils.NotificationUtils;
+import com.parishod.watomagic.NotificationWear;
+import com.parishod.watomagic.model.CustomRepliesData;
+import com.parishod.watomagic.network.OpenAIService;
+import com.parishod.watomagic.network.RetrofitInstance; // Ensure this is available
+import com.parishod.watomagic.network.model.openai.Message;
+import com.parishod.watomagic.network.model.openai.OpenAIErrorResponse; // Added import
+import com.parishod.watomagic.network.model.openai.OpenAIRequest;
+import com.parishod.watomagic.network.model.openai.OpenAIResponse;
+import com.parishod.watomagic.model.preferences.PreferencesManager;
+import com.parishod.watomagic.model.utils.ContactsHelper;
+import com.parishod.watomagic.model.utils.DbUtils;
+import com.parishod.watomagic.model.utils.NotificationHelper;
+import com.parishod.watomagic.model.utils.NotificationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -300,7 +300,7 @@ public class NotificationService extends NotificationListenerService {
 
     private boolean canSendReplyNow(StatusBarNotification sbn) {
         // Do not reply to consecutive notifications from same person/group that arrive in below time
-        // This helps to prevent infinite loops when users on both end uses Watomatic or similar app
+        // This helps to prevent infinite loops when users on both end uses watomagic or similar app
         int DELAY_BETWEEN_REPLY_IN_MILLISEC = 10 * 1000;
 
         String title = NotificationUtils.getTitle(sbn);

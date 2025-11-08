@@ -1,4 +1,4 @@
-package com.parishod.watomatic.service
+package com.parishod.watomagic.service
 
 import android.content.Context
 import android.provider.Settings
@@ -7,8 +7,8 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.parishod.watomatic.model.preferences.PreferencesManager
-import com.parishod.watomatic.model.utils.NotificationUtils
+import com.parishod.watomagic.model.preferences.PreferencesManager
+import com.parishod.watomagic.model.utils.NotificationUtils
 import java.util.concurrent.TimeUnit
 
 class NlsHealthCheckWorker(

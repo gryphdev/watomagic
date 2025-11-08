@@ -1,4 +1,4 @@
-package com.parishod.watomatic.network.model.openai;
+package com.parishod.watomagic.network.model.openai;
 
 // Using google-gson annotations for field names if they differ from Java conventions
 import com.google.gson.annotations.SerializedName;

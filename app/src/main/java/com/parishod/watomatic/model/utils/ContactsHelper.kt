@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.utils
+package com.parishod.watomagic.model.utils
 
 import android.Manifest
 import android.app.Activity
@@ -9,9 +9,9 @@ import android.provider.ContactsContract
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.parishod.watomatic.R
-import com.parishod.watomatic.model.data.ContactHolder
-import com.parishod.watomatic.model.preferences.PreferencesManager
+import com.parishod.watomagic.R
+import com.parishod.watomagic.model.data.ContactHolder
+import com.parishod.watomagic.model.preferences.PreferencesManager
 
 class ContactsHelper(private val mContext: Context) {
     private val prefs: PreferencesManager = PreferencesManager.getPreferencesInstance(mContext)

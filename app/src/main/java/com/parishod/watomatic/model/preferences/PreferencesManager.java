@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.preferences;
+package com.parishod.watomagic.model.preferences;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,10 +11,10 @@ import androidx.security.crypto.MasterKeys;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.parishod.watomatic.R;
-import com.parishod.watomatic.model.App;
-import com.parishod.watomatic.model.utils.AppUtils;
-import com.parishod.watomatic.model.utils.Constants;
+import com.parishod.watomagic.R;
+import com.parishod.watomagic.model.App;
+import com.parishod.watomagic.model.utils.AppUtils;
+import com.parishod.watomagic.model.utils.Constants;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -34,7 +34,7 @@ public class PreferencesManager {
     private final String KEY_GROUP_REPLY_ENABLED = "pref_group_reply_enabled";
     private final String KEY_AUTO_REPLY_THROTTLE_TIME_MS = "pref_auto_reply_throttle_time_ms";
     private final String KEY_SELECTED_APPS_ARR = "pref_selected_apps_arr";
-    private final String KEY_IS_APPEND_WATOMATIC_ATTRIBUTION = "pref_is_append_watomatic_attribution";
+    private final String KEY_IS_APPEND_watomagic_ATTRIBUTION = "pref_is_append_watomagic_attribution";
     private final String KEY_GITHUB_RELEASE_NOTES_ID = "pref_github_release_notes_id";
     private final String KEY_PURGE_MESSAGE_LOGS_LAST_TIME = "pref_purge_message_logs_last_time";
     private final String KEY_PLAY_STORE_RATING_STATUS = "pref_play_store_rating_status";
@@ -70,7 +70,7 @@ public class PreferencesManager {
 
             // Corrected order: fileName, masterKeyAlias, context, scheme, scheme
             _encryptedSharedPrefs = EncryptedSharedPreferences.create(
-                "watomatic_secure_prefs", // File name (String)
+                "watomagic_secure_prefs", // File name (String)
                 masterKeyAlias,           // Master Key Alias (String)
                 context,                  // Context
                 EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
@@ -112,9 +112,9 @@ public class PreferencesManager {
         }
 
         if (isFirstInstall(thisAppContext)) {
-            // Set Append Watomatic attribution checked for new installs
-            if (!_sharedPrefs.contains(KEY_IS_APPEND_WATOMATIC_ATTRIBUTION)) {
-                setAppendWatomaticAttribution(true);
+            // Set Append watomagic attribution checked for new installs
+            if (!_sharedPrefs.contains(KEY_IS_APPEND_watomagic_ATTRIBUTION)) {
+                setAppendwatomagicAttribution(true);
             }
         } else {
             //If it's first install, language preference is not set, so we don't have to worry
@@ -220,14 +220,14 @@ public class PreferencesManager {
         return serializeAndSetEnabledPackageList(enabledPackages);
     }
 
-    public void setAppendWatomaticAttribution(boolean enabled) {
+    public void setAppendwatomagicAttribution(boolean enabled) {
         SharedPreferences.Editor editor = _sharedPrefs.edit();
-        editor.putBoolean(KEY_IS_APPEND_WATOMATIC_ATTRIBUTION, enabled);
+        editor.putBoolean(KEY_IS_APPEND_watomagic_ATTRIBUTION, enabled);
         editor.apply();
     }
 
-    public boolean isAppendWatomaticAttributionEnabled() {
-        return _sharedPrefs.getBoolean(KEY_IS_APPEND_WATOMATIC_ATTRIBUTION, false);
+    public boolean isAppendwatomagicAttributionEnabled() {
+        return _sharedPrefs.getBoolean(KEY_IS_APPEND_watomagic_ATTRIBUTION, false);
     }
 
     /**

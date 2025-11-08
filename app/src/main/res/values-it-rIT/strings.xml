@@ -35,8 +35,8 @@
     <string name="save">Salva</string>
     <string name="tip_view_messages_from_fellow_users">🦩 <u>Visualizza i modelli della community e condividi anche il tuo ➚</u></string>
     <string name="share">Condividi</string>
-    <string name="watomatic_subreddit_label"><u>Discutiamo\nr/watomatic</u></string>
-    <string name="watomatic_whatsnew_label">Cosa c\'è di nuovo?</string>
+    <string name="watomagic_subreddit_label"><u>Discutiamo\nr/watomagic</u></string>
+    <string name="watomagic_whatsnew_label">Cosa c\'è di nuovo?</string>
     <!-- Share debug logs -->
     <!-- keys and app internal strings -->
     <!-- app settings -->

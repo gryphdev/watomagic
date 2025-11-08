@@ -1,4 +1,4 @@
-package com.parishod.watomatic.fragment;
+package com.parishod.watomagic.fragment;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -10,12 +10,12 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreference;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.parishod.watomatic.BuildConfig;
-import com.parishod.watomatic.R;
-import com.parishod.watomatic.model.preferences.PreferencesManager;
-import com.parishod.watomatic.flavor.FlavorNavigator;
-import com.parishod.watomatic.model.utils.AutoStartHelper;
-import com.parishod.watomatic.model.utils.ServieUtils;
+import com.parishod.watomagic.BuildConfig;
+import com.parishod.watomagic.R;
+import com.parishod.watomagic.model.preferences.PreferencesManager;
+import com.parishod.watomagic.flavor.FlavorNavigator;
+import com.parishod.watomagic.model.utils.AutoStartHelper;
+import com.parishod.watomagic.model.utils.ServieUtils;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 

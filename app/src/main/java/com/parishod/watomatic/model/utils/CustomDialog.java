@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.utils;
+package com.parishod.watomagic.model.utils;
 
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -18,8 +18,8 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import com.parishod.watomatic.R;
-import com.parishod.watomatic.model.preferences.PreferencesManager;
+import com.parishod.watomagic.R;
+import com.parishod.watomagic.model.preferences.PreferencesManager;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -212,7 +212,7 @@ public class CustomDialog {
             List<ResolveInfo> list = mContext.getPackageManager()
                     .queryIntentActivities(intent, 0);
             List<ResolveInfo> possibleBrowserIntents = mContext.getPackageManager()
-                    .queryIntentActivities(new Intent(ACTION_VIEW, Uri.parse("http://www.deekshith.in/")), 0);
+                    .queryIntentActivities(new Intent(ACTION_VIEW, Uri.parse("")), 0);
             Set<String> excludeIntents = new HashSet<>();
             for (ResolveInfo eachPossibleBrowserIntent : possibleBrowserIntents) {
                 excludeIntents.add(eachPossibleBrowserIntent.activityInfo.name);

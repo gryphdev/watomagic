@@ -1,9 +1,9 @@
-package com.parishod.watomatic.flavor
+package com.parishod.watomagic.flavor
 
 import android.app.Activity
 import android.content.Intent
-import com.parishod.watomatic.activity.login.LoginActivity
-import com.parishod.watomatic.model.preferences.PreferencesManager
+import com.parishod.watomagic.activity.login.LoginActivity
+import com.parishod.watomagic.model.preferences.PreferencesManager
 
 object FlavorNavigator {
     /**

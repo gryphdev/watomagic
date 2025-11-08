@@ -1,4 +1,4 @@
-package com.parishod.watomatic.fragment;
+package com.parishod.watomagic.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,9 +6,9 @@ import android.os.Bundle;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
 
-import com.parishod.watomatic.R;
-import com.parishod.watomatic.activity.main.MainActivity;
-import com.parishod.watomatic.model.preferences.PreferencesManager;
+import com.parishod.watomagic.R;
+import com.parishod.watomagic.activity.main.MainActivity;
+import com.parishod.watomagic.model.preferences.PreferencesManager;
 
 public class GeneralSettingsFragment extends PreferenceFragmentCompat {
 

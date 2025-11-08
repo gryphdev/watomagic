@@ -1,4 +1,4 @@
-package com.parishod.watomatic.fragment
+package com.parishod.watomagic.fragment
 
 import android.app.AlertDialog
 import android.os.Build
@@ -14,12 +14,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import com.parishod.watomatic.R
-import com.parishod.watomatic.databinding.FragmentContactSelectorBinding
-import com.parishod.watomatic.model.adapters.ContactListAdapter
-import com.parishod.watomatic.model.data.ContactHolder
-import com.parishod.watomatic.model.preferences.PreferencesManager
-import com.parishod.watomatic.model.utils.ContactsHelper
+import com.parishod.watomagic.R
+import com.parishod.watomagic.databinding.FragmentContactSelectorBinding
+import com.parishod.watomagic.model.adapters.ContactListAdapter
+import com.parishod.watomagic.model.data.ContactHolder
+import com.parishod.watomagic.model.preferences.PreferencesManager
+import com.parishod.watomagic.model.utils.ContactsHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

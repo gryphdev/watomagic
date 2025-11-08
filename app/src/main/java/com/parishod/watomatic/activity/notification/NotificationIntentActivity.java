@@ -1,13 +1,13 @@
-package com.parishod.watomatic.activity.notification;
+package com.parishod.watomagic.activity.notification;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
-import com.parishod.watomatic.R;
-import com.parishod.watomatic.activity.BaseActivity;
-import com.parishod.watomatic.activity.main.MainActivity;
-import com.parishod.watomatic.model.utils.NotificationHelper;
+import com.parishod.watomagic.R;
+import com.parishod.watomagic.activity.BaseActivity;
+import com.parishod.watomagic.activity.main.MainActivity;
+import com.parishod.watomagic.model.utils.NotificationHelper;
 
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;

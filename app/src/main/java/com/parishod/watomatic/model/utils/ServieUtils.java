@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.utils;
+package com.parishod.watomagic.model.utils;
 
 import android.app.ActivityManager;
 import android.content.Context;

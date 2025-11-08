@@ -1,7 +1,7 @@
-package com.parishod.watomatic.network;
+package com.parishod.watomagic.network;
 
-import com.parishod.watomatic.BuildConfig;
-import com.parishod.watomatic.network.model.openai.OpenAIErrorResponse;
+import com.parishod.watomagic.BuildConfig;
+import com.parishod.watomagic.network.model.openai.OpenAIErrorResponse;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="about">À propos de Watomatic</string>
+    <string name="about">À propos de watomagic</string>
     <string name="settings">Paramètres</string>
     <string name="privacy_policy_label">Politique de confidentialité</string>
     <string name="service_name">Nom du service</string>
@@ -35,7 +35,7 @@
     <string name="save">sauvegarder</string>
     <string name="tip_view_messages_from_fellow_users">🦩 <u>Voir les messages proposés par les autres utilisateurs ➚</u></string>
     <string name="share">Partager</string>
-    <string name="watomatic_subreddit_label"><u>Parlons de\nr/watomatic</u></string>
+    <string name="watomagic_subreddit_label"><u>Parlons de\nr/watomagic</u></string>
     <!-- Share debug logs -->
     <!-- keys and app internal strings -->
     <!-- app settings -->

@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model;
+package com.parishod.watomagic.model;
 
 
 import android.app.Activity;
@@ -6,8 +6,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.Editable;
 
-import com.parishod.watomatic.R;
-import com.parishod.watomatic.model.preferences.PreferencesManager;
+import com.parishod.watomagic.R;
+import com.parishod.watomagic.model.preferences.PreferencesManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -124,8 +124,8 @@ public class CustomRepliesData {
         }else {
             currentText = getOrElse(thisAppContext.getString(R.string.auto_reply_default_message));
         }
-        if (preferencesManager.isAppendWatomaticAttributionEnabled()) {
-            currentText += "\n\n" + RTL_ALIGN_INVISIBLE_CHAR + thisAppContext.getString(R.string.sent_using_Watomatic);
+        if (preferencesManager.isAppendwatomagicAttributionEnabled()) {
+            currentText += "\n\n" + RTL_ALIGN_INVISIBLE_CHAR + thisAppContext.getString(R.string.sent_using_watomagic);
         }
         return currentText;
     }

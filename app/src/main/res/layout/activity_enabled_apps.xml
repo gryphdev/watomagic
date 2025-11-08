@@ -7,7 +7,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/main_frame_layout"
-        android:name="com.parishod.watomatic.fragment.EnabledAppsFragment"
+        android:name="com.parishod.watomagic.fragment.EnabledAppsFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"

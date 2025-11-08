@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.data;
+package com.parishod.watomagic.model.data;
 
 public class ContactHolder {
     private final String contactName;

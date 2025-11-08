@@ -36,8 +36,8 @@
     <string name="save">Kaydet</string>
     <string name="tip_view_messages_from_fellow_users">🦩 <u> Topluluktaki şablonları görüntüleyin ve sizinkini de paylaşın ➚ </u></string>
     <string name="share">Paylaş</string>
-    <string name="watomatic_subreddit_label"><u>Haydi tartışalım\nr/watomatic</u></string>
-    <string name="watomatic_whatsnew_label">Neler Yeni?</string>
+    <string name="watomagic_subreddit_label"><u>Haydi tartışalım\nr/watomagic</u></string>
+    <string name="watomagic_whatsnew_label">Neler Yeni?</string>
     <!-- Share debug logs -->
     <!-- keys and app internal strings -->
     <!-- app settings -->
@@ -49,8 +49,8 @@
     <string name="add_attribution_label">Atıf Ekle</string>
     <string name="enabled_apps_title">Etkin Uygulamalar</string>
     <string name="always_on_notification">Her zaman açık bildirimi</string>
-    <string name="display_persistent_notification_summary">Watomatic\'in sistem tarafından durdurulmadığından emin olmak için kalıcı bir bildirim görüntüleyin</string>
-    <string name="enable_auto_start_summary">Bazı cihazlarda, cihaz ayarlarından Watomatic için Otomatik başlatmayı manuel olarak etkinleştirmeniz gerekebilir</string>
+    <string name="display_persistent_notification_summary">watomagic\'in sistem tarafından durdurulmadığından emin olmak için kalıcı bir bildirim görüntüleyin</string>
+    <string name="enable_auto_start_summary">Bazı cihazlarda, cihaz ayarlarından watomagic için Otomatik başlatmayı manuel olarak etkinleştirmeniz gerekebilir</string>
     <!-- Local language names (non translatable) -->
     <!-- Basque -->
     <!-- Language codes (non translatable) -->
@@ -72,7 +72,7 @@
     <!--Autostart Permission Dialog-->
     <string name="auto_start_permission_dialog_title">Otomatik Başlatma İzni</string>
     <string name="running_in_the_background">Arka planda çalıştır</string>
-    <string name="auto_start_permission_dialog_message">Watomatic\'in cihaz yeniden başlatıldığında başlamasına izin vermek için cihaz ayarlarında \"Otomatik Başlatma\" iznini etkinleştirin.</string>
+    <string name="auto_start_permission_dialog_message">watomagic\'in cihaz yeniden başlatıldığında başlamasına izin vermek için cihaz ayarlarında \"Otomatik Başlatma\" iznini etkinleştirin.</string>
     <string name="device_based_settings_message">Not: Ayarlar cihazınıza göre değişebilir veya kullanılamayabilir</string>
     <string name="setting_not_available_for_device">Bu ayar cihazınız için mevcut değil veya gerekli olmayabilir.</string>
     <string name="enable_auto_start_setting">Devam Et</string>
