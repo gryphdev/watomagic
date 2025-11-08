@@ -43,7 +43,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="watomatic" android:host="auto-reply" />
+                <data android:scheme="watomagic" android:host="auto-reply" />
             </intent-filter>
         </activity>
         <activity

@@ -1,4 +1,4 @@
-package com.parishod.watomatic.network;
+package com.parishod.watomagic.network;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

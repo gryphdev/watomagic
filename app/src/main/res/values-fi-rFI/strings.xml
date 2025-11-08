@@ -36,8 +36,8 @@
     <string name="save">Tallenna</string>
     <string name="tip_view_messages_from_fellow_users">🦩 <u>Näytä yhteisön mallipohjat ja jaa omasi muiden saataville ➚</u></string>
     <string name="share">Jaa</string>
-    <string name="watomatic_subreddit_label"><u>Keskustele\nr/watomaticista</u></string>
-    <string name="watomatic_whatsnew_label">Mitä uutta?</string>
+    <string name="watomagic_subreddit_label"><u>Keskustele\nr/watomagicista</u></string>
+    <string name="watomagic_whatsnew_label">Mitä uutta?</string>
     <!-- Share debug logs -->
     <!-- keys and app internal strings -->
     <!-- app settings -->
@@ -49,8 +49,8 @@
     <string name="add_attribution_label">Lisää määrite</string>
     <string name="enabled_apps_title">Sallitut sovellukset</string>
     <string name="always_on_notification">Ilmoitus aina päällä</string>
-    <string name="display_persistent_notification_summary">Näytä pysyvä ilmoitus varmistaaksesi, ettei järjestelmä lopeta Watomaticia</string>
-    <string name="enable_auto_start_summary">Jotkut laitteet saattavat tarvita ottamaan automattisen käynnistyksen Watomaticille manuaalisesti käyttöön laitteen asetusten kautta</string>
+    <string name="display_persistent_notification_summary">Näytä pysyvä ilmoitus varmistaaksesi, ettei järjestelmä lopeta watomagicia</string>
+    <string name="enable_auto_start_summary">Jotkut laitteet saattavat tarvita ottamaan automattisen käynnistyksen watomagicille manuaalisesti käyttöön laitteen asetusten kautta</string>
     <!-- Local language names (non translatable) -->
     <!-- Basque -->
     <!-- Language codes (non translatable) -->
@@ -73,7 +73,7 @@
     <!--Autostart Permission Dialog-->
     <string name="auto_start_permission_dialog_title">Automaattisen käynnistyksen käyttölupa</string>
     <string name="running_in_the_background">Käynnissä taustalla</string>
-    <string name="auto_start_permission_dialog_message">Salli \"automaattinen käynnistys\" -käyttöoikeus laitteen asetuksissa, jotta sallit Watomaticille käynnistyksen laitteen käynnistyessä uudelleen.</string>
+    <string name="auto_start_permission_dialog_message">Salli \"automaattinen käynnistys\" -käyttöoikeus laitteen asetuksissa, jotta sallit watomagicille käynnistyksen laitteen käynnistyessä uudelleen.</string>
     <string name="device_based_settings_message">Huomaa: Asetukset voivat vaihdella tai eivät ole saatavilla laitteesi perusteella</string>
     <string name="setting_not_available_for_device">Tämä asetus ei ole saatavilla tai ei saata olla tarpeellinen laitteellesi.</string>
     <string name="enable_auto_start_setting">Jatka</string>

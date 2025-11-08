@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.data
+package com.parishod.watomagic.model.data
 
 data class DonationProgressItem(var isActive: Boolean,
                                 val formattedDate: String,

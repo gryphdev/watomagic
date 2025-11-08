@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.adapters
+package com.parishod.watomagic.model.adapters
 
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
@@ -9,9 +9,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.materialswitch.MaterialSwitch
-import com.parishod.watomatic.R
-import com.parishod.watomatic.model.data.AppItem
-import com.parishod.watomatic.model.preferences.PreferencesManager
+import com.parishod.watomagic.R
+import com.parishod.watomagic.model.data.AppItem
+import com.parishod.watomagic.model.preferences.PreferencesManager
 
 class AppsAdapter(
     private val items: List<AppItem>,

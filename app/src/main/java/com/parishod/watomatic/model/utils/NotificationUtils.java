@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.utils;
+package com.parishod.watomagic.model.utils;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -13,7 +13,7 @@ import android.service.notification.StatusBarNotification;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 
-import com.parishod.watomatic.NotificationWear;
+import com.parishod.watomagic.NotificationWear;
 
 import java.util.ArrayList;
 import java.util.List;

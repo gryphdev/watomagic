@@ -1,4 +1,4 @@
-package com.parishod.watomatic.fragment
+package com.parishod.watomagic.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,11 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.parishod.watomatic.adapter.SupportedAppsAdapter
-import com.parishod.watomatic.model.App
-import com.parishod.watomatic.model.utils.Constants
+import com.parishod.watomagic.adapter.SupportedAppsAdapter
+import com.parishod.watomagic.model.App
+import com.parishod.watomagic.model.utils.Constants
 
-import com.parishod.watomatic.databinding.FragmentEnabledAppsBinding
+import com.parishod.watomagic.databinding.FragmentEnabledAppsBinding
 
 class EnabledAppsFragment : Fragment() {
 

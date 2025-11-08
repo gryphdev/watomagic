@@ -1,4 +1,4 @@
-package com.parishod.watomatic.adapter
+package com.parishod.watomagic.adapter
 
 import android.content.pm.PackageManager
 import android.graphics.ColorMatrix
@@ -10,12 +10,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
-import com.parishod.watomatic.R
-import com.parishod.watomatic.databinding.EnabledAppsGridItemBinding
-import com.parishod.watomatic.databinding.SupportedAppsListBinding
-import com.parishod.watomatic.model.App
-import com.parishod.watomatic.model.preferences.PreferencesManager
-import com.parishod.watomatic.model.utils.Constants
+import com.parishod.watomagic.R
+import com.parishod.watomagic.databinding.EnabledAppsGridItemBinding
+import com.parishod.watomagic.databinding.SupportedAppsListBinding
+import com.parishod.watomagic.model.App
+import com.parishod.watomagic.model.preferences.PreferencesManager
+import com.parishod.watomagic.model.utils.Constants
 
 
 class SupportedAppsAdapter(private val listType: Constants.EnabledAppsDisplayType, private var supportedAppsList: List<App>, private var onClickListener: View.OnClickListener?) : RecyclerView.Adapter<SupportedAppsAdapter.AppsViewHolder>() {

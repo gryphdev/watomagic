@@ -1,8 +1,8 @@
-package com.parishod.watomatic.network;
+package com.parishod.watomagic.network;
 
-import com.parishod.watomatic.network.model.openai.OpenAIRequest;
-import com.parishod.watomatic.network.model.openai.OpenAIResponse;
-import com.parishod.watomatic.network.model.openai.OpenAIModelsResponse; // Added import
+import com.parishod.watomagic.network.model.openai.OpenAIRequest;
+import com.parishod.watomagic.network.model.openai.OpenAIResponse;
+import com.parishod.watomagic.network.model.openai.OpenAIModelsResponse; // Added import
 
 import retrofit2.Call;
 import retrofit2.http.Body;

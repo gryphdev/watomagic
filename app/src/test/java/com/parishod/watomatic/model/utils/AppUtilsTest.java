@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.utils;
+package com.parishod.watomagic.model.utils;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

@@ -36,9 +36,9 @@
     <string name="save">حفظ</string>
     <string name="tip_view_messages_from_fellow_users">🦩 <u>➚ عرض القوالب من المجتمع ومشاركة قالبك أيضا </u></string>
     <string name="share">مشاركة</string>
-    <string name="watomatic_community_label"><u>المجتمع</u></string>
-    <string name="watomatic_subreddit_label"><u>دعونا نتناقش\nr/watomatic</u></string>
-    <string name="watomatic_whatsnew_label">ما الجديد؟</string>
+    <string name="watomagic_community_label"><u>المجتمع</u></string>
+    <string name="watomagic_subreddit_label"><u>دعونا نتناقش\nr/watomagic</u></string>
+    <string name="watomagic_whatsnew_label">ما الجديد؟</string>
     <!-- Share debug logs -->
     <!-- keys and app internal strings -->
     <!-- app settings -->

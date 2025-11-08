@@ -1,4 +1,4 @@
-package com.parishod.watomatic.fragment
+package com.parishod.watomagic.fragment
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -10,19 +10,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.parishod.watomatic.R
-import com.parishod.watomatic.model.adapters.DonationsAdapter
-import com.parishod.watomatic.model.data.DonationProgressItem
-import com.parishod.watomatic.model.utils.Constants
-import com.parishod.watomatic.network.GetDonationsProgressService
-import com.parishod.watomatic.network.RetrofitInstance
+import com.parishod.watomagic.R
+import com.parishod.watomagic.model.adapters.DonationsAdapter
+import com.parishod.watomagic.model.data.DonationProgressItem
+import com.parishod.watomagic.model.utils.Constants
+import com.parishod.watomagic.network.GetDonationsProgressService
+import com.parishod.watomagic.network.RetrofitInstance
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import com.parishod.watomatic.databinding.FragmentDonationsBinding
+import com.parishod.watomagic.databinding.FragmentDonationsBinding
 
 class DonationFragment : Fragment() {
-    private val url = "https://health.watomatic.app/data/donations.txt"
+    private val url = "https://health.watomagic.app/data/donations.txt"
     private var _binding: FragmentDonationsBinding? = null
     private val binding get() = _binding!!
 

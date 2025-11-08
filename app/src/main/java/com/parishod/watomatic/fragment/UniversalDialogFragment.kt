@@ -1,4 +1,4 @@
-package com.parishod.watomatic.fragment
+package com.parishod.watomagic.fragment
 
 import android.app.Dialog
 import android.content.Context
@@ -10,7 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.parishod.watomatic.utils.ThemeUtils
+import com.parishod.watomagic.utils.ThemeUtils
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,16 +18,16 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.parishod.watomatic.R
-import com.parishod.watomatic.model.adapters.AppsAdapter
-import com.parishod.watomatic.model.adapters.CooldownAdapter
-import com.parishod.watomatic.model.adapters.MessageTypeAdapter
-import com.parishod.watomatic.model.data.AppItem
-import com.parishod.watomatic.model.data.CooldownItem
-import com.parishod.watomatic.model.data.DialogConfig
-import com.parishod.watomatic.model.data.MessageTypeItem
-import com.parishod.watomatic.model.enums.DialogType
-import com.parishod.watomatic.model.interfaces.DialogActionListener
+import com.parishod.watomagic.R
+import com.parishod.watomagic.model.adapters.AppsAdapter
+import com.parishod.watomagic.model.adapters.CooldownAdapter
+import com.parishod.watomagic.model.adapters.MessageTypeAdapter
+import com.parishod.watomagic.model.data.AppItem
+import com.parishod.watomagic.model.data.CooldownItem
+import com.parishod.watomagic.model.data.DialogConfig
+import com.parishod.watomagic.model.data.MessageTypeItem
+import com.parishod.watomagic.model.enums.DialogType
+import com.parishod.watomagic.model.interfaces.DialogActionListener
 
 class UniversalDialogFragment(val mContext: Context) : DialogFragment() {
 

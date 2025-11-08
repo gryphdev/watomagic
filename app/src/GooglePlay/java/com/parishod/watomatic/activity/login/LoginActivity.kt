@@ -1,4 +1,4 @@
-package com.parishod.watomatic.activity.login
+package com.parishod.watomagic.activity.login
 
 import android.app.AlertDialog
 import android.content.Intent
@@ -21,11 +21,11 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.parishod.watomatic.R
-import com.parishod.watomatic.activity.BaseActivity
-import com.parishod.watomatic.activity.main.MainActivity
-import com.parishod.watomatic.databinding.ActivityLoginBinding
-import com.parishod.watomatic.model.preferences.PreferencesManager
+import com.parishod.watomagic.R
+import com.parishod.watomagic.activity.BaseActivity
+import com.parishod.watomagic.activity.main.MainActivity
+import com.parishod.watomagic.databinding.ActivityLoginBinding
+import com.parishod.watomagic.model.preferences.PreferencesManager
 
 class LoginActivity : BaseActivity() {
     private lateinit var binding: ActivityLoginBinding
