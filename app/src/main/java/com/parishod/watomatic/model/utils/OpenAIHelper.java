@@ -1,14 +1,14 @@
-package com.parishod.watomatic.model.utils;
+package com.parishod.watomagic.model.utils;
 
 import android.content.Context;
 import android.util.Log;
 
-import com.parishod.watomatic.model.preferences.PreferencesManager;
-import com.parishod.watomatic.network.OpenAIService;
-import com.parishod.watomatic.network.RetrofitInstance;
-import com.parishod.watomatic.network.model.openai.ModelData;
-import com.parishod.watomatic.network.model.openai.OpenAIErrorResponse; // Added import
-import com.parishod.watomatic.network.model.openai.OpenAIModelsResponse;
+import com.parishod.watomagic.model.preferences.PreferencesManager;
+import com.parishod.watomagic.network.OpenAIService;
+import com.parishod.watomagic.network.RetrofitInstance;
+import com.parishod.watomagic.network.model.openai.ModelData;
+import com.parishod.watomagic.network.model.openai.OpenAIErrorResponse; // Added import
+import com.parishod.watomagic.network.model.openai.OpenAIModelsResponse;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.adapters
+package com.parishod.watomagic.model.adapters
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import android.widget.NumberPicker
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButtonToggleGroup
-import com.parishod.watomatic.R
-import com.parishod.watomatic.model.data.CooldownItem
+import com.parishod.watomagic.R
+import com.parishod.watomagic.model.data.CooldownItem
 
 class CooldownAdapter(
     private val items: List<CooldownItem>,

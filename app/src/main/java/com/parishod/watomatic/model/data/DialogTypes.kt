@@ -1,6 +1,6 @@
-package com.parishod.watomatic.model.data
+package com.parishod.watomagic.model.data
 
-import com.parishod.watomatic.model.interfaces.DialogItem
+import com.parishod.watomagic.model.interfaces.DialogItem
 import kotlinx.parcelize.Parcelize
 
 @Parcelize

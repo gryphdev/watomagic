@@ -1,4 +1,4 @@
-package com.parishod.watomatic.activity.settings
+package com.parishod.watomagic.activity.settings
 
 import android.os.Bundle
 import android.view.MenuItem
@@ -8,11 +8,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
-import com.parishod.watomatic.R
-import com.parishod.watomatic.activity.BaseActivity
-import com.parishod.watomatic.fragment.GeneralSettingsFragment
-import com.parishod.watomatic.fragment.SettingsFragment
-import com.parishod.watomatic.viewmodel.SwipeToKillAppDetectViewModel
+import com.parishod.watomagic.R
+import com.parishod.watomagic.activity.BaseActivity
+import com.parishod.watomagic.fragment.GeneralSettingsFragment
+import com.parishod.watomagic.fragment.SettingsFragment
+import com.parishod.watomagic.viewmodel.SwipeToKillAppDetectViewModel
 
 class SettingsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 }
 
 include(":app")
-rootProject.name = "Watomatic"
+rootProject.name = "Watomagic"

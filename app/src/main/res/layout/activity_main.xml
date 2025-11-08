@@ -12,7 +12,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/main_frame_layout"
-        android:name="com.parishod.watomatic.fragment.MainFragment"
+        android:name="com.parishod.watomagic.fragment.MainFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -21,7 +21,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/branding_frame_layout"
-        android:name="com.parishod.watomatic.fragment.BrandingFragment"
+        android:name="com.parishod.watomagic.fragment.BrandingFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"

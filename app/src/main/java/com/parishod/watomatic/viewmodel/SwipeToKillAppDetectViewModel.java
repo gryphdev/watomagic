@@ -1,4 +1,4 @@
-package com.parishod.watomatic.viewmodel;
+package com.parishod.watomagic.viewmodel;
 
 import android.app.Application;
 import android.content.Context;
@@ -9,8 +9,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
-import com.parishod.watomatic.model.preferences.PreferencesManager;
-import com.parishod.watomatic.receivers.NotificationServiceRestartReceiver;
+import com.parishod.watomagic.model.preferences.PreferencesManager;
+import com.parishod.watomagic.receivers.NotificationServiceRestartReceiver;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +37,7 @@ public class SwipeToKillAppDetectViewModel extends AndroidViewModel {
             Log.d("DEBUG", "viewmodel tryReconnectService");
             //Send broadcast to restart service
             Intent broadcastIntent = new Intent(context, NotificationServiceRestartReceiver.class);
-            broadcastIntent.setAction("Watomatic-RestartService-Broadcast");
+            broadcastIntent.setAction("watomagic-RestartService-Broadcast");
             context.sendBroadcast(broadcastIntent);
         }
     }

@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.utils;
+package com.parishod.watomagic.model.utils;
 
 import android.content.Context;
 import android.content.res.Configuration;

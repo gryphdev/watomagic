@@ -1,12 +1,12 @@
-package com.parishod.watomatic.model.utils;
+package com.parishod.watomagic.model.utils;
 
 import android.content.Context;
 import android.service.notification.StatusBarNotification;
 
-import com.parishod.watomatic.model.CustomRepliesData;
-import com.parishod.watomatic.model.logs.AppPackage;
-import com.parishod.watomatic.model.logs.MessageLog;
-import com.parishod.watomatic.model.logs.MessageLogsDB;
+import com.parishod.watomagic.model.CustomRepliesData;
+import com.parishod.watomagic.model.logs.AppPackage;
+import com.parishod.watomagic.model.logs.MessageLog;
+import com.parishod.watomagic.model.logs.MessageLogsDB;
 
 public class DbUtils {
     private final Context mContext;

@@ -1,18 +1,18 @@
-package com.parishod.watomatic.activity.main
+package com.parishod.watomagic.activity.main
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
-import com.parishod.watomatic.R
-import com.parishod.watomatic.activity.BaseActivity
-import com.parishod.watomatic.flavor.FlavorNavigator
-import com.parishod.watomatic.model.preferences.PreferencesManager
-import com.parishod.watomatic.viewmodel.SwipeToKillAppDetectViewModel
+import com.parishod.watomagic.R
+import com.parishod.watomagic.activity.BaseActivity
+import com.parishod.watomagic.flavor.FlavorNavigator
+import com.parishod.watomagic.model.preferences.PreferencesManager
+import com.parishod.watomagic.viewmodel.SwipeToKillAppDetectViewModel
 
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import com.parishod.watomatic.service.NlsHealthCheckWorker
+import com.parishod.watomagic.service.NlsHealthCheckWorker
 
 class MainActivity : BaseActivity() {
     private lateinit var viewModel: SwipeToKillAppDetectViewModel

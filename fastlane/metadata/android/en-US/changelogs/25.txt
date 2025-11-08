@@ -1,5 +1,5 @@
-* New feature to exclude or include auto reply based on contacts Hèctor Godoy (#316, #325, #326)
-* New feature to enable persistent notification to prevent app being put to sleep by SP Uday Kumar (#319)
+* New feature to exclude or include auto reply based Hèctor Godoy (#316, #325, #326)
+* New feature to enable persistent notification to prevent app being put to sleep by SP Uday Kumar
 * Translations:
   * Polish translations by Patryk Prawda
   * Spanish and Catalan translations by Benet R. i Camps

@@ -1,13 +1,13 @@
-package com.parishod.watomatic.activity.contactselector
+package com.parishod.watomagic.activity.contactselector
 
 import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
-import com.parishod.watomatic.R
-import com.parishod.watomatic.activity.BaseActivity
-import com.parishod.watomatic.databinding.ActivityContactSelectorBinding
-import com.parishod.watomatic.fragment.ContactSelectorFragment
-import com.parishod.watomatic.model.utils.ContactsHelper
-import com.parishod.watomatic.viewmodel.SwipeToKillAppDetectViewModel
+import com.parishod.watomagic.R
+import com.parishod.watomagic.activity.BaseActivity
+import com.parishod.watomagic.databinding.ActivityContactSelectorBinding
+import com.parishod.watomagic.fragment.ContactSelectorFragment
+import com.parishod.watomagic.model.utils.ContactsHelper
+import com.parishod.watomagic.viewmodel.SwipeToKillAppDetectViewModel
 
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat

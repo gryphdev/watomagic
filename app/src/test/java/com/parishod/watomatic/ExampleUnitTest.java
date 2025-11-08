@@ -1,4 +1,4 @@
-package com.parishod.watomatic;
+package com.parishod.watomagic;
 
 import org.junit.Test;
 

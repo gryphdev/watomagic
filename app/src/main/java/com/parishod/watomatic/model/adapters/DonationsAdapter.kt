@@ -1,6 +1,6 @@
-package com.parishod.watomatic.model.adapters
+package com.parishod.watomagic.model.adapters
 
-import com.parishod.watomatic.model.data.DonationProgressItem
+import com.parishod.watomagic.model.data.DonationProgressItem
 import com.transferwise.sequencelayout.SequenceAdapter
 import com.transferwise.sequencelayout.SequenceStep
 

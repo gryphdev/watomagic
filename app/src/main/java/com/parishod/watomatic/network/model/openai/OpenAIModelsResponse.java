@@ -1,4 +1,4 @@
-package com.parishod.watomatic.network.model.openai;
+package com.parishod.watomagic.network.model.openai;
 
 import java.util.List;
 import com.google.gson.annotations.SerializedName;

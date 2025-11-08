@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.utils;
+package com.parishod.watomagic.model.utils;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,7 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.parishod.watomatic.R;
+import com.parishod.watomagic.R;
 
 import java.util.List;
 import java.util.Locale;

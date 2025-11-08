@@ -1,6 +1,6 @@
-package com.parishod.watomatic.model.interfaces
+package com.parishod.watomagic.model.interfaces
 
-import com.parishod.watomatic.model.enums.DialogType
+import com.parishod.watomagic.model.enums.DialogType
 
 interface DialogActionListener {
     fun onSaveClicked(dialogType: DialogType)

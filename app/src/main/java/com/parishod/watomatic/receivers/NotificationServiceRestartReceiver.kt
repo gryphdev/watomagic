@@ -1,4 +1,4 @@
-package com.parishod.watomatic.receivers
+package com.parishod.watomagic.receivers
 
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import android.util.Log
-import com.parishod.watomatic.service.NotificationService
+import com.parishod.watomagic.service.NotificationService
 
 class NotificationServiceRestartReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {

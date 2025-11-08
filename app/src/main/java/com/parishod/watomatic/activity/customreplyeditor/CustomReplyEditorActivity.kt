@@ -1,4 +1,4 @@
-package com.parishod.watomatic.activity.customreplyeditor
+package com.parishod.watomagic.activity.customreplyeditor
 
 import android.content.Intent
 import android.net.Uri
@@ -8,11 +8,11 @@ import android.text.TextWatcher
 import android.widget.Button
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.TextInputEditText
-import com.parishod.watomatic.R
-import com.parishod.watomatic.activity.BaseActivity
-import com.parishod.watomatic.model.CustomRepliesData
-import com.parishod.watomatic.model.preferences.PreferencesManager
-import com.parishod.watomatic.viewmodel.SwipeToKillAppDetectViewModel
+import com.parishod.watomagic.R
+import com.parishod.watomagic.activity.BaseActivity
+import com.parishod.watomagic.model.CustomRepliesData
+import com.parishod.watomagic.model.preferences.PreferencesManager
+import com.parishod.watomagic.viewmodel.SwipeToKillAppDetectViewModel
 import android.widget.CheckBox
 import android.widget.Spinner
 import android.widget.ArrayAdapter
@@ -24,8 +24,8 @@ import com.google.android.material.appbar.MaterialToolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import com.parishod.watomatic.model.utils.OpenAIHelper
-import com.parishod.watomatic.network.model.openai.ModelData
+import com.parishod.watomagic.model.utils.OpenAIHelper
+import com.parishod.watomagic.network.model.openai.ModelData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.app.AlertDialog
@@ -120,7 +120,7 @@ class CustomReplyEditorActivity : BaseActivity() {
         }
 
         watoMessageLinkBtn?.setOnClickListener {
-            val url = getString(R.string.watomatic_wato_message_url)
+            val url = getString(R.string.watomagic_wato_message_url)
             startActivity(
                 Intent(Intent.ACTION_VIEW).setData(Uri.parse(url))
             )

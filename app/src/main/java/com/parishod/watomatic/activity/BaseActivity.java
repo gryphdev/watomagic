@@ -1,12 +1,12 @@
-package com.parishod.watomatic.activity;
+package com.parishod.watomagic.activity;
 
 import android.content.Context;
 import android.os.Build;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.parishod.watomatic.model.preferences.PreferencesManager;
-import com.parishod.watomatic.model.utils.ContextWrapper;
+import com.parishod.watomagic.model.preferences.PreferencesManager;
+import com.parishod.watomagic.model.utils.ContextWrapper;
 
 public class BaseActivity extends AppCompatActivity {
 

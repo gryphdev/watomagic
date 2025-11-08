@@ -1,4 +1,4 @@
-package com.parishod.watomatic.network.model.openai;
+package com.parishod.watomagic.network.model.openai;
 
 public class Message {
     private String role;

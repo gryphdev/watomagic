@@ -1,6 +1,6 @@
-package com.parishod.watomatic.model.utils
+package com.parishod.watomagic.model.utils
 
-import com.parishod.watomatic.model.App
+import com.parishod.watomagic.model.App
 
 object Constants {
     const val PERMISSION_DIALOG_TITLE = "permission_dialog_title"
@@ -9,7 +9,7 @@ object Constants {
     const val PERMISSION_DIALOG_DENIED_MSG = "permission_dialog_denied_msg"
     const val PERMISSION_DIALOG_DENIED = "permission_dialog_denied"
     const val LOGS_DB_NAME = "logs_messages_db"
-    const val NOTIFICATION_CHANNEL_ID = "watomatic"
+    const val NOTIFICATION_CHANNEL_ID = "watomagic"
     const val NOTIFICATION_CHANNEL_NAME = "Default"
     const val BITCOIN_ADDRESS = "bc1qv6zmgw845pktq9jr5qztup80qufu0yg46ur2kw"
     const val btcUrl = "https://www.blockchain.com/btc/address/";
@@ -48,7 +48,7 @@ object Constants {
     const val MIN_DAYS = 0
     const val MAX_DAYS = 30
     const val MIN_REPLIES_TO_ASK_APP_RATING = 5
-    const val EMAIL_ADDRESS = "watomatic@deekshith.in"
-    const val EMAIL_SUBJECT = "Watomatic-Feedback"
-    const val TELEGRAM_URL = "tg://resolve?domain=watomatic"
+    const val EMAIL_ADDRESS = ""
+    const val EMAIL_SUBJECT = "watomagic-Feedback"
+    const val TELEGRAM_URL = "tg://resolve?domain=watomagic"
 }

@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.utils;
+package com.parishod.watomagic.model.utils;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -11,10 +11,10 @@ import android.service.notification.StatusBarNotification;
 
 import androidx.core.app.NotificationCompat;
 
-import com.parishod.watomatic.BuildConfig;
-import com.parishod.watomatic.R;
-import com.parishod.watomatic.activity.notification.NotificationIntentActivity;
-import com.parishod.watomatic.model.App;
+import com.parishod.watomagic.BuildConfig;
+import com.parishod.watomagic.R;
+import com.parishod.watomagic.activity.notification.NotificationIntentActivity;
+import com.parishod.watomagic.model.App;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -68,7 +68,7 @@ public class NotificationHelper {
         PendingIntent pIntent = PendingIntent.getActivity(appContext, 0, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(appContext, Constants.NOTIFICATION_CHANNEL_ID)
-                .setGroup("watomatic-" + packageName)
+                .setGroup("watomagic-" + packageName)
                 .setGroupSummary(false)
                 .setSmallIcon(R.drawable.ic_logo_full)
                 .setContentTitle(title)
@@ -100,7 +100,7 @@ public class NotificationHelper {
                 appsList.put(packageName, true);
                 //Need to create one summary notification, this will help group all individual notifications
                 NotificationCompat.Builder summaryNotificationBuilder = new NotificationCompat.Builder(appContext, Constants.NOTIFICATION_CHANNEL_ID)
-                        .setGroup("watomatic-" + packageName)
+                        .setGroup("watomagic-" + packageName)
                         .setGroupSummary(true)
                         .setSmallIcon(R.drawable.ic_logo_full)
                         .setAutoCancel(true)
@@ -114,7 +114,7 @@ public class NotificationHelper {
 
     private void setNotificationSummaryShown(String packageName) {
         if (packageName != null) {
-            packageName = packageName.replace("watomatic-", "");
+            packageName = packageName.replace("watomagic-", "");
             try {
                 appsList.put(packageName, true);
             } catch (JSONException e) {
@@ -124,7 +124,7 @@ public class NotificationHelper {
     }
 
     public void markNotificationDismissed(String packageName) {
-        packageName = packageName.replace("watomatic-", "");
+        packageName = packageName.replace("watomagic-", "");
         try {
             appsList.put(packageName, false);
         } catch (JSONException e) {

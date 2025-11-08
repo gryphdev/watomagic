@@ -36,14 +36,14 @@
     <!-- Custom message editor -->
     <string name="save">Guardar</string>
     <string name="tip_view_messages_from_fellow_users">🦩 <u>Ver plantillas de la comunidad y compartir las tuyas tambien ➚</u></string>
-    <string name="append_watomatic_arribution_checkbox_label">Permitir a Atomatic difundir su mensaje</string>
-    <string name="sent_using_Watomatic">Enviado usando atomatic.app</string>
-    <string name="share_app_text">Utilizo Atomatic para desintoxicarme de aplicaciones de mensajería. Pruébalo en: watomatic.app</string>
+    <string name="append_watomagic_arribution_checkbox_label">Permitir a Atomatic difundir su mensaje</string>
+    <string name="sent_using_watomagic">Enviado usando atomatic.app</string>
+    <string name="share_app_text">Utilizo Atomatic para desintoxicarme de aplicaciones de mensajería. Pruébalo en: watomagic.app</string>
     <string name="share">Compartir</string>
     <string name="share_subject">Atomatic: Respuesta automática en aplicaciones de mensajería</string>
-    <string name="watomatic_community_label"><u>Comunidad</u></string>
-    <string name="watomatic_subreddit_label"><u>Discutamos en\nr/watomatic</u></string>
-    <string name="watomatic_whatsnew_label">Qué hay de nuevo?</string>
+    <string name="watomagic_community_label"><u>Comunidad</u></string>
+    <string name="watomagic_subreddit_label"><u>Discutamos en\nr/watomagic</u></string>
+    <string name="watomagic_whatsnew_label">Qué hay de nuevo?</string>
     <!-- Share debug logs -->
     <!-- keys and app internal strings -->
     <!-- app settings -->
@@ -55,8 +55,8 @@
     <string name="add_attribution_label">Añadir Atribución</string>
     <string name="enabled_apps_title">Aplicaciones habilitadas</string>
     <string name="always_on_notification">Notificación siempre activa</string>
-    <string name="display_persistent_notification_summary">Crea una notificación persistente para evitar que el sistema finalice el Watomatic</string>
-    <string name="enable_auto_start_summary">Algunos dispositivos pueden necesitar habilitar manualmente el inicio automático para Watomatic desde la configuración del dispositivo</string>
+    <string name="display_persistent_notification_summary">Crea una notificación persistente para evitar que el sistema finalice el watomagic</string>
+    <string name="enable_auto_start_summary">Algunos dispositivos pueden necesitar habilitar manualmente el inicio automático para watomagic desde la configuración del dispositivo</string>
     <!-- Local language names (non translatable) -->
     <!-- Basque -->
     <!-- Language codes (non translatable) -->
@@ -79,7 +79,7 @@
     <!--Autostart Permission Dialog-->
     <string name="auto_start_permission_dialog_title">Permiso de inicio automático</string>
     <string name="running_in_the_background">Ejecución en segundo plano</string>
-    <string name="auto_start_permission_dialog_message">Activa el permiso de \"Inicio automático\" en la configuración del dispositivo para permitir que Watomatic se inicie al reiniciar el dispositivo.</string>
+    <string name="auto_start_permission_dialog_message">Activa el permiso de \"Inicio automático\" en la configuración del dispositivo para permitir que watomagic se inicie al reiniciar el dispositivo.</string>
     <string name="device_based_settings_message">Nota: la configuración puede variar o no estar disponible para este dispositivo</string>
     <string name="setting_not_available_for_device">Esta configuración no está disponible o no es necesaria para este dispositivo.</string>
     <string name="enable_auto_start_setting">Continuar</string>

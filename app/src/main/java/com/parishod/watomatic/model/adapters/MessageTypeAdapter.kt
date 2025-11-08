@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.adapters
+package com.parishod.watomagic.model.adapters
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.radiobutton.MaterialRadioButton
-import com.parishod.watomatic.R
-import com.parishod.watomatic.model.data.MessageTypeItem
+import com.parishod.watomagic.R
+import com.parishod.watomagic.model.data.MessageTypeItem
 
 class MessageTypeAdapter(
     private val items: List<MessageTypeItem>,

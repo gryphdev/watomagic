@@ -1,8 +1,8 @@
-package com.parishod.watomatic.activity.donation
+package com.parishod.watomagic.activity.donation
 
 import android.os.Bundle
-import com.parishod.watomatic.R
-import com.parishod.watomatic.activity.BaseActivity
+import com.parishod.watomagic.R
+import com.parishod.watomagic.activity.BaseActivity
 
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat

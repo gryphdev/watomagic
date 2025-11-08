@@ -36,8 +36,8 @@
     <string name="save">Сохранить</string>
     <string name="tip_view_messages_from_fellow_users"><u>Посмотреть шаблоны сообщений сообщества и поделиться своим ➚</u></string>
     <string name="share">Поделиться</string>
-    <string name="watomatic_subreddit_label"><u>Обсуждаем\nr/watomatic</u></string>
-    <string name="watomatic_whatsnew_label">Что нового?</string>
+    <string name="watomagic_subreddit_label"><u>Обсуждаем\nr/watomagic</u></string>
+    <string name="watomagic_whatsnew_label">Что нового?</string>
     <!-- Share debug logs -->
     <!-- keys and app internal strings -->
     <!-- app settings -->
@@ -46,8 +46,8 @@
     <string name="preference_category_troubleshooting_label">Помощь</string>
     <string name="enable_auto_start_label">Запускать при загрузке</string>
     <string name="always_on_notification">Постоянно отображаемое уведомление</string>
-    <string name="display_persistent_notification_summary">Отображать постоянное уведомление для предотвращения остановки Watomatic системой</string>
-    <string name="enable_auto_start_summary">Для некоторых устройств может потребоваться включить автоматический запуск Watomatic при загрузке в настройках устройства</string>
+    <string name="display_persistent_notification_summary">Отображать постоянное уведомление для предотвращения остановки watomagic системой</string>
+    <string name="enable_auto_start_summary">Для некоторых устройств может потребоваться включить автоматический запуск watomagic при загрузке в настройках устройства</string>
     <!-- Local language names (non translatable) -->
     <!-- Basque -->
     <!-- Language codes (non translatable) -->
@@ -70,7 +70,7 @@
     <!--Autostart Permission Dialog-->
     <string name="auto_start_permission_dialog_title">Разрешить автозапуск</string>
     <string name="running_in_the_background">Работает в фоновом режиме</string>
-    <string name="auto_start_permission_dialog_message">Включите \"Автоматический запуск\" в настройках устройства, чтобы позволить Watomatic запускаться при перезагрузке устройства.</string>
+    <string name="auto_start_permission_dialog_message">Включите \"Автоматический запуск\" в настройках устройства, чтобы позволить watomagic запускаться при перезагрузке устройства.</string>
     <string name="device_based_settings_message">Примечание: В зависимости от устройства настройки могут отличаться или отсутствовать</string>
     <string name="setting_not_available_for_device">Этот параметр недоступен либо не требуется для вашего устройства.</string>
     <string name="enable_auto_start_setting">Продолжить</string>

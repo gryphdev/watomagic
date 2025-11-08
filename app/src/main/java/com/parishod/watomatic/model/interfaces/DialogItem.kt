@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.interfaces
+package com.parishod.watomagic.model.interfaces
 
 import android.os.Parcelable
 

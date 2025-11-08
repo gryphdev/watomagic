@@ -4,5 +4,5 @@ The app does not automatically collect any personally identifiable data without 
 
 As of this version, no data is collected directly from the app. This privacy policy will be updated if it changes in the future and the developer will take necessary steps to comply with Google Play store or other other app store policies.
 
-Atomatic is an open source. You can find the code at the following link: https://github.com/adeekshith/watomatic
+Watomagic is an open source application.
 

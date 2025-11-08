@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.logs;
+package com.parishod.watomagic.model.logs;
 
 import android.content.Context;
 
@@ -6,7 +6,7 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-import com.parishod.watomatic.model.utils.Constants;
+import com.parishod.watomagic.model.utils.Constants;
 
 @Database(entities = {MessageLog.class, AppPackage.class}, version = 2)
 public abstract class MessageLogsDB extends RoomDatabase {

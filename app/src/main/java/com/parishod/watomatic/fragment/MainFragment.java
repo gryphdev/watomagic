@@ -1,4 +1,4 @@
-package com.parishod.watomatic.fragment;
+package com.parishod.watomagic.fragment;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -35,26 +35,26 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.materialswitch.MaterialSwitch;
-import com.parishod.watomatic.BuildConfig;
-import com.parishod.watomatic.service.NotificationService;
-import com.parishod.watomatic.R;
-import com.parishod.watomatic.activity.about.AboutActivity;
-import com.parishod.watomatic.activity.contactselector.ContactSelectorActivity;
-import com.parishod.watomatic.activity.customreplyeditor.CustomReplyEditorActivity;
-import com.parishod.watomatic.activity.main.MainActivity;
-import com.parishod.watomatic.activity.settings.SettingsActivity;
-import com.parishod.watomatic.model.App;
-import com.parishod.watomatic.model.CustomRepliesData;
-import com.parishod.watomatic.model.data.AppItem;
-import com.parishod.watomatic.model.data.CooldownItem;
-import com.parishod.watomatic.model.data.DialogConfig;
-import com.parishod.watomatic.model.data.MessageTypeItem;
-import com.parishod.watomatic.model.enums.DialogType;
-import com.parishod.watomatic.model.interfaces.DialogActionListener;
-import com.parishod.watomatic.model.preferences.PreferencesManager;
-import com.parishod.watomatic.model.utils.Constants;
-import com.parishod.watomatic.model.utils.CustomDialog;
-import com.parishod.watomatic.model.utils.DbUtils;
+import com.parishod.watomagic.BuildConfig;
+import com.parishod.watomagic.service.NotificationService;
+import com.parishod.watomagic.R;
+import com.parishod.watomagic.activity.about.AboutActivity;
+import com.parishod.watomagic.activity.contactselector.ContactSelectorActivity;
+import com.parishod.watomagic.activity.customreplyeditor.CustomReplyEditorActivity;
+import com.parishod.watomagic.activity.main.MainActivity;
+import com.parishod.watomagic.activity.settings.SettingsActivity;
+import com.parishod.watomagic.model.App;
+import com.parishod.watomagic.model.CustomRepliesData;
+import com.parishod.watomagic.model.data.AppItem;
+import com.parishod.watomagic.model.data.CooldownItem;
+import com.parishod.watomagic.model.data.DialogConfig;
+import com.parishod.watomagic.model.data.MessageTypeItem;
+import com.parishod.watomagic.model.enums.DialogType;
+import com.parishod.watomagic.model.interfaces.DialogActionListener;
+import com.parishod.watomagic.model.preferences.PreferencesManager;
+import com.parishod.watomagic.model.utils.Constants;
+import com.parishod.watomagic.model.utils.CustomDialog;
+import com.parishod.watomagic.model.utils.DbUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,7 +68,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_REQUIRE_DEFAULT;
 import static android.content.Intent.FLAG_ACTIVITY_REQUIRE_NON_BROWSER;
 import static android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS;
-import static com.parishod.watomatic.model.utils.Constants.MIN_REPLIES_TO_ASK_APP_RATING;
+import static com.parishod.watomagic.model.utils.Constants.MIN_REPLIES_TO_ASK_APP_RATING;
 
 public class MainFragment extends Fragment implements DialogActionListener {
 
@@ -88,10 +88,7 @@ public class MainFragment extends Fragment implements DialogActionListener {
     private TextView replyCooldownDescription, messageTypeDescription, contactsSelectorDescription;
     private LinearLayout contactsFilterLL, messagesTypeLL, supportedAppsLL, replyCooldownLL;
     private TextView enabledAppsCount;
-    private final List<String> communityUrls = Arrays.asList("https://t.me/WatomaticApp",
-            "https://fosstodon.org/@watomatic",
-            "https://twitter.com/watomatic",
-            "https://www.reddit.com/r/watomatic");
+    private final List<String> communityUrls = Arrays.asList();
 
     @Nullable
     @Override
@@ -174,7 +171,7 @@ public class MainFragment extends Fragment implements DialogActionListener {
                 return true;
             } else if (itemId == R.id.navigation_community) {
                 // Handle community navigation
-                launchApp(communityUrls, getString(R.string.watomatic_subreddit_url));
+                launchApp(communityUrls, getString(R.string.watomagic_subreddit_url));
                 return true;
             } else if (itemId == R.id.navigation_settings) {
                 // Handle settings navigation
@@ -244,7 +241,7 @@ public class MainFragment extends Fragment implements DialogActionListener {
                     null;
             List<ResolveInfo> possibleBrowserIntents = getActivity() != null ?
                     getActivity().getPackageManager()
-                            .queryIntentActivities(new Intent(ACTION_VIEW, Uri.parse("http://www.deekshith.in/")), 0) :
+                            .queryIntentActivities(new Intent(ACTION_VIEW, Uri.parse("")), 0) :
                     null;
 
             Set<String> excludeIntents = new HashSet<>();
@@ -465,7 +462,7 @@ public class MainFragment extends Fragment implements DialogActionListener {
             isLaunched = false;
         }
         if (!isLaunched) { // Open Github latest release url in browser if everything else fails
-            String url = getString(R.string.watomatic_github_latest_release_url);
+            String url = getString(R.string.watomagic_github_latest_release_url);
             mActivity.startActivity(new Intent(ACTION_VIEW).setData(Uri.parse(url)));
         }
     }
@@ -476,7 +473,7 @@ public class MainFragment extends Fragment implements DialogActionListener {
             List<ResolveInfo> list = getActivity().getPackageManager()
                     .queryIntentActivities(intent, 0);
             List<ResolveInfo> possibleBrowserIntents = getActivity().getPackageManager()
-                    .queryIntentActivities(new Intent(ACTION_VIEW, Uri.parse("http://www.deekshith.in/")), 0);
+                    .queryIntentActivities(new Intent(ACTION_VIEW, Uri.parse("")), 0);
             Set<String> excludeIntents = new HashSet<>();
             for (ResolveInfo eachPossibleBrowserIntent : possibleBrowserIntents) {
                 excludeIntents.add(eachPossibleBrowserIntent.activityInfo.name);

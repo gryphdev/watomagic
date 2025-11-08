@@ -1,14 +1,14 @@
-package com.parishod.watomatic.activity.about
+package com.parishod.watomagic.activity.about
 
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
-import com.parishod.watomatic.BuildConfig
-import com.parishod.watomatic.R
-import com.parishod.watomatic.activity.BaseActivity
-import com.parishod.watomatic.databinding.ActivityAboutBinding
-import com.parishod.watomatic.viewmodel.SwipeToKillAppDetectViewModel
+import com.parishod.watomagic.BuildConfig
+import com.parishod.watomagic.R
+import com.parishod.watomagic.activity.BaseActivity
+import com.parishod.watomagic.databinding.ActivityAboutBinding
+import com.parishod.watomagic.viewmodel.SwipeToKillAppDetectViewModel
 
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat

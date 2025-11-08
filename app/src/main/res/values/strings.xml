@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name" translatable="false">Atomatic</string>
-    <string name="url_privacy_policy" translatable="false">https://adeekshith.github.io/watomatic/#/privacy-policy.md</string>
-    <string name="adeekshith_twitter_handle" translatable="false">\@adeekshith</string>
-    <string name="url_adeekshith_twitter" translatable="false">https://twitter.com/adeekshith</string>
+    <string name="url_privacy_policy" translatable="false"></string>
+    <string name="adeekshith_twitter_handle" translatable="false"></string>
+    <string name="url_adeekshith_twitter" translatable="false"></string>
 
     <string name="about">About</string>
     <string name="settings">Settings</string>
@@ -45,32 +45,32 @@
     <!-- Custom message editor -->
     <string name="save">Save</string>
     <string name="tip_view_messages_from_fellow_users">🦩 <u>View templates from community and share yours too ➚</u></string>
-    <string name="append_watomatic_arribution_checkbox_label">Append Atomatic arribution to help spread the word</string>
-    <string name="sent_using_Watomatic">Sent using atomatic.app</string>
+    <string name="append_watomagic_arribution_checkbox_label">Append Atomatic arribution to help spread the word</string>
+    <string name="sent_using_watomagic">Sent using atomatic.app</string>
 
-    <string name="share_app_text">I am using Atomatic to break away from messaging apps. Try it out: watomatic.app</string>
+    <string name="share_app_text">I am using Atomatic to break away from messaging apps. Try it out: watomagic.app</string>
     <string name="share">Share</string>
     <string name="share_subject">Atomatic: Auto Reply for Messaging apps</string>
-    <string name="watomatic_community_label"><u>Community</u></string>
-    <string name="watomatic_subreddit_label"><u>Let\'s discuss\nr/watomatic</u></string>
-    <string name="watomatic_subreddit_url" translatable="false">https://www.reddit.com/r/watomatic</string>
-    <string name="watomatic_github_url" translatable="false">https://github.com/adeekshith/watomatic</string>
-    <string name="watomatic_wato_message_url" translatable="false">https://www.reddit.com/r/watomatic/comments/lrkn7j/fellow_watos_share_your_creative_wato_message/</string>
-    <string name="watomatic_whatsnew_label">What\'s New?</string>
-    <string name="watomatic_github_latest_release_url" translatable="false">https://github.com/adeekshith/watomatic/releases/latest</string>
+    <string name="watomagic_community_label"><u>Community</u></string>
+    <string name="watomagic_subreddit_label"><u>Let\'s discuss</u></string>
+    <string name="watomagic_subreddit_url" translatable="false"></string>
+    <string name="watomagic_github_url" translatable="false"></string>
+    <string name="watomagic_wato_message_url" translatable="false"></string>
+    <string name="watomagic_whatsnew_label">What\'s New?</string>
+    <string name="watomagic_github_latest_release_url" translatable="false"></string>
 
     <!-- Share debug logs -->
-    <string name="app_logs_file_name" translatable="false">WatomaticLogs.txt</string>
-    <string name="share_email_body" translatable="false">Hi Team Watomatic,\nPlease find the attachment of the app logs.</string>
-    <string name="share_email_subject" translatable="false">Watomatic AppLogs</string>
-    <string name="share_email_id" translatable="false">watomatic@deekshith.in</string>
+    <string name="app_logs_file_name" translatable="false">watomagicLogs.txt</string>
+    <string name="share_email_body" translatable="false">Hi Team watomagic,\nPlease find the attachment of the app logs.</string>
+    <string name="share_email_subject" translatable="false">watomagic AppLogs</string>
+    <string name="share_email_id" translatable="false"></string>
     <string name="share_email_err_msg" translatable="false">Couldnot find any application to process this request</string>
 
     <!-- keys and app internal strings -->
     <string name="key_pref_app_language" translatable="false">pref_app_language</string>
     <string name="pref_show_notification_replied_msg" translatable="false">pref_show_notification_replied_msg</string>
     <string name="pref_auto_start_permission" translatable="false">pref_auto_start_permission</string>
-    <string name="pref_is_append_watomatic_attribution" translatable="false">pref_is_append_watomatic_attribution</string>
+    <string name="pref_is_append_watomagic_attribution" translatable="false">pref_is_append_watomagic_attribution</string>
     <string name="pref_show_foreground_service_notification" translatable="false">pref_show_foreground_service_notification</string>
 
     <!-- app settings -->
@@ -82,8 +82,8 @@
     <string name="add_attribution_label">Add Attribution</string>
     <string name="enabled_apps_title">Enabled Apps</string>
     <string name="always_on_notification">Always-On notification</string>
-    <string name="display_persistent_notification_summary">Display a persistent notification to ensure Watomatic is not killed by the system</string>
-    <string name="enable_auto_start_summary">Some devices might need you to manually enable Auto start for Watomatic from device settings</string>
+    <string name="display_persistent_notification_summary">Display a persistent notification to ensure watomagic is not killed by the system</string>
+    <string name="enable_auto_start_summary">Some devices might need you to manually enable Auto start for watomagic from device settings</string>
 
     <!-- Local language names (non translatable) -->
     <string name="lang_en" translatable="false">English (en)</string>
@@ -150,7 +150,7 @@
     <!--Autostart Permission Dialog-->
     <string name="auto_start_permission_dialog_title">AutoStart Permission</string>
     <string name="running_in_the_background">Running in the background</string>
-    <string name="auto_start_permission_dialog_message">Enable \"Auto Start\" permission in device settings to allow Watomatic to start on device restart.</string>
+    <string name="auto_start_permission_dialog_message">Enable \"Auto Start\" permission in device settings to allow watomagic to start on device restart.</string>
     <string name="device_based_settings_message">Note: Settings may vary or may not be available based on your device</string>
     <string name="setting_not_available_for_device">This setting is not available or may not be needed for your device.</string>
     <string name="enable_auto_start_setting">Proceed</string>

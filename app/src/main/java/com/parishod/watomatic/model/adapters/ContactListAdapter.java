@@ -1,4 +1,4 @@
-package com.parishod.watomatic.model.adapters;
+package com.parishod.watomagic.model.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,11 +9,11 @@ import android.widget.Filterable;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.parishod.watomatic.databinding.ContactListRowBinding;
-import com.parishod.watomatic.databinding.CustomContactListRowBinding;
-import com.parishod.watomatic.model.data.ContactHolder;
-import com.parishod.watomatic.model.preferences.PreferencesManager;
-import com.parishod.watomatic.model.utils.ContactsHelper;
+import com.parishod.watomagic.databinding.ContactListRowBinding;
+import com.parishod.watomagic.databinding.CustomContactListRowBinding;
+import com.parishod.watomagic.model.data.ContactHolder;
+import com.parishod.watomagic.model.preferences.PreferencesManager;
+import com.parishod.watomagic.model.utils.ContactsHelper;
 
 import org.jetbrains.annotations.NotNull;
 

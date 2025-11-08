@@ -36,8 +36,8 @@
     <string name="save">Gorde</string>
     <string name="tip_view_messages_from_fellow_users">🦩 <u>Ikusi komunitatearen txantiloiak eta partekatu zeureak ere ➚</u></string>
     <string name="share">Partekatu</string>
-    <string name="watomatic_subreddit_label"><u>Eztabaida dezagun\nr/watomatic</u></string>
-    <string name="watomatic_whatsnew_label">Zer berri?</string>
+    <string name="watomagic_subreddit_label"><u>Eztabaida dezagun\nr/watomagic</u></string>
+    <string name="watomagic_whatsnew_label">Zer berri?</string>
     <!-- Share debug logs -->
     <!-- keys and app internal strings -->
     <!-- app settings -->
@@ -49,7 +49,7 @@
     <string name="add_attribution_label">Gehitu atribuzioa</string>
     <string name="enabled_apps_title">Gaitutako aplikazioak</string>
     <string name="always_on_notification">Jakinarazpen iraunkorra</string>
-    <string name="display_persistent_notification_summary">Erakutsi jakinarazpen iraunkorra ziurtatzeko sistemak ez duela Watomatic ixten</string>
+    <string name="display_persistent_notification_summary">Erakutsi jakinarazpen iraunkorra ziurtatzeko sistemak ez duela watomagic ixten</string>
     <string name="enable_auto_start_summary">Gailu batzuetan baliteke automatikoki abiatzeko aukera eskuz gaitu behar izatea gailuaren ezarpenetatik</string>
     <!-- Local language names (non translatable) -->
     <!-- Basque -->
@@ -72,7 +72,7 @@
     <!--Autostart Permission Dialog-->
     <string name="auto_start_permission_dialog_title">Automatikoki abiatzeko baimena</string>
     <string name="running_in_the_background">Atzealdean lanean</string>
-    <string name="auto_start_permission_dialog_message">Gaitu \'Automatikoki abiatu\' baimena gailuaren ezarpenetan Watomatic automatikoki abiatzeko gailua berrabiaraztean.</string>
+    <string name="auto_start_permission_dialog_message">Gaitu \'Automatikoki abiatu\' baimena gailuaren ezarpenetan watomagic automatikoki abiatzeko gailua berrabiaraztean.</string>
     <string name="device_based_settings_message">Oharra: Baliteke ezarpenok aldatzea edo eskuragarri ez egotea, zure gailuaren arabera</string>
     <string name="setting_not_available_for_device">Ezarpen hau ez dago eskuragarri edo ez da behar zure gailuan.</string>
     <string name="enable_auto_start_setting">Jarraitu</string>
