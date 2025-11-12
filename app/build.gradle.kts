@@ -13,8 +13,19 @@ android {
         applicationId = "com.parishod.watomagic"
         minSdk = 24
         targetSdk = 35
-        versionCode = 31
-        versionName = "1.31"
+        // Support dynamic versioning from CI/CD (Codemagic)
+        // If versionCode property is provided (e.g., -PversionCode=10050), use it
+        // Otherwise, fallback to static version 31
+        versionCode = if (project.hasProperty("versionCode")) {
+            project.property("versionCode").toString().toInt()
+        } else {
+            31
+        }
+        versionName = if (project.hasProperty("versionName")) {
+            project.property("versionName").toString()
+        } else {
+            "1.31"
+        }
 
         javaCompileOptions {
             annotationProcessorOptions {
