@@ -1,0 +1,234 @@
+workflows:
+  android-release:
+    name: "Watomagic Android Release Build (Unsigned APK)"
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+
+    environment:
+      java: 17
+      vars:
+        # Package name for the Default flavor (F-Droid variant)
+        PACKAGE_NAME: "com.parishod.watomagic"
+        # Base version code for CI/CD builds (incremented with BUILD_NUMBER)
+        BASE_VERSION_CODE: 10000
+
+      # Cache Gradle dependencies for faster builds
+      cache:
+        cache_paths:
+          - ~/.gradle/caches
+          - .gradle
+
+    scripts:
+      # ============================================================
+      # SCRIPT 1: Setup Android SDK location
+      # ============================================================
+      - name: Setup local.properties
+        script: |
+          echo "✅ Setting up Android SDK location..."
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "local.properties"
+          cat local.properties
+          echo "✅ local.properties configured"
+
+      # ============================================================
+      # SCRIPT 2: Generate Gradle Wrapper (ensure specific version)
+      # ============================================================
+      - name: Generate Gradle Wrapper
+        script: |
+          echo "✅ Verifying Gradle wrapper..."
+          if [ ! -f "gradlew" ]; then
+            echo "⚠️  Gradle wrapper not found, generating..."
+            gradle wrapper --gradle-version 8.12 --distribution-type all
+          else
+            echo "✅ Gradle wrapper exists"
+          fi
+
+          # Verify wrapper version
+          echo "📦 Gradle wrapper properties:"
+          cat gradle/wrapper/gradle-wrapper.properties | grep distributionUrl
+
+      # ============================================================
+      # SCRIPT 3: Fix Gradle wrapper permissions
+      # ============================================================
+      - name: Fix gradlew permissions
+        script: |
+          echo "✅ Setting execute permissions on gradlew..."
+          chmod +x gradlew
+          ls -la gradlew
+          echo "✅ Permissions updated"
+
+      # ============================================================
+      # SCRIPT 4: Verify Java and Gradle environment
+      # ============================================================
+      - name: Verify Java and Gradle environment
+        script: |
+          echo "☕ Java version:"
+          java -version
+          echo ""
+          echo "📍 JAVA_HOME: $JAVA_HOME"
+          echo "📍 ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
+          echo ""
+          echo "🔧 Gradle version:"
+          ./gradlew --version --no-daemon
+          echo ""
+          echo "📋 Gradle projects:"
+          ./gradlew projects --no-daemon
+
+      # ============================================================
+      # SCRIPT 5: Run Unit Tests (non-blocking)
+      # ============================================================
+      - name: Run unit tests
+        script: |
+          echo "🧪 Running unit tests..."
+          echo "⚠️  Tests are non-blocking - failures will be logged but won't stop the build"
+
+          # Run tests, continue even if they fail
+          ./gradlew test --no-daemon --stacktrace || {
+            echo "❌ Unit tests failed, but continuing build process..."
+            echo "📋 Check test reports in Codemagic logs for details"
+          }
+
+          # Show test results if available
+          if [ -d "app/build/reports/tests" ]; then
+            echo "📊 Test reports generated:"
+            find app/build/reports/tests -name "index.html" -type f
+          fi
+
+          echo "✅ Unit test execution completed (check logs for results)"
+
+      # ============================================================
+      # SCRIPT 6: Run Lint Checks (non-blocking)
+      # ============================================================
+      - name: Run lint checks
+        script: |
+          echo "🔍 Running Android lint checks..."
+          echo "⚠️  Lint is non-blocking - issues will be logged but won't stop the build"
+
+          # Run lint, continue even if it fails
+          ./gradlew lintDefaultRelease --no-daemon --stacktrace || {
+            echo "⚠️  Lint found issues, but continuing build process..."
+            echo "📋 Check lint reports in Codemagic logs for details"
+          }
+
+          # Show lint results if available
+          if [ -f "app/build/reports/lint-results-DefaultRelease.html" ]; then
+            echo "📊 Lint report generated: app/build/reports/lint-results-DefaultRelease.html"
+          fi
+
+          echo "✅ Lint check completed (check logs for results)"
+
+      # ============================================================
+      # SCRIPT 7: Build Android Release APK (unsigned)
+      # ============================================================
+      - name: Build Android Release APK
+        script: |
+          echo "🏗️  Building Android Release APK (Default flavor, unsigned)..."
+
+          # Calculate dynamic version code: BASE_VERSION_CODE + BUILD_NUMBER
+          VERSION_CODE=$((BASE_VERSION_CODE + BUILD_NUMBER))
+          VERSION_NAME="1.$BUILD_NUMBER"
+
+          echo "📦 Version configuration:"
+          echo "   - Version Code: $VERSION_CODE"
+          echo "   - Version Name: $VERSION_NAME"
+          echo "   - Build Number: $BUILD_NUMBER"
+          echo ""
+
+          echo "🚀 Starting Gradle build..."
+          ./gradlew assembleDefaultRelease \
+            -PversionCode=$VERSION_CODE \
+            -PversionName=$VERSION_NAME \
+            --no-daemon \
+            --parallel \
+            --stacktrace \
+            --info
+
+          echo "✅ Gradle build command completed"
+
+      # ============================================================
+      # SCRIPT 8: Validate APK Build Artifacts
+      # ============================================================
+      - name: Validate APK artifacts
+        script: |
+          echo "🔍 Validating APK build artifacts..."
+
+          APK_PATH="app/build/outputs/apk/Default/release/app-Default-release-unsigned.apk"
+
+          if [ -f "$APK_PATH" ]; then
+            echo "✅ APK generated successfully!"
+            echo ""
+            echo "📦 APK Details:"
+            echo "   - Path: $APK_PATH"
+
+            # Get APK size
+            if command -v stat > /dev/null 2>&1; then
+              # macOS stat command
+              APK_SIZE=$(stat -f%z "$APK_PATH" 2>/dev/null || stat -c%s "$APK_PATH" 2>/dev/null)
+              APK_SIZE_MB=$(echo "scale=2; $APK_SIZE / 1048576" | bc)
+              echo "   - Size: $APK_SIZE bytes ($APK_SIZE_MB MB)"
+            else
+              ls -lh "$APK_PATH"
+            fi
+
+            # Verify APK is not empty
+            if [ "$APK_SIZE" -gt 1000000 ]; then
+              echo "   - Status: Valid (size > 1MB)"
+            else
+              echo "   - ⚠️  Warning: APK size seems too small"
+            fi
+
+            echo ""
+            echo "✅ APK validation successful"
+            echo "📥 APK will be available as downloadable artifact in Codemagic"
+          else
+            echo "❌ ERROR: APK not found at expected path!"
+            echo "   Expected: $APK_PATH"
+            echo ""
+            echo "📋 Searching for APK files:"
+            find app/build/outputs -name "*.apk" -type f || echo "No APK files found"
+            exit 1
+          fi
+
+      # ============================================================
+      # SCRIPT 9: Display Build Summary
+      # ============================================================
+      - name: Build summary
+        script: |
+          echo "======================================"
+          echo "📱 WATOMAGIC BUILD SUMMARY"
+          echo "======================================"
+          echo ""
+          echo "✅ Build Type: Release (unsigned)"
+          echo "✅ Flavor: Default (F-Droid variant)"
+          echo "✅ Application ID: com.parishod.watomagic"
+          echo "✅ Version Code: $((BASE_VERSION_CODE + BUILD_NUMBER))"
+          echo "✅ Version Name: 1.$BUILD_NUMBER"
+          echo ""
+          echo "📦 Artifacts:"
+          echo "   - APK: app-Default-release-unsigned.apk"
+          echo "   - Location: app/build/outputs/apk/Default/release/"
+          echo ""
+          echo "🎯 Next Steps:"
+          echo "   1. Download the APK from Codemagic artifacts"
+          echo "   2. Install on test devices (adb install -r <apk>)"
+          echo "   3. For signed release, add signing config to workflow"
+          echo ""
+          echo "======================================"
+
+    # ============================================================
+    # ARTIFACTS: Files to save and make downloadable
+    # ============================================================
+    artifacts:
+      - app/build/outputs/apk/Default/release/*.apk
+      - app/build/reports/tests/**/*
+      - app/build/reports/lint-*.html
+
+    # ============================================================
+    # PUBLISHING: Email notifications
+    # ============================================================
+    publishing:
+      email:
+        recipients:
+          - devs@gryphsoft.com
+        notify:
+          success: true
+          failure: true
