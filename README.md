@@ -1,58 +1,202 @@
-# 🪄 Watomagic - Respuesta automática para apps de mensajería
+# 🪄 Watomagic - Respuesta automática inteligente para mensajería
 
-Watomagic envía una respuesta automática a todos los que te contacten en apps de mensajería. Es especialmente útil si estás planeando migrar de estas apps, pero también podés usarlo como un contestador automático cuando estás de vacaciones.
+Watomagic envía respuestas automáticas a tus contactos en apps de mensajería. Útil para migrar de WhatsApp, contestador automático en vacaciones, o automatizar respuestas con IA.
 
 ### 📸 [Capturas de pantalla](./media/screenshots/)
-
-| [<img src="/media/screenshots/1.png" alt="Captura 1">][scr-page-link] | [<img src="/media/screenshots/2.png" alt="Captura 2">][scr-page-link] | [<img src="/media/screenshots/3.png" alt="Captura 3">][scr-page-link] |
-|:---:|:---:|:---:|
-
-[**❯ Ver más capturas**](./media/screenshots/)
 
 ---
 
 ## ✨ Características
 
-- ✅ **Respuesta automática** en todas las apps de mensajería soportadas
-- ✏️ **Personalizá tu mensaje** de respuesta automática
-- 👥 **Funciona en grupos** también
-- 🔒 **Respeto total por tu privacidad**
-  - Sin análisis ni rastreo de datos
-- 🆓 **Gratis y código abierto**
+- ✅ **Respuestas automáticas** en WhatsApp, Signal, Telegram y más
+- 🤖 **BotJS**: Ejecuta bots JavaScript personalizados para lógica avanzada
+- 🧠 **IA integrada**: Respuestas inteligentes con OpenAI
+- ✏️ **Mensajes personalizados**: Edita tus respuestas estáticas
+- 👥 **Soporte para grupos**: Configurable
+- 🔄 **Auto-actualización**: Los bots se actualizan automáticamente
+- 🔒 **Privacidad**: Todo se ejecuta localmente en tu dispositivo
 
 ---
 
-## 💡 ¿Para qué sirve?
+## 🚀 Inicio rápido
 
-Los cambios recientes en la política de privacidad de WhatsApp generaron una migración masiva hacia apps más respetuosas de la privacidad como Signal y otras. Pero la mayoría de nosotros encuentra difícil eliminar WhatsApp porque todo el mundo lo usa.
+### 1. Instalación
+- Descarga la app desde [releases](../../releases) o compila desde código
+- Concede permisos de acceso a notificaciones
+- Habilita el servicio en la app
 
-**Watomagic facilita tu migración** dejando que tus contactos sepan automáticamente que te mudaste a otra app. Simplemente configurá un mensaje de respuesta automática como *"Ya no uso WhatsApp. Por favor contactame por Signal…"* y dejá que la app haga el trabajo por vos.
+### 2. Configuración básica
+1. Abre Watomagic
+2. Escribe tu mensaje de respuesta automática
+3. Selecciona las apps donde quieres activar respuestas
+4. Activa el switch de "Auto reply ON"
 
-> ⚠️ **Importante:** Esta app no está asociada con ninguna empresa, incluyendo WhatsApp, Facebook o Signal.
+### 3. Respuestas con IA (OpenAI)
+1. Ve a **Settings → General Settings**
+2. Activa "Enable AI Auto-Replies"
+3. Ingresa tu API Key de OpenAI
+4. Selecciona el modelo (gpt-3.5-turbo, gpt-4, etc.)
+
+### 4. Bots JavaScript personalizados
+1. Ve a **Settings → Bot Configuration**
+2. Activa "Enable BotJS"
+3. Ingresa la URL HTTPS de tu bot (ej: `https://example.com/bot.js`)
+4. Presiona "Download Bot"
+5. El bot se ejecutará automáticamente para cada notificación
+
+---
+
+## 🤖 Sistema BotJS
+
+Watomagic permite ejecutar bots JavaScript personalizados que procesan notificaciones y deciden cómo responder.
+
+### Características de BotJS
+
+- **Ejecución local**: Los bots se ejecutan en tu dispositivo usando QuickJS
+- **APIs disponibles**: Storage, HTTP requests, logging, utilidades
+- **Auto-actualización**: Los bots se actualizan automáticamente cada 6 horas
+- **Seguridad**: Validación de código, solo HTTPS, rate limiting
+
+### Ejemplo de bot
+
+```javascript
+async function processNotification(notification) {
+    // Bloquear apps específicas
+    if (notification.appPackage === 'com.annoying.app') {
+        return { action: 'DISMISS' };
+    }
+
+    // Auto-respuesta con rate limiting
+    if (notification.appPackage === 'com.whatsapp') {
+        const lastReply = Android.storageGet('lastAutoReply');
+        const now = Android.getCurrentTime();
+        
+        if (!lastReply || now - parseInt(lastReply) > 3600000) {
+            Android.storageSet('lastAutoReply', now.toString());
+            return {
+                action: 'REPLY',
+                replyText: 'Estoy ocupado. Te respondo pronto!'
+            };
+        }
+    }
+
+    // Por defecto: mantener notificación
+    return { action: 'KEEP' };
+}
+```
+
+### APIs disponibles
+
+- `Android.log(level, message)` - Logging
+- `Android.storageGet(key)` / `Android.storageSet(key, value)` - Persistencia
+- `Android.httpRequest(options)` - Llamadas HTTP
+- `Android.getCurrentTime()` - Tiempo actual
+- `Android.getAppName(packageName)` - Nombre de app
+
+### Documentación completa
+
+Ver [docs/BOT_DEVELOPMENT_GUIDE.md](./docs/BOT_DEVELOPMENT_GUIDE.md) para la guía completa de desarrollo de bots.
+
+---
+
+## 📋 Apps soportadas
+
+- WhatsApp
+- Signal
+- Telegram
+- Facebook Messenger
+- Y más...
 
 ---
 
 ## 🔧 Solución de problemas
 
-### La respuesta automática no funciona aunque Watomagic esté habilitado
+### La respuesta automática no funciona
 
-Watomagic depende de las notificaciones para funcionar. La mayoría de los usuarios ya tiene las notificaciones habilitadas, así que debería funcionar de entrada. Si no funciona, asegurate de que:
+1. Verifica que el servicio esté habilitado en Watomagic
+2. Asegúrate de tener permisos de acceso a notificaciones
+3. Desactiva el bloqueo biométrico específico de la app para Watomagic
+4. Verifica que las notificaciones estén habilitadas en la app de mensajería
 
-- ✅ Las notificaciones estén habilitadas
-- ✅ El bloqueo biométrico específico de la app esté deshabilitado para Watomagic
+### El bot no se descarga
+
+- Verifica que la URL sea HTTPS (no HTTP)
+- Asegúrate de que el servidor esté accesible
+- Revisa los logs en "View Bot Logs"
+
+### OpenAI no responde
+
+- Verifica que tu API Key sea válida
+- Revisa tu cuota de OpenAI
+- Verifica la conexión a internet
 
 ---
 
-## ❓ Preguntas frecuentes
+## 🛠️ Desarrollo
 
-### ¿Por qué no usar una cuenta de WhatsApp Business para respuestas automáticas?
+### Compilar desde código
 
-No podés usar una cuenta business sin aceptar la nueva política de privacidad que todos están tratando de evitar.
+```bash
+git clone https://github.com/tu-usuario/watomagic.git
+cd watomagic
+./gradlew assembleDebug
+```
 
-### ¿Estará disponible para iOS en el futuro?
+### Estructura del proyecto
 
-Esta app depende de la función de respuestas rápidas desde notificaciones específica de Android. Esto probablemente no sea posible en iOS.
+```
+app/src/main/java/com/parishod/watomagic/
+├── replyproviders/      # Sistema de providers (Strategy Pattern)
+│   ├── ReplyProvider.java
+│   ├── OpenAIReplyProvider.java
+│   ├── StaticReplyProvider.java
+│   └── BotJsReplyProvider.java
+├── botjs/               # Sistema BotJS
+│   ├── BotJsEngine.java
+│   ├── BotAndroidAPI.java
+│   ├── BotRepository.java
+│   └── BotValidator.java
+└── service/
+    └── NotificationService.java
+```
+
+### Requisitos
+
+- Android SDK 24+ (Android 7.0)
+- Java 17
+- Gradle 8.0+
 
 ---
 
-[scr-page-link]: ./media/screenshots/
+## 📝 Licencia
+
+Ver [LICENSE](./LICENSE)
+
+---
+
+## ⚠️ Importante
+
+Esta app no está asociada con WhatsApp, Facebook, Signal ni ninguna otra empresa. Es un proyecto de código abierto independiente.
+
+---
+
+## 🤝 Contribuir
+
+Las contribuciones son bienvenidas. Por favor:
+1. Fork el proyecto
+2. Crea una rama para tu feature
+3. Commit tus cambios
+4. Push a la rama
+5. Abre un Pull Request
+
+---
+
+## 📚 Documentación adicional
+
+- [Guía de desarrollo de bots](./docs/BOT_DEVELOPMENT_GUIDE.md)
+- [Referencia de API de bots](./docs/BOT_API_REFERENCE.md)
+- [Arquitectura del sistema](./docs/ARCHITECTURE.md)
+
+---
+
+**¿Necesitas ayuda?** Abre un [issue](../../issues) o consulta la documentación.
