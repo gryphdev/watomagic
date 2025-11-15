@@ -1,58 +1,88 @@
-# 🪄 Watomagic - Respuesta automática para apps de mensajería
+# 🪄 Watomagic
 
-Watomagic envía una respuesta automática a todos los que te contacten en apps de mensajería. Es especialmente útil si estás planeando migrar de estas apps, pero también podés usarlo como un contestador automático cuando estás de vacaciones.
-
-### 📸 [Capturas de pantalla](./media/screenshots/)
-
-| [<img src="/media/screenshots/1.png" alt="Captura 1">][scr-page-link] | [<img src="/media/screenshots/2.png" alt="Captura 2">][scr-page-link] | [<img src="/media/screenshots/3.png" alt="Captura 3">][scr-page-link] |
-|:---:|:---:|:---:|
-
-[**❯ Ver más capturas**](./media/screenshots/)
+Respuesta automática y privada para cualquier app de mensajería en Android. Configurá un mensaje, elegí las apps y dejá que Watomagic conteste por vos mientras viajás, trabajás o migrás a otra plataforma.
 
 ---
 
-## ✨ Características
+## 🎯 Qué ofrece
+- **Auto-reply universal**: WhatsApp, Telegram, Signal y cualquier app con acciones de respuesta en la notificación.
+- **Mensajes personalizados** y plantillas múltiples (contactos específicos, grupos, horarios).
+- **Compatibilidad con grupos** sin ruido adicional.
+- **Integración OpenAI** opcional para respuestas generadas con IA.
+- **Privacidad primero**: todo se procesa en el dispositivo; sin rastreos ni servidores.
+- **Código abierto** bajo licencia libre.
 
-- ✅ **Respuesta automática** en todas las apps de mensajería soportadas
-- ✏️ **Personalizá tu mensaje** de respuesta automática
-- 👥 **Funciona en grupos** también
-- 🔒 **Respeto total por tu privacidad**
-  - Sin análisis ni rastreo de datos
-- 🆓 **Gratis y código abierto**
-
----
-
-## 💡 ¿Para qué sirve?
-
-Los cambios recientes en la política de privacidad de WhatsApp generaron una migración masiva hacia apps más respetuosas de la privacidad como Signal y otras. Pero la mayoría de nosotros encuentra difícil eliminar WhatsApp porque todo el mundo lo usa.
-
-**Watomagic facilita tu migración** dejando que tus contactos sepan automáticamente que te mudaste a otra app. Simplemente configurá un mensaje de respuesta automática como *"Ya no uso WhatsApp. Por favor contactame por Signal…"* y dejá que la app haga el trabajo por vos.
-
-> ⚠️ **Importante:** Esta app no está asociada con ninguna empresa, incluyendo WhatsApp, Facebook o Signal.
+📸 [Galería de capturas](./media/screenshots/)
 
 ---
 
-## 🔧 Solución de problemas
+## 🚀 Uso rápido
+1. **Instalá** la última APK desde [Releases](https://github.com/Parishod/watomagic/releases) o Google Play (si está disponible en tu región).
+2. **Concedé permisos**: acceso a notificaciones y ejecución en background.
+3. **Configura el mensaje** en *Settings → Auto-reply text*.
+4. **Elegí apps y contactos** que recibirán la respuesta.
+5. **Activa el servicio** desde el interruptor principal.
 
-### La respuesta automática no funciona aunque Watomagic esté habilitado
-
-Watomagic depende de las notificaciones para funcionar. La mayoría de los usuarios ya tiene las notificaciones habilitadas, así que debería funcionar de entrada. Si no funciona, asegurate de que:
-
-- ✅ Las notificaciones estén habilitadas
-- ✅ El bloqueo biométrico específico de la app esté deshabilitado para Watomagic
-
----
-
-## ❓ Preguntas frecuentes
-
-### ¿Por qué no usar una cuenta de WhatsApp Business para respuestas automáticas?
-
-No podés usar una cuenta business sin aceptar la nueva política de privacidad que todos están tratando de evitar.
-
-### ¿Estará disponible para iOS en el futuro?
-
-Esta app depende de la función de respuestas rápidas desde notificaciones específica de Android. Esto probablemente no sea posible en iOS.
+> 💡 Tip: añadí un recordatorio en la barra de estado para confirmar que el servicio sigue activo.
 
 ---
 
-[scr-page-link]: ./media/screenshots/
+## ⚙️ Configuraciones clave
+- **Respuestas por contacto**: whitelist/blacklist para nombres específicos.
+- **Retraso automático**: evita responder en bucle a la misma persona.
+- **OpenAI Replies (beta)**: configura tu API Key y modelo (gpt-3.5/4). Si falla, Watomagic usa tu mensaje estático como fallback.
+- **Notificación propia**: recibe un resumen cada vez que se envía una respuesta.
+
+Consulta la documentación completa en `docs/` para detalles avanzados y el nuevo plan BotJS.
+
+---
+
+## 🧑‍💻 Guía exprés para desarrolladores
+```bash
+# requisitos
+Java 17, Android SDK 34+, Android NDK (opcional para tests nativos)
+
+# instalar dependencias
+./gradlew tasks
+
+# compilar flavour principal
+./gradlew :app:assembleDefaultDebug
+
+# ejecutar lint y tests unitarios
+./gradlew :app:lint :app:testDefaultDebugUnitTest
+```
+
+Si Gradle no encuentra el SDK, crea `local.properties` con:
+```
+sdk.dir=/ruta/al/Android/Sdk
+```
+
+---
+
+## 🛣️ Roadmap BotJS (en progreso)
+El plan para convertir a Watomagic en una plataforma de bots descargables está documentado en `docs/PLAN_BOTJS_SYSTEM.md`. Resumen de fases:
+1. **Strategy Pattern** (en curso): Providers para respuestas estáticas, OpenAI y futuros bots.
+2. **Definiciones TypeScript** y assets de ejemplo.
+3. **Motor QuickJS** embebido (`app.cash.quickjs`).
+4. **BotJsReplyProvider** con sandbox, rate limiting y validaciones.
+5. **Descarga/auto-update** con WorkManager.
+6. **UI de configuración** Material 3.
+7. **Testing & seguridad** (coverage >75%).
+8. **Documentación final** para creadores de bots.
+
+Seguimos priorizando compatibilidad con Watomatic upstream para facilitar futuros merges.
+
+---
+
+## 🆘 Soporte rápido
+- Comprueba que las notificaciones estén activas y sin bloqueo biométrico por app.
+- Evita modos de ahorro extremo que finalicen el servicio.
+- Revisa `Settings → Enabled Apps` para confirmar que la app objetivo está marcada.
+- En caso de fallos con OpenAI, verifica tu cuota y modelo configurado.
+
+¿Encontraste un bug? Abrí un issue con logs relevantes o utiliza el canal de soporte indicado en la sección de *Contribuciones* del repositorio.
+
+---
+
+## ⚠️ Nota legal
+Watomagic no pertenece ni está afiliado a WhatsApp, Meta, Signal, Telegram ni a ninguna otra empresa de mensajería. Úsala respetando los términos de servicio de cada plataforma.
