@@ -282,6 +282,30 @@
     <string name="ai_provider_llm">AI Provider (LLM)</string>
     <string name="openai">OpenAI</string>
 
+    <!-- BotJS Configuration -->
+    <string name="bot_configuration">Bot Configuration</string>
+    <string name="bot_configuration_summary">Configure JavaScript bots for custom auto-replies</string>
+    <string name="bot_status">Bot Status</string>
+    <string name="enable_bot_js">Enable BotJS</string>
+    <string name="bot_download_url">Download URL</string>
+    <string name="bot_url_hint">https://example.com/bot.js</string>
+    <string name="download_bot">Download Bot</string>
+    <string name="bot_info">Bot Information</string>
+    <string name="test_bot">Test Bot</string>
+    <string name="advanced_settings">Advanced Settings</string>
+    <string name="auto_update_bot">Auto-update Bot</string>
+    <string name="view_bot_logs">View Bot Logs</string>
+    <string name="delete_bot">Delete Bot</string>
+    <string name="bot_downloading">Downloading bot...</string>
+    <string name="bot_download_success">Bot downloaded successfully</string>
+    <string name="bot_download_error">Error downloading bot: %s</string>
+    <string name="bot_test_success">Bot test successful</string>
+    <string name="bot_test_error">Bot test failed: %s</string>
+    <string name="bot_deleted">Bot deleted successfully</string>
+    <string name="bot_not_installed">No bot installed</string>
+    <string name="bot_last_updated">Last updated: %s</string>
+    <string name="pref_bot_config" translatable="false">pref_bot_config</string>
+
     <!-- Authentication -->
     <string name="error_email_required">Email is required</string>
     <string name="error_invalid_email">Invalid email address</string>

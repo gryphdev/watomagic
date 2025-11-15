@@ -37,4 +37,16 @@
 
     </PreferenceCategory>
 
+    <!-- BotJS Configuration -->
+    <Preference
+        android:key="@string/pref_bot_config"
+        android:title="@string/bot_configuration"
+        android:summary="@string/bot_configuration_summary"
+        android:icon="@drawable/ic_settings">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.parishod.watomagic.activity.botconfig.BotConfigActivity"
+            android:targetPackage="com.parishod.watomagic" />
+    </Preference>
+
 </PreferenceScreen>

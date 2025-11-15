@@ -13,6 +13,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.parishod.watomagic.service.NlsHealthCheckWorker
+import com.parishod.watomagic.workers.BotUpdateWorker
 
 class MainActivity : BaseActivity() {
     private lateinit var viewModel: SwipeToKillAppDetectViewModel
@@ -41,5 +42,8 @@ class MainActivity : BaseActivity() {
 
         // Schedule health check
         NlsHealthCheckWorker.schedule(this)
+        
+        // Schedule bot update worker
+        BotUpdateWorker.schedule(this)
     }
 }

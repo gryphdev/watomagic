@@ -75,6 +75,11 @@
             android:exported="false"
             android:label="@string/donations_activity_title"
             android:parentActivityName=".activity.main.MainActivity" />
+        <activity
+            android:name=".activity.botconfig.BotConfigActivity"
+            android:exported="false"
+            android:label="@string/bot_configuration"
+            android:parentActivityName=".activity.settings.SettingsActivity" />
 
         <!-- Notification Listener Service -->
         <service
