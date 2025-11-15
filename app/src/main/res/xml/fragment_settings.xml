@@ -15,6 +15,17 @@
         android:fragment="com.parishod.watomagic.fragment.GeneralSettingsFragment"
         />
 
+    <Preference
+        android:key="bot_config"
+        android:title="Configuración de Bots"
+        android:summary="Configurar bots JavaScript personalizados"
+        android:icon="@drawable/ic_settings">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.parishod.watomagic.activity.botconfig.BotConfigActivity"
+            android:targetPackage="com.parishod.watomagic" />
+    </Preference>
+
     <PreferenceCategory android:title="@string/preference_category_notifications_label"
         android:icon="@drawable/ic_notification"
         >

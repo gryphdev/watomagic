@@ -110,6 +110,9 @@ dependencies {
     implementation(libs.browser)
     implementation(libs.security.crypto)
 
+    // QuickJS JavaScript Engine for BotJS
+    implementation("app.cash.quickjs:quickjs-android:0.9.2")
+
     // Firebase and Google Sign-In
     // Add flavor-specific deps dynamically
     android.applicationVariants.all {
