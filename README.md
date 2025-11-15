@@ -15,6 +15,8 @@ Watomagic envía una respuesta automática a todos los que te contacten en apps 
 
 - ✅ **Respuesta automática** en todas las apps de mensajería soportadas
 - ✏️ **Personalizá tu mensaje** de respuesta automática
+- 🤖 **Bots JavaScript personalizables** - Crea tu propia lógica de respuesta con JavaScript
+- 🧠 **Soporte para IA** - Integración con OpenAI y otros servicios de IA
 - 👥 **Funciona en grupos** también
 - 🔒 **Respeto total por tu privacidad**
   - Sin análisis ni rastreo de datos
@@ -29,6 +31,31 @@ Los cambios recientes en la política de privacidad de WhatsApp generaron una mi
 **Watomagic facilita tu migración** dejando que tus contactos sepan automáticamente que te mudaste a otra app. Simplemente configurá un mensaje de respuesta automática como *"Ya no uso WhatsApp. Por favor contactame por Signal…"* y dejá que la app haga el trabajo por vos.
 
 > ⚠️ **Importante:** Esta app no está asociada con ninguna empresa, incluyendo WhatsApp, Facebook o Signal.
+
+---
+
+## 🤖 Bots JavaScript Personalizables
+
+Watomagic permite crear bots personalizados usando JavaScript para controlar completamente cómo responder a las notificaciones. Los bots se ejecutan localmente en tu dispositivo y pueden:
+
+- **Decidir automáticamente** si responder, descartar, mantener o posponer notificaciones
+- **Consultar APIs externas** (OpenAI, Claude, o cualquier servicio HTTPS)
+- **Aplicar reglas complejas** basadas en horarios, apps, contenido, etc.
+- **Persistir datos** entre ejecuciones para rate limiting y estadísticas
+
+### 📚 Documentación
+
+- **[Guía para Usuarios](./docs/BOT_USER_GUIDE.md)** - Cómo configurar y usar bots
+- **[Guía para Desarrolladores](./docs/BOT_DEVELOPMENT_GUIDE.md)** - Cómo crear tus propios bots
+- **[Referencia de API](./docs/BOT_API_REFERENCE.md)** - Documentación completa de APIs disponibles
+
+### 🚀 Inicio Rápido
+
+1. Ve a **Configuración → Configuración de Bots**
+2. Ingresa la URL HTTPS de tu bot JavaScript
+3. Activa el bot y listo
+
+Los bots se actualizan automáticamente cada 6 horas (opcional).
 
 ---
 
