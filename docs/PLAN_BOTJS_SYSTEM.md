@@ -21,7 +21,7 @@ El análisis del código actual revela que **NINGÚN componente del plan BotJS h
 - ❌ **Fase 5**: Download & Update System - NO implementado
 - ❌ **Fase 6**: GUI Configuration - NO implementado
 - ❌ **Fase 7**: Testing & Security - NO implementado
-- ✅ **Fase 8**: Documentación - PARCIALMENTE (solo este plan existe)
+- ✅ **Fase 8**: Documentación - PARCIALMENTE (plan + guías listas, feature aún no implementado)
 
 ### Componentes Clave Faltantes
 - **NotificationService.sendReply()**: 149 líneas monolíticas (necesita refactoring a ~20 líneas)
@@ -36,6 +36,12 @@ El análisis del código actual revela que **NINGÚN componente del plan BotJS h
 ✅ Retrofit/OkHttp ya incluidos (reutilizables para BotRepository)
 ✅ Arquitectura actual bien definida (facilita refactoring)
 ✅ OpenAI funcionando correctamente (referencia para providers)
+
+### Documentación publicada (2025-11-15)
+- `docs/BOT_USER_GUIDE.md`: guía operativa para habilitar y probar bots descargables.
+- `docs/BOT_DEVELOPMENT_GUIDE.md`: paso a paso para crear bots en TypeScript.
+- `docs/BOT_API_REFERENCE.md`: contrato definitivo de `NotificationData`, `BotResponse` y las APIs expuestas.
+- `docs/ARCHITECTURE.md`: resumen técnico del flujo, módulos y medidas de seguridad.
 
 ---
 
@@ -1608,12 +1614,13 @@ Documentación completa de todas las interfaces TypeScript y métodos disponible
 ---
 
 ### Milestone 8: Production Ready (Fin Fase 8) - ❌ NO INICIADO
-**Progreso**: 0/6 tareas completadas
+**Progreso**: 4/6 tareas completadas
 
 #### Documentación
-- [ ] BOT_DEVELOPMENT_GUIDE.md - Guía completa para devs
-- [ ] BOT_API_REFERENCE.md - API reference detallada
-- [ ] ARCHITECTURE.md - Diagramas y decisiones
+- [x] BOT_DEVELOPMENT_GUIDE.md - Guía completa para devs
+- [x] BOT_API_REFERENCE.md - API reference detallada
+- [x] ARCHITECTURE.md - Diagramas y decisiones
+- [x] BOT_USER_GUIDE.md - Documentación operativa para usuarios finales
 
 #### Verificación Final
 - [ ] ✅ Documentación completa y clara
