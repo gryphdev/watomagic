@@ -6,6 +6,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.parishod.watomagic.replyproviders.NotificationData;
 
+import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -85,7 +86,8 @@ public class BotJsEngine {
                 notificationJson
             );
             
-            String result = quickJs.evaluate(callScript);
+            Object resultObj = quickJs.evaluate(callScript);
+            String result = resultObj != null ? resultObj.toString() : null;
             
             if (result == null || result.trim().isEmpty() || "undefined".equals(result)) {
                 throw new Exception("Bot did not return a valid response");
@@ -109,11 +111,87 @@ public class BotJsEngine {
 
     /**
      * Inyecta las APIs de Android en el contexto JavaScript
+     * Usa JSFunction de QuickJS para exponer métodos Java como funciones JavaScript
      */
     private void injectAndroidAPIs(QuickJs quickJs) {
         try {
-            // Crear objeto Android con todas las APIs
-            String androidApiScript = String.format(
+            // Crear funciones wrapper que llamen a los métodos Java
+            // QuickJS requiere usar JSFunction con la firma correcta
+            app.cash.quickjs.JSFunction logFunction = new app.cash.quickjs.JSFunction() {
+                @Override
+                public Object call(Object... args) {
+                    androidAPI.log(args[0].toString(), args[1].toString());
+                    return null;
+                }
+            };
+            
+            app.cash.quickjs.JSFunction storageGetFunction = new app.cash.quickjs.JSFunction() {
+                @Override
+                public Object call(Object... args) {
+                    return androidAPI.storageGet(args[0].toString());
+                }
+            };
+            
+            app.cash.quickjs.JSFunction storageSetFunction = new app.cash.quickjs.JSFunction() {
+                @Override
+                public Object call(Object... args) {
+                    androidAPI.storageSet(args[0].toString(), args[1].toString());
+                    return null;
+                }
+            };
+            
+            app.cash.quickjs.JSFunction storageRemoveFunction = new app.cash.quickjs.JSFunction() {
+                @Override
+                public Object call(Object... args) {
+                    androidAPI.storageRemove(args[0].toString());
+                    return null;
+                }
+            };
+            
+            app.cash.quickjs.JSFunction storageKeysFunction = new app.cash.quickjs.JSFunction() {
+                @Override
+                public Object call(Object... args) {
+                    return androidAPI.storageKeys();
+                }
+            };
+            
+            app.cash.quickjs.JSFunction httpRequestFunction = new app.cash.quickjs.JSFunction() {
+                @Override
+                public Object call(Object... args) {
+                    try {
+                        return androidAPI.httpRequest(args[0].toString());
+                    } catch (IOException e) {
+                        throw new RuntimeException("HTTP request failed: " + e.getMessage(), e);
+                    }
+                }
+            };
+            
+            app.cash.quickjs.JSFunction getCurrentTimeFunction = new app.cash.quickjs.JSFunction() {
+                @Override
+                public Object call(Object... args) {
+                    return androidAPI.getCurrentTime();
+                }
+            };
+            
+            app.cash.quickjs.JSFunction getAppNameFunction = new app.cash.quickjs.JSFunction() {
+                @Override
+                public Object call(Object... args) {
+                    return androidAPI.getAppName(args[0].toString());
+                }
+            };
+            
+            // Registrar funciones usando set() con JSFunction.class
+            quickJs.set("AndroidAPI_log", app.cash.quickjs.JSFunction.class, logFunction);
+            quickJs.set("AndroidAPI_storageGet", app.cash.quickjs.JSFunction.class, storageGetFunction);
+            quickJs.set("AndroidAPI_storageSet", app.cash.quickjs.JSFunction.class, storageSetFunction);
+            quickJs.set("AndroidAPI_storageRemove", app.cash.quickjs.JSFunction.class, storageRemoveFunction);
+            quickJs.set("AndroidAPI_storageKeys", app.cash.quickjs.JSFunction.class, storageKeysFunction);
+            quickJs.set("AndroidAPI_httpRequest", app.cash.quickjs.JSFunction.class, httpRequestFunction);
+            quickJs.set("AndroidAPI_getCurrentTime", app.cash.quickjs.JSFunction.class, getCurrentTimeFunction);
+            quickJs.set("AndroidAPI_getAppName", app.cash.quickjs.JSFunction.class, getAppNameFunction);
+            
+            // Crear objeto Android con todas las APIs que llama a las funciones Java
+            String androidApiScript = 
                 "const Android = { " +
                 "  log: function(level, message) { " +
                 "    AndroidAPI_log(level, message); " +
@@ -139,20 +217,9 @@ public class BotJsEngine {
                 "  getAppName: function(packageName) { " +
                 "    return AndroidAPI_getAppName(packageName); " +
                 "  } " +
-                "};"
-            );
+                "};";
             
             quickJs.evaluate(androidApiScript);
-            
-            // Registrar funciones Java como funciones JavaScript
-            quickJs.set("AndroidAPI_log", androidAPI::log);
-            quickJs.set("AndroidAPI_storageGet", androidAPI::storageGet);
-            quickJs.set("AndroidAPI_storageSet", androidAPI::storageSet);
-            quickJs.set("AndroidAPI_storageRemove", androidAPI::storageRemove);
-            quickJs.set("AndroidAPI_storageKeys", androidAPI::storageKeys);
-            quickJs.set("AndroidAPI_httpRequest", androidAPI::httpRequest);
-            quickJs.set("AndroidAPI_getCurrentTime", androidAPI::getCurrentTime);
-            quickJs.set("AndroidAPI_getAppName", androidAPI::getAppName);
             
         } catch (Exception e) {
             Log.e(TAG, "Error injecting Android APIs", e);
