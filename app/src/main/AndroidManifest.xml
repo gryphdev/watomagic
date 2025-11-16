@@ -49,7 +49,7 @@
         <activity
             android:name=".activity.botconfig.BotConfigActivity"
             android:exported="false"
-            android:label="Configuración de Bots"
+            android:label="@string/bot_configuration"
             android:parentActivityName=".activity.main.MainActivity" />
         <activity
             android:name=".activity.about.AboutActivity"

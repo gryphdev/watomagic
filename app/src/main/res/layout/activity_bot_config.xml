@@ -13,7 +13,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Configuración de Bots" />
+            app:title="@string/bot_configuration" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -40,14 +40,14 @@
                     android:padding="16dp">
 
                     <TextView
-                        android:text="Estado del Bot"
+                        android:text="@string/bot_status"
                         android:textAppearance="?attr/textAppearanceHeadline6"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/enableBotSwitch"
-                        android:text="Habilitar Bot JavaScript"
+                        android:text="@string/enable_bot_js"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp" />
@@ -67,7 +67,7 @@
                     android:padding="16dp">
 
                     <TextView
-                        android:text="URL del Bot"
+                        android:text="@string/bot_url_label"
                         android:textAppearance="?attr/textAppearanceHeadline6"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
@@ -76,7 +76,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:hint="https://ejemplo.com/bot.js">
+                        android:hint="@string/bot_url_hint">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/botUrlInput"
@@ -87,7 +87,7 @@
 
                     <Button
                         android:id="@+id/downloadBotButton"
-                        android:text="Descargar Bot"
+                        android:text="@string/download_bot"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp" />
@@ -116,7 +116,7 @@
                     android:padding="16dp">
 
                     <TextView
-                        android:text="Información del Bot"
+                        android:text="@string/bot_info_title"
                         android:textAppearance="?attr/textAppearanceHeadline6"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
@@ -128,6 +128,13 @@
                         android:layout_marginTop="8dp" />
 
                     <TextView
+                        android:id="@+id/botHashText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:visibility="gone" />
+
+                    <TextView
                         android:id="@+id/botLastUpdateText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -135,7 +142,7 @@
 
                     <Button
                         android:id="@+id/testBotButton"
-                        android:text="Probar Bot"
+                        android:text="@string/test_bot"
                         style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -155,21 +162,21 @@
                     android:padding="16dp">
 
                     <TextView
-                        android:text="Configuración Avanzada"
+                        android:text="@string/advanced_settings"
                         android:textAppearance="?attr/textAppearanceHeadline6"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/autoUpdateSwitch"
-                        android:text="Auto-actualización"
+                        android:text="@string/auto_update_bot"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp" />
 
                     <Button
                         android:id="@+id/deleteBotButton"
-                        android:text="Eliminar Bot"
+                        android:text="@string/delete_bot"
                         style="@style/Widget.Material3.Button.TextButton"
                         android:textColor="?attr/colorError"
                         android:layout_width="wrap_content"
