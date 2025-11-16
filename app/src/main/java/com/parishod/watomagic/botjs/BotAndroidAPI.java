@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -97,11 +98,13 @@ public class BotAndroidAPI {
             String bodyString = options.optString("body", null);
 
             Request.Builder builder = new Request.Builder().url(url);
-            if (headersObj != null) {
-                for (String key : headersObj.keySet()) {
-                    builder.addHeader(key, headersObj.optString(key));
-                }
+        if (headersObj != null) {
+            Iterator<String> keys = headersObj.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                builder.addHeader(key, headersObj.optString(key));
             }
+        }
 
             switch (method) {
                 case "POST":
