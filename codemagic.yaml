@@ -74,7 +74,78 @@ workflows:
           ./gradlew projects --no-daemon
 
       # ============================================================
-      # SCRIPT 5: Run Unit Tests (non-blocking)
+      # SCRIPT 5: Pre-build Validation (CRITICAL - must pass)
+      # ============================================================
+      - name: Pre-build validation
+        script: |
+          echo "🔍 Ejecutando validaciones pre-build (CRÍTICO)..."
+          echo ""
+          
+          # 1. Verificar archivos críticos existen
+          echo "📝 Verificando archivos críticos..."
+          CRITICAL_FILES=(
+            "app/src/main/java/com/parishod/watomatic/replyproviders/ReplyProvider.java"
+            "app/src/main/java/com/parishod/watomatic/replyproviders/NotificationData.java"
+            "app/src/main/java/com/parishod/watomatic/replyproviders/ReplyProviderFactory.java"
+            "app/src/main/java/com/parishod/watomatic/botjs/RateLimiter.java"
+            "app/src/main/java/com/parishod/watomatic/botjs/BotExecutionException.java"
+          )
+          
+          MISSING_FILES=0
+          for file in "${CRITICAL_FILES[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Archivo faltante: $file"
+              MISSING_FILES=$((MISSING_FILES + 1))
+            else
+              echo "✅ $file"
+            fi
+          done
+          
+          if [ $MISSING_FILES -gt 0 ]; then
+            echo "❌ ERROR: $MISSING_FILES archivo(s) crítico(s) faltante(s)"
+            exit 1
+          fi
+          
+          # 2. Verificar compilación Java
+          echo ""
+          echo "📝 Validando compilación Java..."
+          if ! ./gradlew compileDefaultDebugJavaWithJavac \
+            --no-daemon \
+            --stacktrace \
+            --warning-mode all; then
+            echo "❌ ERROR: Compilación Java falló"
+            echo "📋 Revisar errores arriba para detalles"
+            exit 1
+          fi
+          
+          # 3. Verificar compilación Kotlin
+          echo ""
+          echo "📝 Validando compilación Kotlin..."
+          if ! ./gradlew compileDefaultDebugKotlin \
+            --no-daemon \
+            --stacktrace \
+            --warning-mode all; then
+            echo "❌ ERROR: Compilación Kotlin falló"
+            echo "📋 Revisar errores arriba para detalles"
+            exit 1
+          fi
+          
+          # 4. Verificar dependencias se resuelven
+          echo ""
+          echo "📦 Validando dependencias..."
+          if ! ./gradlew dependencies \
+            --configuration defaultDebugCompileClasspath \
+            --no-daemon \
+            --quiet; then
+            echo "❌ ERROR: Dependencias no se pueden resolver"
+            exit 1
+          fi
+          
+          echo ""
+          echo "✅ Todas las validaciones pre-build pasaron"
+
+      # ============================================================
+      # SCRIPT 6: Run Unit Tests (non-blocking)
       # ============================================================
       - name: Run unit tests
         script: |
@@ -96,7 +167,7 @@ workflows:
           echo "✅ Unit test execution completed (check logs for results)"
 
       # ============================================================
-      # SCRIPT 6: Run Lint Checks (non-blocking)
+      # SCRIPT 7: Run Lint Checks (non-blocking)
       # ============================================================
       - name: Run lint checks
         script: |
@@ -117,7 +188,7 @@ workflows:
           echo "✅ Lint check completed (check logs for results)"
 
       # ============================================================
-      # SCRIPT 7: Build Android Release APK (unsigned)
+      # SCRIPT 8: Build Android Release APK (unsigned)
       # ============================================================
       - name: Build Android Release APK
         script: |
@@ -134,18 +205,31 @@ workflows:
           echo ""
 
           echo "🚀 Starting Gradle build..."
-          ./gradlew assembleDefaultRelease \
+          if ! ./gradlew assembleDefaultRelease \
             -PversionCode=$VERSION_CODE \
             -PversionName=$VERSION_NAME \
             --no-daemon \
             --parallel \
             --stacktrace \
-            --info
+            --info; then
+            
+            echo ""
+            echo "❌ BUILD FAILED"
+            echo ""
+            echo "📋 Para diagnosticar:"
+            echo "   1. Revisar errores arriba (buscar 'FAILURE:' o 'ERROR:')"
+            echo "   2. Verificar que todas las clases existen"
+            echo "   3. Verificar que todas las dependencias están disponibles"
+            echo "   4. Ejecutar validaciones pre-build localmente:"
+            echo "      ./gradlew compileDefaultDebugJavaWithJavac --stacktrace"
+            echo ""
+            exit 1
+          fi
 
           echo "✅ Gradle build command completed"
 
       # ============================================================
-      # SCRIPT 8: Validate APK Build Artifacts
+      # SCRIPT 9: Validate APK Build Artifacts
       # ============================================================
       - name: Validate APK artifacts
         script: |
@@ -189,7 +273,7 @@ workflows:
           fi
 
       # ============================================================
-      # SCRIPT 9: Display Build Summary
+      # SCRIPT 10: Display Build Summary
       # ============================================================
       - name: Build summary
         script: |

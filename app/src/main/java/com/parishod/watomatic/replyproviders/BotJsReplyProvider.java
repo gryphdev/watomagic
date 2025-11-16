@@ -8,7 +8,6 @@ import com.google.gson.JsonObject;
 import com.parishod.watomagic.botjs.BotJsEngine;
 import com.parishod.watomagic.botjs.BotValidator;
 import com.parishod.watomagic.botjs.RateLimiter;
-import com.parishod.watomagic.model.preferences.PreferencesManager;
 
 import java.io.File;
 import java.io.FileReader;
