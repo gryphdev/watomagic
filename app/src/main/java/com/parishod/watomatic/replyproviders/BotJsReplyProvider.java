@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.parishod.watomagic.botjs.BotJsEngine;
 import com.parishod.watomagic.botjs.BotValidator;
+import com.parishod.watomagic.botjs.RateLimiter;
 import com.parishod.watomagic.model.preferences.PreferencesManager;
 
 import java.io.File;
@@ -21,6 +22,14 @@ import java.util.concurrent.TimeoutException;
 public class BotJsReplyProvider implements ReplyProvider {
     private static final String TAG = "BotJsReplyProvider";
     private static final String BOT_FILE_NAME = "active-bot.js";
+    private static final int MAX_EXECUTIONS_PER_MINUTE = 100;
+    private static final long RATE_LIMIT_WINDOW_MS = 60000; // 1 minuto
+    
+    // Rate limiter compartido para todas las instancias
+    private static final RateLimiter rateLimiter = new RateLimiter(
+        MAX_EXECUTIONS_PER_MINUTE, 
+        RATE_LIMIT_WINDOW_MS
+    );
     
     private final Gson gson = new Gson();
 
@@ -32,6 +41,13 @@ public class BotJsReplyProvider implements ReplyProvider {
         // Ejecutar en thread background para no bloquear el UI thread
         new Thread(() -> {
             try {
+                // Verificar rate limiting
+                if (!rateLimiter.tryAcquire()) {
+                    Log.w(TAG, "Rate limit exceeded, skipping bot execution");
+                    callback.onFailure("Rate limit exceeded");
+                    return;
+                }
+                
                 // Cargar bot.js desde almacenamiento interno
                 String jsCode = loadBotCode(context);
                 
