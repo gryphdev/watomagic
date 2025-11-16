@@ -133,6 +133,16 @@ workflows:
           echo "   - Build Number: $BUILD_NUMBER"
           echo ""
 
+            # Ensure Android SDK path is available for Gradle
+            SDK_PATH="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/Users/builder/Library/Android/sdk}}"
+            if [ ! -d "$SDK_PATH" ]; then
+              echo "❌ Android SDK not found at '$SDK_PATH'. Set ANDROID_SDK_ROOT or ANDROID_HOME."
+              exit 1
+            fi
+
+            echo "sdk.dir=${SDK_PATH}" > local.properties
+            echo "🛠️  Using Android SDK at: $SDK_PATH"
+
           echo "🚀 Starting Gradle build..."
           ./gradlew assembleDefaultRelease \
             -PversionCode=$VERSION_CODE \

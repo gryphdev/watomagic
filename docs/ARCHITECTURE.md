@@ -1,7 +1,7 @@
 # Arquitectura del sistema BotJS
 
 **Última actualización:** 2025-11-15  
-**Estado:** Arquitectura aprobada, implementación pendiente (Fases 1–7 sin iniciar).
+**Estado:** Arquitectura en marcha – Fase 1 en progreso, Fase 2 completada, runtime QuickJS (Fase 3) en desarrollo.
 
 ---
 
@@ -33,11 +33,11 @@ ReplyProviderFactory ───────────────────�
 
 | Módulo | Estado | Rol |
 |--------|--------|-----|
-| `replyproviders.*` | Diseño aprobado | Contiene interfaz, factory y providers (Static, OpenAI, BotJS). |
-| `botjs/BotJsEngine` | Diseño aprobado | Encapsula QuickJS, inyecta `Android` y maneja timeouts. |
-| `botjs/BotAndroidAPI` | Diseño aprobado | Implementa logging, storage y HTTP con OkHttp. |
+| `replyproviders.*` | 🟡 En progreso | Interfaz, factory, Static y OpenAI providers ya refactorizados; pendiente BotJsReplyProvider/otros. |
+| `botjs/BotJsEngine` | 🟡 Implementado (scaffolding) | QuickJS wrapper listo con timeouts; aguardando integración con provider y bindings finales. |
+| `botjs/BotAndroidAPI` | 🟡 Implementado (scaffolding) | Exposición controlada de logging, storage y HTTP (solo HTTPS) para los bots. |
 | `botjs/BotRepository` | Diseño aprobado | Descargar, validar y almacenar `active-bot.js`. |
-| `botjs/BotValidator` | Diseño aprobado | Reglas estáticas (tamaño, patrones, firma futura). |
+| `botjs/BotValidator` | 🟡 Implementado | Reglas de tamaño/patrones ya codificadas. |
 | `workers/BotUpdateWorker` | Diseño aprobado | WorkManager periódico para auto-updates. |
 | `activity/botconfig/*` | Diseño aprobado | Pantalla Material 3 para configurar bots. |
 
@@ -94,7 +94,9 @@ ReplyProviderFactory ───────────────────�
 
 ## 7. Próximos entregables
 - ✅ Documentación base (este archivo + guías en `docs/`).
-- ☐ Implementar Strategy Pattern (Fase 1).
-- ☐ Integrar QuickJS y providers (Fases 2–4).
-- ☐ Desarrollar UI + Worker + pruebas (Fases 5–7).
-- ☐ Actualizar métricas y guías tras cada milestone.
+- 🟡 Fase 1 – Strategy Pattern: añadir pruebas unitarias de factory/providers y crear `BotJsReplyProvider` que consuma el runtime QuickJS.
+- ✅ Fase 2 – Assets TypeScript: `bot-types.d.ts` y `example-bot.js` listos en `app/src/main/assets/`.
+- 🟡 Fases 3–4 – QuickJS + Providers: conectar `BotJsEngine/BotAndroidAPI` con bindings reales, exponer `Android` al sandbox e integrar el nuevo provider.
+- ☐ Fases 5–6 – Bot lifecycle completo: `BotRepository`, `BotUpdateWorker`, `BotConfigActivity` y ajustes en `PreferencesManager`/UI.
+- ☐ Fase 7 – Testing & Seguridad: suites unitarias/integrales, validaciones adicionales y métricas >75 % cobertura.
+- ☐ Fase 8 – Cierre: actualizar documentación, métricas y checklist final para la habilitación de BotJS en producción.
