@@ -20,6 +20,21 @@ Watomagic envía una respuesta automática a todos los que te contacten en apps 
   - Sin análisis ni rastreo de datos
 - 🆓 **Gratis y código abierto**
 
+## 🧩 Plataforma BotJS (en desarrollo)
+
+Estamos trabajando en un sistema de bots JavaScript descargables (`BotJS`) que permitirá personalizar la lógica de respuesta de forma ilimitada. Aún no está disponible en las builds públicas, pero ya podés revisar la arquitectura y preparar tus scripts.
+
+- Descarga segura de `bot.js` alojados en HTTPS con validación de tamaño y patrones.
+- Motor QuickJS sandbox con APIs controladas (`Android.log`, `Android.httpRequest`, storage, etc.).
+- Pantalla dedicada (`BotConfigActivity`) para habilitar/deshabilitar bots, probarlos y configurar auto‑updates.
+- WorkManager verificando nuevas versiones cada 6 horas con rollback automático ante fallos.
+
+Documentación inicial:
+- [Plan maestro y roadmap](./docs/PLAN_BOTJS_SYSTEM.md)
+- [Guía de uso para personas usuarias](./docs/BOT_USER_GUIDE.md)
+- [Guía de desarrollo de bots](./docs/BOT_DEVELOPMENT_GUIDE.md)
+- [API Reference + arquitectura](./docs/BOT_API_REFERENCE.md) · [Arquitectura detallada](./docs/ARCHITECTURE.md)
+
 ---
 
 ## 💡 ¿Para qué sirve?
@@ -52,6 +67,16 @@ No podés usar una cuenta business sin aceptar la nueva política de privacidad 
 ### ¿Estará disponible para iOS en el futuro?
 
 Esta app depende de la función de respuestas rápidas desde notificaciones específica de Android. Esto probablemente no sea posible en iOS.
+
+---
+
+## 📚 Documentación y recursos
+
+- [Capturas y branding](./media/screenshots/)
+- [docs/PLAN_BOTJS_SYSTEM.md](./docs/PLAN_BOTJS_SYSTEM.md) — estado del proyecto BotJS
+- [docs/BOT_USER_GUIDE.md](./docs/BOT_USER_GUIDE.md) — guía operativa para la nueva funcionalidad
+- [docs/BOT_DEVELOPMENT_GUIDE.md](./docs/BOT_DEVELOPMENT_GUIDE.md) — cómo crear tus propios scripts
+- [docs/BOT_API_REFERENCE.md](./docs/BOT_API_REFERENCE.md) y [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) — contrato técnico
 
 ---
 
