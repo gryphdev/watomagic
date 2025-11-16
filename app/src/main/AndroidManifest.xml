@@ -47,6 +47,11 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".activity.botconfig.BotConfigActivity"
+            android:exported="false"
+            android:label="Configuración de Bots"
+            android:parentActivityName=".activity.main.MainActivity" />
+        <activity
             android:name=".activity.about.AboutActivity"
             android:exported="false"
             android:label="@string/about"

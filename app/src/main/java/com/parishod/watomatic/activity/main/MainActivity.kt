@@ -13,6 +13,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.parishod.watomagic.service.NlsHealthCheckWorker
+import com.parishod.watomagic.workers.BotUpdateWorker
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import java.util.concurrent.TimeUnit
 
 class MainActivity : BaseActivity() {
     private lateinit var viewModel: SwipeToKillAppDetectViewModel
@@ -41,5 +46,20 @@ class MainActivity : BaseActivity() {
 
         // Schedule health check
         NlsHealthCheckWorker.schedule(this)
+        
+        // Schedule bot update worker (every 6 hours)
+        scheduleBotUpdateWorker()
+    }
+    
+    private fun scheduleBotUpdateWorker() {
+        val botUpdateWork = PeriodicWorkRequestBuilder<BotUpdateWorker>(
+            6, TimeUnit.HOURS
+        ).build()
+        
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "BotUpdateWork",
+            ExistingPeriodicWorkPolicy.KEEP,
+            botUpdateWork
+        )
     }
 }
