@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.parishod.watomagic.replyproviders.NotificationData;
 
 import java.io.IOException;
@@ -89,6 +91,9 @@ public class BotJsEngine {
             Object resultObj = quickJs.evaluate(callScript);
             String result = resultObj != null ? resultObj.toString() : null;
             
+            // Guardar storage de JavaScript de vuelta a Java
+            saveStorageFromJS(quickJs);
+            
             if (result == null || result.trim().isEmpty() || "undefined".equals(result)) {
                 throw new Exception("Bot did not return a valid response");
             }
@@ -111,119 +116,102 @@ public class BotJsEngine {
 
     /**
      * Inyecta las APIs de Android en el contexto JavaScript
-     * Usa JSFunction de QuickJS para exponer métodos Java como funciones JavaScript
+     * Implementa las APIs directamente en JavaScript usando datos almacenados en variables globales
+     * que se sincronizan con el storage persistente de Java
      */
     private void injectAndroidAPIs(QuickJs quickJs) {
         try {
-            // Crear funciones wrapper que llamen a los métodos Java
-            // QuickJS requiere usar JSFunction con la firma correcta
-            app.cash.quickjs.JSFunction logFunction = new app.cash.quickjs.JSFunction() {
-                @Override
-                public Object call(Object... args) {
-                    androidAPI.log(args[0].toString(), args[1].toString());
-                    return null;
-                }
-            };
-            
-            app.cash.quickjs.JSFunction storageGetFunction = new app.cash.quickjs.JSFunction() {
-                @Override
-                public Object call(Object... args) {
-                    return androidAPI.storageGet(args[0].toString());
-                }
-            };
-            
-            app.cash.quickjs.JSFunction storageSetFunction = new app.cash.quickjs.JSFunction() {
-                @Override
-                public Object call(Object... args) {
-                    androidAPI.storageSet(args[0].toString(), args[1].toString());
-                    return null;
-                }
-            };
-            
-            app.cash.quickjs.JSFunction storageRemoveFunction = new app.cash.quickjs.JSFunction() {
-                @Override
-                public Object call(Object... args) {
-                    androidAPI.storageRemove(args[0].toString());
-                    return null;
-                }
-            };
-            
-            app.cash.quickjs.JSFunction storageKeysFunction = new app.cash.quickjs.JSFunction() {
-                @Override
-                public Object call(Object... args) {
-                    return androidAPI.storageKeys();
-                }
-            };
-            
-            app.cash.quickjs.JSFunction httpRequestFunction = new app.cash.quickjs.JSFunction() {
-                @Override
-                public Object call(Object... args) {
-                    try {
-                        return androidAPI.httpRequest(args[0].toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException("HTTP request failed: " + e.getMessage(), e);
+            // Cargar storage persistente desde Java primero
+            String[] storageKeys = androidAPI.storageKeys();
+            StringBuilder storageInit = new StringBuilder("var _androidStorage = {");
+            if (storageKeys.length > 0) {
+                for (int i = 0; i < storageKeys.length; i++) {
+                    String value = androidAPI.storageGet(storageKeys[i]);
+                    if (value != null) {
+                        // Escapar correctamente para JSON
+                        String escapedKey = storageKeys[i].replace("\\", "\\\\").replace("\"", "\\\"");
+                        String escapedValue = value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r");
+                        storageInit.append("\"").append(escapedKey).append("\":\"").append(escapedValue).append("\"");
+                        if (i < storageKeys.length - 1) {
+                            storageInit.append(",");
+                        }
                     }
                 }
-            };
+            }
+            storageInit.append("};");
+            quickJs.evaluate(storageInit.toString());
             
-            app.cash.quickjs.JSFunction getCurrentTimeFunction = new app.cash.quickjs.JSFunction() {
-                @Override
-                public Object call(Object... args) {
-                    return androidAPI.getCurrentTime();
-                }
-            };
-            
-            app.cash.quickjs.JSFunction getAppNameFunction = new app.cash.quickjs.JSFunction() {
-                @Override
-                public Object call(Object... args) {
-                    return androidAPI.getAppName(args[0].toString());
-                }
-            };
-            
-            // Registrar funciones usando set() con JSFunction.class
-            quickJs.set("AndroidAPI_log", app.cash.quickjs.JSFunction.class, logFunction);
-            quickJs.set("AndroidAPI_storageGet", app.cash.quickjs.JSFunction.class, storageGetFunction);
-            quickJs.set("AndroidAPI_storageSet", app.cash.quickjs.JSFunction.class, storageSetFunction);
-            quickJs.set("AndroidAPI_storageRemove", app.cash.quickjs.JSFunction.class, storageRemoveFunction);
-            quickJs.set("AndroidAPI_storageKeys", app.cash.quickjs.JSFunction.class, storageKeysFunction);
-            quickJs.set("AndroidAPI_httpRequest", app.cash.quickjs.JSFunction.class, httpRequestFunction);
-            quickJs.set("AndroidAPI_getCurrentTime", app.cash.quickjs.JSFunction.class, getCurrentTimeFunction);
-            quickJs.set("AndroidAPI_getAppName", app.cash.quickjs.JSFunction.class, getAppNameFunction);
-            
-            // Crear objeto Android con todas las APIs que llama a las funciones Java
+            // Crear objeto Android con implementación en JavaScript puro
+            // Las funciones usan _androidStorage que se sincroniza con Java
             String androidApiScript = 
-                "const Android = { " +
-                "  log: function(level, message) { " +
-                "    AndroidAPI_log(level, message); " +
-                "  }, " +
-                "  storageGet: function(key) { " +
-                "    return AndroidAPI_storageGet(key); " +
-                "  }, " +
-                "  storageSet: function(key, value) { " +
-                "    AndroidAPI_storageSet(key, value); " +
-                "  }, " +
-                "  storageRemove: function(key) { " +
-                "    AndroidAPI_storageRemove(key); " +
-                "  }, " +
-                "  storageKeys: function() { " +
-                "    return AndroidAPI_storageKeys(); " +
-                "  }, " +
-                "  httpRequest: function(options) { " +
-                "    return AndroidAPI_httpRequest(JSON.stringify(options)); " +
-                "  }, " +
-                "  getCurrentTime: function() { " +
-                "    return AndroidAPI_getCurrentTime(); " +
-                "  }, " +
-                "  getAppName: function(packageName) { " +
-                "    return AndroidAPI_getAppName(packageName); " +
-                "  } " +
+                "const Android = {\n" +
+                "  log: function(level, message) {\n" +
+                "    // Logging se maneja en JavaScript (puede extenderse para logging real)\n" +
+                "    console.log('[' + level + '] ' + message);\n" +
+                "  },\n" +
+                "  storageGet: function(key) {\n" +
+                "    return _androidStorage[key] || null;\n" +
+                "  },\n" +
+                "  storageSet: function(key, value) {\n" +
+                "    _androidStorage[key] = value;\n" +
+                "  },\n" +
+                "  storageRemove: function(key) {\n" +
+                "    delete _androidStorage[key];\n" +
+                "  },\n" +
+                "  storageKeys: function() {\n" +
+                "    return Object.keys(_androidStorage);\n" +
+                "  },\n" +
+                "  httpRequest: function(options) {\n" +
+                "    // HTTP requests no están disponibles en esta implementación básica\n" +
+                "    // Se puede extender en el futuro\n" +
+                "    return Promise.reject(new Error('HTTP requests not available in basic implementation'));\n" +
+                "  },\n" +
+                "  getCurrentTime: function() {\n" +
+                "    return Date.now();\n" +
+                "  },\n" +
+                "  getAppName: function(packageName) {\n" +
+                "    return packageName;\n" +
+                "  }\n" +
                 "};";
             
             quickJs.evaluate(androidApiScript);
             
+            Log.d(TAG, "Android APIs injected (JavaScript-only implementation)");
+            
         } catch (Exception e) {
             Log.e(TAG, "Error injecting Android APIs", e);
             throw new RuntimeException("Failed to inject Android APIs", e);
+        }
+    }
+    
+    /**
+     * Guarda el storage de JavaScript de vuelta a Java después de la ejecución
+     */
+    private void saveStorageFromJS(QuickJs quickJs) {
+        try {
+            // Leer storage desde JavaScript
+            Object storageObj = quickJs.evaluate("JSON.stringify(_androidStorage)");
+            if (storageObj != null) {
+                String storageJson = storageObj.toString();
+                if (!storageJson.equals("{}") && !storageJson.equals("undefined")) {
+                    // Parsear JSON y guardar en Java
+                    JsonObject storage = gson.fromJson(storageJson, JsonObject.class);
+                    if (storage != null) {
+                        for (java.util.Map.Entry<String, JsonElement> entry : storage.entrySet()) {
+                            String key = entry.getKey();
+                            JsonElement valueElement = entry.getValue();
+                            String value = valueElement.isJsonNull() ? null : valueElement.getAsString();
+                            if (value != null) {
+                                androidAPI.storageSet(key, value);
+                            } else {
+                                androidAPI.storageRemove(key);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Error saving storage from JS", e);
         }
     }
 }
