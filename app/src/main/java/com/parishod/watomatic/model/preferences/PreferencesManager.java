@@ -56,6 +56,7 @@ public class PreferencesManager {
     private final String KEY_OPENAI_CUSTOM_PROMPT = "pref_openai_prompt";
     private final String KEY_IS_LOGGED_IN = "pref_is_logged_in";
     private final String KEY_IS_GUEST_MODE = "pref_is_guest_mode";
+    private final String KEY_FIREBASE_TOKEN = "pref_firebase_token";
     private final String KEY_USER_EMAIL = "pref_user_email";
     private final String KEY_BOT_JS_ENABLED = "pref_bot_js_enabled";
     private final String KEY_BOT_JS_URL = "pref_bot_js_url";
@@ -525,6 +526,16 @@ public class PreferencesManager {
         SharedPreferences.Editor editor = _sharedPrefs.edit();
         editor.putBoolean(KEY_IS_GUEST_MODE, isGuestMode);
         editor.apply();
+    }
+
+    public void setFirebaseToken(String token) {
+        SharedPreferences.Editor editor = _sharedPrefs.edit();
+        editor.putString(KEY_FIREBASE_TOKEN, token);
+        editor.apply();
+    }
+
+    public String getFirebaseToken() {
+        return _sharedPrefs.getString(KEY_FIREBASE_TOKEN, "");
     }
 
     public String getUserEmail() {
