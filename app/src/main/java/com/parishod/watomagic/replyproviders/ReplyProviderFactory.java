@@ -15,6 +15,10 @@ public final class ReplyProviderFactory {
 
     @NonNull
     public static ReplyProvider getProvider(@NonNull PreferencesManager preferencesManager) {
+        // Prioridad: BotJS > OpenAI > Static
+        if (preferencesManager.isBotJsEnabled()) {
+            return new BotJsReplyProvider();
+        }
         if (preferencesManager.isOpenAIRepliesEnabled()) {
             return new OpenAIReplyProvider(preferencesManager);
         }

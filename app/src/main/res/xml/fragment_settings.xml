@@ -37,4 +37,14 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="Bot JavaScript">
+
+        <Preference
+            android:key="bot_config"
+            android:title="Configuración de Bots"
+            android:summary="Gestiona bots JavaScript personalizados"
+            android:icon="@drawable/ic_settings" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>
