@@ -153,14 +153,10 @@ workflows:
 
     environment:
       java: 17
-      # Reference the watomagic_keystore group created in Codemagic UI
-      # This group should contain:
-      #   - KEYSTORE (file) → watomagic-release.keystore (exposed as $KEYSTORE_PATH)
-      #   - KEYSTORE_PASSWORD (secure text)
-      #   - KEY_ALIAS (secure text)
-      #   - KEY_PASSWORD (secure text)
-      groups:
-        - watomagic_keystore
+      # Android signing identity configured in CodeMagic UI
+      # (Code signing identities → Android → "Watomagic")
+      android_signing:
+        - Watomagic
       vars:
         # Package name for the Default flavor (F-Droid variant)
         PACKAGE_NAME: "com.parishod.watomagic"
@@ -236,39 +232,40 @@ workflows:
           echo "🔐 Verifying signing configuration..."
           echo ""
 
-          # Check that all signing variables are set
-          if [ -z "$KEYSTORE_PATH" ]; then
-            echo "❌ ERROR: KEYSTORE_PATH not set"
-            echo "   Configure android_signing group in Codemagic"
+          # Check that all signing variables from android_signing identity are set
+          # CodeMagic injects these with CM_ prefix from "Code signing identities"
+          if [ -z "$CM_KEYSTORE_PATH" ]; then
+            echo "❌ ERROR: CM_KEYSTORE_PATH not set"
+            echo "   Configure 'Watomagic' in Code signing identities → Android"
             exit 1
           fi
 
-          if [ -z "$KEYSTORE_PASSWORD" ]; then
-            echo "❌ ERROR: KEYSTORE_PASSWORD not set"
+          if [ -z "$CM_KEYSTORE_PASSWORD" ]; then
+            echo "❌ ERROR: CM_KEYSTORE_PASSWORD not set"
             exit 1
           fi
 
-          if [ -z "$KEY_ALIAS" ]; then
-            echo "❌ ERROR: KEY_ALIAS not set"
+          if [ -z "$CM_KEY_ALIAS" ]; then
+            echo "❌ ERROR: CM_KEY_ALIAS not set"
             exit 1
           fi
 
-          if [ -z "$KEY_PASSWORD" ]; then
-            echo "❌ ERROR: KEY_PASSWORD not set"
+          if [ -z "$CM_KEY_PASSWORD" ]; then
+            echo "❌ ERROR: CM_KEY_PASSWORD not set"
             exit 1
           fi
 
           # Verify keystore file exists
-          if [ ! -f "$KEYSTORE_PATH" ]; then
-            echo "❌ ERROR: Keystore file not found at $KEYSTORE_PATH"
+          if [ ! -f "$CM_KEYSTORE_PATH" ]; then
+            echo "❌ ERROR: Keystore file not found at $CM_KEYSTORE_PATH"
             exit 1
           fi
 
-          echo "✅ Keystore file exists: $KEYSTORE_PATH"
-          ls -lh "$KEYSTORE_PATH"
+          echo "✅ Keystore file exists: $CM_KEYSTORE_PATH"
+          ls -lh "$CM_KEYSTORE_PATH"
 
           echo ""
-          echo "✅ All signing variables configured correctly"
+          echo "✅ All signing variables configured correctly (from Code signing identity)"
 
       # ============================================================
       # SCRIPT 6: Run Unit Tests (non-blocking)
@@ -342,18 +339,18 @@ workflows:
           echo ""
 
           echo "🔐 Signing configuration:"
-          echo "   - Keystore: $KEYSTORE_PATH"
-          echo "   - Key Alias: $KEY_ALIAS"
+          echo "   - Keystore: $CM_KEYSTORE_PATH"
+          echo "   - Key Alias: $CM_KEY_ALIAS"
           echo ""
 
           echo "🚀 Starting Gradle build with signing..."
           ./gradlew assembleDefaultRelease \
             -PversionCode=$VERSION_CODE \
             -PversionName=$VERSION_NAME \
-            -Pandroid.injected.signing.store.file=$KEYSTORE_PATH \
-            -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
-            -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
-            -Pandroid.injected.signing.key.password=$KEY_PASSWORD \
+            -Pandroid.injected.signing.store.file=$CM_KEYSTORE_PATH \
+            -Pandroid.injected.signing.store.password=$CM_KEYSTORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$CM_KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$CM_KEY_PASSWORD \
             --no-daemon \
             --parallel \
             --stacktrace \
