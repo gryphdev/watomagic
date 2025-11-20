@@ -1,5 +1,6 @@
 package com.parishod.watomagic.fragment;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import androidx.preference.SwitchPreference;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.parishod.watomagic.BuildConfig;
 import com.parishod.watomagic.R;
+import com.parishod.watomagic.activity.botconfig.BotConfigActivity;
 import com.parishod.watomagic.model.preferences.PreferencesManager;
 import com.parishod.watomagic.flavor.FlavorNavigator;
 import com.parishod.watomagic.model.utils.AutoStartHelper;
@@ -70,6 +72,18 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     if (getActivity() != null) {
                         FlavorNavigator.INSTANCE.startLogin(getActivity());
                     }
+                }
+                return true;
+            });
+        }
+
+        // Bot Config preference
+        Preference botConfigPref = findPreference("bot_config");
+        if (botConfigPref != null) {
+            botConfigPref.setOnPreferenceClickListener(pref -> {
+                if (getActivity() != null) {
+                    Intent intent = new Intent(getActivity(), BotConfigActivity.class);
+                    startActivity(intent);
                 }
                 return true;
             });

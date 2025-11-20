@@ -57,6 +57,10 @@ public class PreferencesManager {
     private final String KEY_IS_LOGGED_IN = "pref_is_logged_in";
     private final String KEY_IS_GUEST_MODE = "pref_is_guest_mode";
     private final String KEY_USER_EMAIL = "pref_user_email";
+    private final String KEY_BOT_JS_ENABLED = "pref_bot_js_enabled";
+    private final String KEY_BOT_JS_URL = "pref_bot_js_url";
+    private final String KEY_BOT_JS_AUTO_UPDATE = "pref_bot_js_auto_update";
+    private final String KEY_BOT_JS_SCRIPT_PATH = "pref_bot_js_script_path";
     private static PreferencesManager _instance;
     private final SharedPreferences _sharedPrefs;
     private SharedPreferences _encryptedSharedPrefs;
@@ -526,5 +530,54 @@ public class PreferencesManager {
 
     public boolean shouldShowLogin() {
         return !isLoggedIn() && !isGuestMode();
+    }
+
+    // BotJS Preferences
+    public void setBotJsEnabled(boolean enabled) {
+        SharedPreferences.Editor editor = _sharedPrefs.edit();
+        editor.putBoolean(KEY_BOT_JS_ENABLED, enabled);
+        editor.apply();
+    }
+
+    public boolean isBotJsEnabled() {
+        return _sharedPrefs.getBoolean(KEY_BOT_JS_ENABLED, false);
+    }
+
+    public void setBotJsUrl(String url) {
+        SharedPreferences.Editor editor = _sharedPrefs.edit();
+        if (url == null) {
+            editor.remove(KEY_BOT_JS_URL);
+        } else {
+            editor.putString(KEY_BOT_JS_URL, url);
+        }
+        editor.apply();
+    }
+
+    public String getBotJsUrl() {
+        return _sharedPrefs.getString(KEY_BOT_JS_URL, null);
+    }
+
+    public void setBotJsAutoUpdate(boolean enabled) {
+        SharedPreferences.Editor editor = _sharedPrefs.edit();
+        editor.putBoolean(KEY_BOT_JS_AUTO_UPDATE, enabled);
+        editor.apply();
+    }
+
+    public boolean isBotJsAutoUpdateEnabled() {
+        return _sharedPrefs.getBoolean(KEY_BOT_JS_AUTO_UPDATE, true);
+    }
+
+    public void setBotJsScriptPath(String path) {
+        SharedPreferences.Editor editor = _sharedPrefs.edit();
+        if (path == null) {
+            editor.remove(KEY_BOT_JS_SCRIPT_PATH);
+        } else {
+            editor.putString(KEY_BOT_JS_SCRIPT_PATH, path);
+        }
+        editor.apply();
+    }
+
+    public String getBotJsScriptPath() {
+        return _sharedPrefs.getString(KEY_BOT_JS_SCRIPT_PATH, null);
     }
 }
