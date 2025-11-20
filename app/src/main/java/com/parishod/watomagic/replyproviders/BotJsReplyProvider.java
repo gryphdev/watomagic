@@ -3,12 +3,15 @@ package com.parishod.watomagic.replyproviders;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.parishod.watomagic.botjs.BotExecutionException;
 import com.parishod.watomagic.botjs.BotJsEngine;
 import com.parishod.watomagic.botjs.BotValidator;
 import com.parishod.watomagic.botjs.RateLimiter;
+import com.parishod.watomagic.replyproviders.model.NotificationData;
 
 import java.io.File;
 import java.io.FileReader;

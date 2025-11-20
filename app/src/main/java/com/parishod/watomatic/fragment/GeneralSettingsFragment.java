@@ -3,6 +3,7 @@ package com.parishod.watomagic.fragment;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
 

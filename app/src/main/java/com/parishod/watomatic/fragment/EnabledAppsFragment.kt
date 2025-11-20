@@ -2,6 +2,7 @@ package com.parishod.watomagic.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import androidx.annotation.NonNull
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment

@@ -2,6 +2,7 @@ package com.parishod.watomagic.fragment
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import androidx.annotation.NonNull
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
