@@ -44,6 +44,21 @@ android {
         }
     }
 
+    // Signing configuration for release builds
+    signingConfigs {
+        create("release") {
+            // These values are provided by Codemagic environment variables
+            // when building signed releases. For local unsigned builds, these
+            // properties won't be present and signing will be skipped.
+            if (project.hasProperty("android.injected.signing.store.file")) {
+                storeFile = file(project.property("android.injected.signing.store.file").toString())
+                storePassword = project.property("android.injected.signing.store.password").toString()
+                keyAlias = project.property("android.injected.signing.key.alias").toString()
+                keyPassword = project.property("android.injected.signing.key.password").toString()
+            }
+        }
+    }
+
     buildTypes {
         getByName("release") {
             // Enables code shrinking, obfuscation, and optimization for only
@@ -58,6 +73,11 @@ android {
             // the Android Gradle plugin. To learn more, go to the section about
             // R8 configuration files.
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+
+            // Use signing config if available (Codemagic), otherwise unsigned (local dev)
+            if (project.hasProperty("android.injected.signing.store.file")) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {

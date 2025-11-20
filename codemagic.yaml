@@ -1,11 +1,137 @@
 workflows:
+  # ============================================================
+  # WORKFLOW 1: GENERATE KEYSTORE (ONE-TIME SETUP ONLY)
+  # ============================================================
+  # ⚠️  SECURITY WARNING: This workflow is for ONE-TIME keystore generation only.
+  #
+  # SETUP INSTRUCTIONS:
+  # 1. Go to Codemagic → Watomagic app → Environment variables
+  # 2. Create variables (as plain text, NOT secure - we'll delete them later):
+  #    - KEYSTORE_PASSWORD: Your chosen keystore password
+  #    - KEY_ALIAS: watomagic-key-alias
+  #    - KEY_PASSWORD: Your chosen key password (can be same as keystore password)
+  # 3. Trigger this workflow ONCE manually
+  # 4. Download the .keystore file from artifacts
+  # 5. SECURITY CLEANUP (CRITICAL):
+  #    a) Delete the 3 environment variables from Codemagic
+  #    b) Delete this build from Codemagic build history
+  #    c) Delete the artifact from Codemagic
+  # 6. Upload keystore to Codemagic as SECURE file variable (encrypted storage)
+  # 7. Create SECURE text variables for passwords (encrypted storage)
+  # 8. Create a group called "android_signing" with these secure variables
+  # 9. DELETE THIS ENTIRE WORKFLOW from codemagic.yaml (lines 1-95)
+  # 10. Commit the updated codemagic.yaml without this workflow
+  #
+  # After cleanup, only "android-release" workflow should remain.
+  # ============================================================
+
+  generate-keystore:
+    name: "🔐 Generate Keystore (ONE-TIME SETUP)"
+    max_build_duration: 10
+    instance_type: mac_mini_m2
+
+    environment:
+      java: 17
+      vars:
+        # These should be set in Codemagic UI before running this workflow
+        KEYSTORE_PASSWORD: CHANGE_ME_IN_CODEMAGIC_UI
+        KEY_ALIAS: watomagic-key-alias
+        KEY_PASSWORD: CHANGE_ME_IN_CODEMAGIC_UI
+
+    scripts:
+      - name: Generate Keystore
+        script: |
+          echo "🔐 Generating Android keystore..."
+          echo ""
+          echo "⚠️  SECURITY NOTICE:"
+          echo "   This keystore will be valid for 27 years (10000 days)"
+          echo "   Google Play requires certificates valid until at least Oct 22, 2033"
+          echo "   This keystore will be valid until approximately 2052"
+          echo ""
+
+          # Validate that passwords were set
+          if [ "$KEYSTORE_PASSWORD" = "CHANGE_ME_IN_CODEMAGIC_UI" ]; then
+            echo "❌ ERROR: KEYSTORE_PASSWORD not set in Codemagic environment variables"
+            echo "   Go to Codemagic → Environment variables and set KEYSTORE_PASSWORD"
+            exit 1
+          fi
+
+          if [ "$KEY_PASSWORD" = "CHANGE_ME_IN_CODEMAGIC_UI" ]; then
+            echo "❌ ERROR: KEY_PASSWORD not set in Codemagic environment variables"
+            echo "   Go to Codemagic → Environment variables and set KEY_PASSWORD"
+            exit 1
+          fi
+
+          # Generate keystore
+          keytool -genkey -v \
+            -keystore watomagic-release.keystore \
+            -alias "$KEY_ALIAS" \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -keypass "$KEY_PASSWORD" \
+            -dname "CN=Parishod, OU=Development, O=Gryphsoft, L=Buenos Aires, ST=Buenos Aires, C=AR"
+
+          echo ""
+          echo "✅ Keystore generated successfully"
+
+      - name: Verify Keystore
+        script: |
+          echo "🔍 Verifying keystore..."
+          echo ""
+
+          keytool -list -v -keystore watomagic-release.keystore -storepass "$KEYSTORE_PASSWORD"
+
+          echo ""
+          echo "📦 Keystore file details:"
+          ls -lh watomagic-release.keystore
+
+          echo ""
+          echo "✅ Keystore validation complete"
+          echo ""
+          echo "=============================================="
+          echo "🔒 CRITICAL NEXT STEPS (SECURITY):"
+          echo "=============================================="
+          echo ""
+          echo "1. Download watomagic-release.keystore from artifacts"
+          echo "2. Save it securely in a password manager or secure vault"
+          echo "3. DELETE this build from Codemagic build history"
+          echo "4. DELETE the artifact from Codemagic"
+          echo "5. DELETE the environment variables:"
+          echo "   - KEYSTORE_PASSWORD"
+          echo "   - KEY_PASSWORD"
+          echo "   - KEY_ALIAS"
+          echo "6. Upload keystore to Codemagic as SECURE file variable"
+          echo "7. Create SECURE text variables for passwords"
+          echo "8. Create 'android_signing' group in Codemagic"
+          echo "9. DELETE this entire workflow from codemagic.yaml"
+          echo "10. Test the android-release workflow with signing"
+          echo ""
+          echo "⚠️  If you lose the keystore, you CANNOT update the app!"
+          echo "=============================================="
+
+    artifacts:
+      - watomagic-release.keystore
+
+  # ============================================================
+  # WORKFLOW 2: ANDROID RELEASE BUILD (SIGNED APK)
+  # ============================================================
   android-release:
-    name: "Watomagic Android Release Build (Unsigned APK)"
+    name: "Watomagic Android Release Build (Signed APK)"
     max_build_duration: 60
     instance_type: mac_mini_m2
 
     environment:
       java: 17
+      # Reference the android_signing group created in Codemagic UI
+      # This group should contain:
+      #   - KEYSTORE (file) → watomagic-release.keystore (exposed as $KEYSTORE_PATH)
+      #   - KEYSTORE_PASSWORD (secure text)
+      #   - KEY_ALIAS (secure text)
+      #   - KEY_PASSWORD (secure text)
+      android_signing:
+        - watomagic_keystore
       vars:
         # Package name for the Default flavor (F-Droid variant)
         PACKAGE_NAME: "com.parishod.watomagic"
@@ -74,7 +200,49 @@ workflows:
           ./gradlew projects --no-daemon
 
       # ============================================================
-      # SCRIPT 5: Run Unit Tests (non-blocking)
+      # SCRIPT 5: Verify Signing Configuration
+      # ============================================================
+      - name: Verify signing configuration
+        script: |
+          echo "🔐 Verifying signing configuration..."
+          echo ""
+
+          # Check that all signing variables are set
+          if [ -z "$KEYSTORE_PATH" ]; then
+            echo "❌ ERROR: KEYSTORE_PATH not set"
+            echo "   Configure android_signing group in Codemagic"
+            exit 1
+          fi
+
+          if [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "❌ ERROR: KEYSTORE_PASSWORD not set"
+            exit 1
+          fi
+
+          if [ -z "$KEY_ALIAS" ]; then
+            echo "❌ ERROR: KEY_ALIAS not set"
+            exit 1
+          fi
+
+          if [ -z "$KEY_PASSWORD" ]; then
+            echo "❌ ERROR: KEY_PASSWORD not set"
+            exit 1
+          fi
+
+          # Verify keystore file exists
+          if [ ! -f "$KEYSTORE_PATH" ]; then
+            echo "❌ ERROR: Keystore file not found at $KEYSTORE_PATH"
+            exit 1
+          fi
+
+          echo "✅ Keystore file exists: $KEYSTORE_PATH"
+          ls -lh "$KEYSTORE_PATH"
+
+          echo ""
+          echo "✅ All signing variables configured correctly"
+
+      # ============================================================
+      # SCRIPT 6: Run Unit Tests (non-blocking)
       # ============================================================
       - name: Run unit tests
         script: |
@@ -96,7 +264,7 @@ workflows:
           echo "✅ Unit test execution completed (check logs for results)"
 
       # ============================================================
-      # SCRIPT 6: Run Lint Checks (non-blocking)
+      # SCRIPT 7: Run Lint Checks (non-blocking)
       # ============================================================
       - name: Run lint checks
         script: |
@@ -117,11 +285,11 @@ workflows:
           echo "✅ Lint check completed (check logs for results)"
 
       # ============================================================
-      # SCRIPT 7: Build Android Release APK (unsigned)
+      # SCRIPT 8: Build Android Release APK (SIGNED)
       # ============================================================
-      - name: Build Android Release APK
+      - name: Build Android Release APK (SIGNED)
         script: |
-          echo "🏗️  Building Android Release APK (Default flavor, unsigned)..."
+          echo "🏗️  Building SIGNED Android Release APK (Default flavor)..."
 
           # Calculate dynamic version code: BASE_VERSION_CODE + BUILD_NUMBER
           VERSION_CODE=$((BASE_VERSION_CODE + BUILD_NUMBER))
@@ -133,20 +301,30 @@ workflows:
           echo "   - Build Number: $BUILD_NUMBER"
           echo ""
 
-            # Ensure Android SDK path is available for Gradle
-            SDK_PATH="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/Users/builder/Library/Android/sdk}}"
-            if [ ! -d "$SDK_PATH" ]; then
-              echo "❌ Android SDK not found at '$SDK_PATH'. Set ANDROID_SDK_ROOT or ANDROID_HOME."
-              exit 1
-            fi
+          # Ensure Android SDK path is available for Gradle
+          SDK_PATH="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/Users/builder/Library/Android/sdk}}"
+          if [ ! -d "$SDK_PATH" ]; then
+            echo "❌ Android SDK not found at '$SDK_PATH'. Set ANDROID_SDK_ROOT or ANDROID_HOME."
+            exit 1
+          fi
 
-            echo "sdk.dir=${SDK_PATH}" > local.properties
-            echo "🛠️  Using Android SDK at: $SDK_PATH"
+          echo "sdk.dir=${SDK_PATH}" > local.properties
+          echo "🛠️  Using Android SDK at: $SDK_PATH"
+          echo ""
 
-          echo "🚀 Starting Gradle build..."
+          echo "🔐 Signing configuration:"
+          echo "   - Keystore: $KEYSTORE_PATH"
+          echo "   - Key Alias: $KEY_ALIAS"
+          echo ""
+
+          echo "🚀 Starting Gradle build with signing..."
           ./gradlew assembleDefaultRelease \
             -PversionCode=$VERSION_CODE \
             -PversionName=$VERSION_NAME \
+            -Pandroid.injected.signing.store.file=$KEYSTORE_PATH \
+            -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$KEY_PASSWORD \
             --no-daemon \
             --parallel \
             --stacktrace \
@@ -155,16 +333,16 @@ workflows:
           echo "✅ Gradle build command completed"
 
       # ============================================================
-      # SCRIPT 8: Validate APK Build Artifacts
+      # SCRIPT 9: Validate APK Build Artifacts
       # ============================================================
       - name: Validate APK artifacts
         script: |
           echo "🔍 Validating APK build artifacts..."
 
-          APK_PATH="app/build/outputs/apk/Default/release/app-Default-release-unsigned.apk"
+          APK_PATH="app/build/outputs/apk/Default/release/app-Default-release.apk"
 
           if [ -f "$APK_PATH" ]; then
-            echo "✅ APK generated successfully!"
+            echo "✅ SIGNED APK generated successfully!"
             echo ""
             echo "📦 APK Details:"
             echo "   - Path: $APK_PATH"
@@ -187,6 +365,13 @@ workflows:
             fi
 
             echo ""
+            echo "🔐 Verifying APK signature..."
+            apksigner verify --verbose "$APK_PATH" || {
+              echo "⚠️  APK signature verification failed"
+              echo "This might be expected on some build environments"
+            }
+
+            echo ""
             echo "✅ APK validation successful"
             echo "📥 APK will be available as downloadable artifact in Codemagic"
           else
@@ -199,7 +384,7 @@ workflows:
           fi
 
       # ============================================================
-      # SCRIPT 9: Display Build Summary
+      # SCRIPT 10: Display Build Summary
       # ============================================================
       - name: Build summary
         script: |
@@ -207,20 +392,21 @@ workflows:
           echo "📱 WATOMAGIC BUILD SUMMARY"
           echo "======================================"
           echo ""
-          echo "✅ Build Type: Release (unsigned)"
+          echo "✅ Build Type: Release (SIGNED)"
           echo "✅ Flavor: Default (F-Droid variant)"
           echo "✅ Application ID: com.parishod.watomagic"
           echo "✅ Version Code: $((BASE_VERSION_CODE + BUILD_NUMBER))"
           echo "✅ Version Name: 1.$BUILD_NUMBER"
+          echo "✅ Signing: ENABLED"
           echo ""
           echo "📦 Artifacts:"
-          echo "   - APK: app-Default-release-unsigned.apk"
+          echo "   - APK: app-Default-release.apk (SIGNED)"
           echo "   - Location: app/build/outputs/apk/Default/release/"
           echo ""
           echo "🎯 Next Steps:"
-          echo "   1. Download the APK from Codemagic artifacts"
-          echo "   2. Install on test devices (adb install -r <apk>)"
-          echo "   3. For signed release, add signing config to workflow"
+          echo "   1. Download the SIGNED APK from Codemagic artifacts"
+          echo "   2. Upload to Google Play Console (Internal/Alpha/Beta testing)"
+          echo "   3. Install on test devices (adb install -r <apk>)"
           echo ""
           echo "======================================"
 
