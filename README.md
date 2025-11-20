@@ -4,8 +4,8 @@ Watomagic envía una respuesta automática a todos los que te contacten en apps 
 
 ### 📸 [Capturas de pantalla](./media/screenshots/)
 
-| [<img src="/media/screenshots/1.png" alt="Captura 1">][scr-page-link] | [<img src="/media/screenshots/2.png" alt="Captura 2">][scr-page-link] | [<img src="/media/screenshots/3.png" alt="Captura 3">][scr-page-link] |
-|:---:|:---:|:---:|
+| [<img src="./media/screenshots/1.jpeg" alt="Captura 1">][scr-page-link] | [<img src="./media/screenshots/2.jpeg" alt="Captura 2">][scr-page-link] | [<img src="./media/screenshots/3.png" alt="Captura 3">][scr-page-link] | [<img src="./media/screenshots/4.png" alt="Captura 4">][scr-page-link] |
+|:---:|:---:|:---:|:---:|
 
 [**❯ Ver más capturas**](./media/screenshots/)
 
