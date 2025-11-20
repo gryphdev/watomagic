@@ -154,9 +154,9 @@ workflows:
     environment:
       java: 17
       # Android signing identity configured in CodeMagic UI
-      # (Code signing identities → Android → "Watomagic")
+      # (Code signing identities → Android → "watomagic_keystore")
       android_signing:
-        - Watomagic
+        - watomagic_keystore
       vars:
         # Package name for the Default flavor (F-Droid variant)
         PACKAGE_NAME: "com.parishod.watomagic"
