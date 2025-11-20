@@ -4,7 +4,7 @@
 
 ## Vista previa rápida
 
-| <img src="./1.png" alt="Captura 1"> | <img src="./2.png" alt="Captura 2"> | <img src="./3.png" alt="Captura 3"> |
+| <img src="./1.jpeg" alt="Captura 1"> | <img src="./2.jpeg" alt="Captura 2"> | <img src="./3.png" alt="Captura 3"> | <img src="./4.png" alt="Captura 4"> |
 |:---:|:---:|:---:|
 
 ---
