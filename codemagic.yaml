@@ -4,23 +4,23 @@ workflows:
   # ============================================================
   # ⚠️  SECURITY WARNING: This workflow is for ONE-TIME keystore generation only.
   #
+  # PREREQUISITES:
+  # - You already have the "watomagic_keystore" group with:
+  #   * KEYSTORE_PASSWORD (secure text)
+  #   * KEY_ALIAS (secure text)
+  #   * KEY_PASSWORD (secure text)
+  #
   # SETUP INSTRUCTIONS:
-  # 1. Go to Codemagic → Watomagic app → Environment variables
-  # 2. Create variables (as plain text, NOT secure - we'll delete them later):
-  #    - KEYSTORE_PASSWORD: Your chosen keystore password
-  #    - KEY_ALIAS: watomagic-key-alias
-  #    - KEY_PASSWORD: Your chosen key password (can be same as keystore password)
-  # 3. Trigger this workflow ONCE manually
-  # 4. Download the .keystore file from artifacts
-  # 5. SECURITY CLEANUP (CRITICAL):
-  #    a) Delete the 3 environment variables from Codemagic
-  #    b) Delete this build from Codemagic build history
-  #    c) Delete the artifact from Codemagic
-  # 6. Upload keystore to Codemagic as SECURE file variable (encrypted storage)
-  # 7. Create SECURE text variables for passwords (encrypted storage)
-  # 8. Create a group called "android_signing" with these secure variables
-  # 9. DELETE THIS ENTIRE WORKFLOW from codemagic.yaml (lines 1-95)
-  # 10. Commit the updated codemagic.yaml without this workflow
+  # 1. Trigger this workflow ONCE manually
+  # 2. Download the .keystore file from artifacts
+  # 3. SECURITY CLEANUP (CRITICAL):
+  #    a) Delete this build from Codemagic build history
+  #    b) Delete the artifact from Codemagic
+  # 4. Upload keystore to Codemagic:
+  #    - Go to watomagic_keystore group
+  #    - Add KEYSTORE (file, secure) = upload the downloaded .keystore file
+  # 5. DELETE THIS ENTIRE WORKFLOW from codemagic.yaml (lines 1-108)
+  # 6. Commit the updated codemagic.yaml without this workflow
   #
   # After cleanup, only "android-release" workflow should remain.
   # ============================================================
@@ -32,13 +32,26 @@ workflows:
 
     environment:
       java: 17
-      vars:
-        # These should be set in Codemagic UI before running this workflow
-        KEYSTORE_PASSWORD: CHANGE_ME_IN_CODEMAGIC_UI
-        KEY_ALIAS: watomagic-key-alias
-        KEY_PASSWORD: CHANGE_ME_IN_CODEMAGIC_UI
+      # Use the same group that contains the passwords
+      # The KEYSTORE file variable is not needed yet (we're generating it)
+      # but the passwords and alias are already there
+      groups:
+        - watomagic_keystore
 
     scripts:
+      - name: Debug environment variables
+        script: |
+          echo "🔍 DEBUG: Checking environment variables..."
+          echo ""
+          echo "All environment variables (filtered for security):"
+          env | grep -E "(KEYSTORE|KEY_|ALIAS)" | sed 's/=.*/=[MASKED]/' || echo "No matching variables found"
+          echo ""
+          echo "Checking specific variables:"
+          echo "KEYSTORE_PASSWORD is set: $([ -n "$KEYSTORE_PASSWORD" ] && echo "YES" || echo "NO")"
+          echo "KEY_PASSWORD is set: $([ -n "$KEY_PASSWORD" ] && echo "YES" || echo "NO")"
+          echo "KEY_ALIAS is set: $([ -n "$KEY_ALIAS" ] && echo "YES" || echo "NO")"
+          echo ""
+
       - name: Generate Keystore
         script: |
           echo "🔐 Generating Android keystore..."
@@ -49,18 +62,36 @@ workflows:
           echo "   This keystore will be valid until approximately 2052"
           echo ""
 
-          # Validate that passwords were set
-          if [ "$KEYSTORE_PASSWORD" = "CHANGE_ME_IN_CODEMAGIC_UI" ]; then
-            echo "❌ ERROR: KEYSTORE_PASSWORD not set in Codemagic environment variables"
-            echo "   Go to Codemagic → Environment variables and set KEYSTORE_PASSWORD"
+          # Validate that variables from watomagic_keystore group are available
+          if [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "❌ ERROR: KEYSTORE_PASSWORD not set"
+            echo "   Ensure watomagic_keystore group contains KEYSTORE_PASSWORD"
+            echo ""
+            echo "DEBUG INFO:"
+            echo "- Check that the group 'watomagic_keystore' exists in CodeMagic"
+            echo "- Check that it's referenced in the workflow's android_signing section"
+            echo "- Check that KEYSTORE_PASSWORD variable exists in the group"
+            echo "- Check that the variable is NOT marked as 'Secure' for this test"
             exit 1
           fi
 
-          if [ "$KEY_PASSWORD" = "CHANGE_ME_IN_CODEMAGIC_UI" ]; then
-            echo "❌ ERROR: KEY_PASSWORD not set in Codemagic environment variables"
-            echo "   Go to Codemagic → Environment variables and set KEY_PASSWORD"
+          if [ -z "$KEY_PASSWORD" ]; then
+            echo "❌ ERROR: KEY_PASSWORD not set"
+            echo "   Ensure watomagic_keystore group contains KEY_PASSWORD"
             exit 1
           fi
+
+          if [ -z "$KEY_ALIAS" ]; then
+            echo "❌ ERROR: KEY_ALIAS not set"
+            echo "   Ensure watomagic_keystore group contains KEY_ALIAS"
+            exit 1
+          fi
+
+          echo "✅ All required variables found from watomagic_keystore group"
+          echo "   - KEYSTORE_PASSWORD: [MASKED]"
+          echo "   - KEY_PASSWORD: [MASKED]"
+          echo "   - KEY_ALIAS: $KEY_ALIAS"
+          echo ""
 
           # Generate keystore
           keytool -genkey -v \
@@ -98,15 +129,13 @@ workflows:
           echo "2. Save it securely in a password manager or secure vault"
           echo "3. DELETE this build from Codemagic build history"
           echo "4. DELETE the artifact from Codemagic"
-          echo "5. DELETE the environment variables:"
-          echo "   - KEYSTORE_PASSWORD"
-          echo "   - KEY_PASSWORD"
-          echo "   - KEY_ALIAS"
-          echo "6. Upload keystore to Codemagic as SECURE file variable"
-          echo "7. Create SECURE text variables for passwords"
-          echo "8. Create 'android_signing' group in Codemagic"
-          echo "9. DELETE this entire workflow from codemagic.yaml"
-          echo "10. Test the android-release workflow with signing"
+          echo "5. Upload keystore to watomagic_keystore group:"
+          echo "   - Go to Codemagic → Watomagic → Environment variables"
+          echo "   - Edit watomagic_keystore group"
+          echo "   - Add KEYSTORE (file, secure) = upload .keystore file"
+          echo "6. DELETE this entire workflow from codemagic.yaml (lines 1-108)"
+          echo "7. Commit and push the updated codemagic.yaml"
+          echo "8. Test the android-release workflow with signing"
           echo ""
           echo "⚠️  If you lose the keystore, you CANNOT update the app!"
           echo "=============================================="
@@ -124,13 +153,13 @@ workflows:
 
     environment:
       java: 17
-      # Reference the android_signing group created in Codemagic UI
+      # Reference the watomagic_keystore group created in Codemagic UI
       # This group should contain:
       #   - KEYSTORE (file) → watomagic-release.keystore (exposed as $KEYSTORE_PATH)
       #   - KEYSTORE_PASSWORD (secure text)
       #   - KEY_ALIAS (secure text)
       #   - KEY_PASSWORD (secure text)
-      android_signing:
+      groups:
         - watomagic_keystore
       vars:
         # Package name for the Default flavor (F-Droid variant)
