@@ -95,6 +95,7 @@ workflows:
 
           # Generate keystore
           keytool -genkey -v \
+            -storetype JKS \
             -keystore watomagic-release.keystore \
             -alias "$KEY_ALIAS" \
             -keyalg RSA \
