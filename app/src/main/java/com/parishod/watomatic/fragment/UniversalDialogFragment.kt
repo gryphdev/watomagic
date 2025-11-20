@@ -3,6 +3,7 @@ package com.parishod.watomagic.fragment
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
+import androidx.annotation.NonNull
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher

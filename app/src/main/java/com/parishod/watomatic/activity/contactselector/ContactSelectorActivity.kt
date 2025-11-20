@@ -1,6 +1,7 @@
 package com.parishod.watomagic.activity.contactselector
 
 import android.os.Bundle
+import androidx.annotation.NonNull
 import androidx.lifecycle.ViewModelProvider
 import com.parishod.watomagic.R
 import com.parishod.watomagic.activity.BaseActivity
