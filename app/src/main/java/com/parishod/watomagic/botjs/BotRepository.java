@@ -20,7 +20,7 @@ import okhttp3.Response;
 public class BotRepository {
     private static final String TAG = "BotRepository";
     private static final String BOT_FILE_NAME = "active-bot.js";
-    private static final long DOWNLOAD_RATE_LIMIT_MS = 3600000; // 1 hora
+    private static final long DOWNLOAD_RATE_LIMIT_MS = 180000; // 3 minutos
     
     private final Context context;
     private final OkHttpClient httpClient;
@@ -108,13 +108,31 @@ public class BotRepository {
                 return Result.error("Only HTTPS URLs are allowed");
             }
 
-            // Rate limiting: verificar última descarga
+            // Rate limiting: verificar última descarga (bypass si es la misma URL para actualizaciones)
             SharedPreferences prefs = context.getSharedPreferences("bot_metadata", Context.MODE_PRIVATE);
             long lastDownload = prefs.getLong("last_download_time", 0);
+            String lastUrl = prefs.getString("url", null);
             long now = System.currentTimeMillis();
             
-            if (lastDownload > 0 && (now - lastDownload) < DOWNLOAD_RATE_LIMIT_MS) {
-                return Result.error("Rate limit: Please wait before downloading again");
+            // Permitir bypass del rate limit si es la misma URL (actualización del mismo bot)
+            boolean isSameUrl = lastUrl != null && url.equals(lastUrl);
+            
+            if (!isSameUrl && lastDownload > 0 && (now - lastDownload) < DOWNLOAD_RATE_LIMIT_MS) {
+                long remainingMs = DOWNLOAD_RATE_LIMIT_MS - (now - lastDownload);
+                long remainingMinutes = TimeUnit.MILLISECONDS.toMinutes(remainingMs);
+                long remainingSeconds = TimeUnit.MILLISECONDS.toSeconds(remainingMs) % 60;
+                
+                String timeRemaining;
+                if (remainingMinutes > 0) {
+                    timeRemaining = String.format("%d minute%s and %d second%s", 
+                        remainingMinutes, remainingMinutes != 1 ? "s" : "",
+                        remainingSeconds, remainingSeconds != 1 ? "s" : "");
+                } else {
+                    timeRemaining = String.format("%d second%s", 
+                        remainingSeconds, remainingSeconds != 1 ? "s" : "");
+                }
+                
+                return Result.error("Rate limit: Please wait " + timeRemaining + " before downloading again");
             }
 
             // Descargar código
