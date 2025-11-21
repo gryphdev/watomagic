@@ -1,6 +1,6 @@
 package com.parishod.watomagic.activity.botconfig
 
-import android.os.Bundle
+import android.os.Bundle as AndroidBundle
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
@@ -25,8 +25,16 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
 import java.io.FileReader
-import android.service.notification.StatusBarNotification
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.os.Build
+import android.service.notification.StatusBarNotification
+import androidx.core.app.RemoteInput
+import com.parishod.watomagic.NotificationWear
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -55,7 +63,7 @@ class BotConfigActivity : BaseActivity() {
     private lateinit var viewLogsButton: Button
     private lateinit var testWebhookButton: Button
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: AndroidBundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bot_config)
 
@@ -213,16 +221,126 @@ class BotConfigActivity : BaseActivity() {
 
     private fun createTestNotification(): NotificationData {
         // Crear notificación dummy para testing
-        // Nota: StatusBarNotification requiere API real, creamos un mock simple
-        return object : NotificationData {
-            override fun getTitle(): String = "Test WhatsApp Message"
-            override fun getBody(): String = "Hola, este es un mensaje de prueba"
-            override fun getAppPackage(): String = "com.whatsapp"
-            override fun getTimestamp(): Long = System.currentTimeMillis()
-            override fun isGroup(): Boolean = false
-            override fun getStatusBarNotification(): StatusBarNotification {
-                throw UnsupportedOperationException("Test notification - no real SBN")
+        // Crear un StatusBarNotification mock usando reflection
+        val sbn = createMockStatusBarNotification()
+        val notificationWear = NotificationWear(
+            packageName = "com.whatsapp",
+            pendingIntent = null,
+            remoteInputs = emptyList(),
+            bundle = null,
+            tag = null,
+            id = "test"
+        )
+        
+        return NotificationData(
+            sbn,
+            notificationWear,
+            "Hola, este es un mensaje de prueba",
+            "Respuesta automática de prueba"
+        )
+    }
+    
+    private fun createMockStatusBarNotification(): StatusBarNotification {
+        // Crear un Notification básico para testing
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        
+        // Crear canal de notificación si no existe (requerido en API 26+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "test_channel",
+                "Test Channel",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
+        
+        // Crear Notification con extras
+        val notificationBuilder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(this, "test_channel")
+        } else {
+            @Suppress("DEPRECATION")
+            Notification.Builder(this)
+        }
+        
+        val notification = notificationBuilder
+            .setContentTitle("Test WhatsApp Message")
+            .setContentText("Hola, este es un mensaje de prueba")
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .build()
+        
+        // Agregar extras al notification
+        notification.extras.putCharSequence("android.title", "Test WhatsApp Message")
+        notification.extras.putCharSequence("android.text", "Hola, este es un mensaje de prueba")
+        notification.extras.putBoolean("android.isGroupConversation", false)
+        
+        // Crear StatusBarNotification usando reflection
+        // Nota: StatusBarNotification no tiene constructor público en todas las versiones
+        return try {
+            val userHandle = android.os.Process.myUserHandle()
+            val packageName = "com.whatsapp"
+            val tag: String? = null
+            val id = 1
+            val uid = 1
+            val initialPid = 1
+            val postTime = System.currentTimeMillis()
+            
+            // Intentar con el constructor de API 24+ (que incluye postTime)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val constructor = StatusBarNotification::class.java.getDeclaredConstructor(
+                    String::class.java,
+                    String::class.java,
+                    Int::class.java,
+                    String::class.java,
+                    Int::class.java,
+                    Int::class.java,
+                    Notification::class.java,
+                    android.os.UserHandle::class.java,
+                    Long::class.java
+                )
+                constructor.isAccessible = true
+                constructor.newInstance(
+                    packageName,
+                    tag,
+                    id,
+                    tag,
+                    uid,
+                    initialPid,
+                    notification,
+                    userHandle,
+                    postTime
+                ) as StatusBarNotification
+            } else {
+                // API 23 y anteriores
+                @Suppress("DEPRECATION")
+                val constructor = StatusBarNotification::class.java.getDeclaredConstructor(
+                    String::class.java,
+                    String::class.java,
+                    Int::class.java,
+                    String::class.java,
+                    Int::class.java,
+                    Int::class.java,
+                    Notification::class.java,
+                    android.os.UserHandle::class.java
+                )
+                constructor.isAccessible = true
+                constructor.newInstance(
+                    packageName,
+                    tag,
+                    id,
+                    tag,
+                    uid,
+                    initialPid,
+                    notification,
+                    userHandle
+                ) as StatusBarNotification
             }
+        } catch (e: Exception) {
+            throw IllegalStateException(
+                "No se pudo crear StatusBarNotification mock. " +
+                "Esto puede requerir permisos de NotificationListenerService. " +
+                "Error: ${e.message}",
+                e
+            )
         }
     }
 

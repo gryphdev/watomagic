@@ -143,7 +143,23 @@ jobs:
           echo "✅ Keystore file exists: watomagic-release.keystore"
 
       # ============================================================
-      # STEP 9: Run unit tests (non-blocking)
+      # STEP 9: Verify import statements
+      # ============================================================
+      - name: Verify import statements
+        run: |
+          echo "🔍 Verifying import statements in project..."
+          echo ""
+          
+          # Make script executable
+          chmod +x scripts/check_imports.sh
+          
+          # Run import verification (fails build if errors found)
+          ./scripts/check_imports.sh
+          
+          echo "✅ Import verification completed"
+
+      # ============================================================
+      # STEP 10: Run unit tests (non-blocking)
       # ============================================================
       - name: Run unit tests
         continue-on-error: true
@@ -164,7 +180,7 @@ jobs:
           echo "✅ Unit test execution completed"
 
       # ============================================================
-      # STEP 10: Run lint checks (non-blocking)
+      # STEP 11: Run lint checks (non-blocking)
       # ============================================================
       - name: Run lint checks
         continue-on-error: true
@@ -184,7 +200,7 @@ jobs:
           echo "✅ Lint check completed"
 
       # ============================================================
-      # STEP 11: Build signed Android Release APK
+      # STEP 12: Build signed Android Release APK
       # ============================================================
       - name: Build Android Release APK (SIGNED)
         env:
@@ -225,7 +241,7 @@ jobs:
           echo "✅ Gradle build command completed"
 
       # ============================================================
-      # STEP 12: Validate APK build artifacts
+      # STEP 13: Validate APK build artifacts
       # ============================================================
       - name: Validate APK artifacts
         run: |
@@ -263,7 +279,7 @@ jobs:
           fi
 
       # ============================================================
-      # STEP 13: Upload APK as artifact
+      # STEP 14: Upload APK as artifact
       # ============================================================
       - name: Upload APK artifact
         if: success()
@@ -274,7 +290,7 @@ jobs:
           retention-days: 30
 
       # ============================================================
-      # STEP 14: Upload test reports
+      # STEP 15: Upload test reports
       # ============================================================
       - name: Upload test reports
         if: always()
@@ -287,7 +303,7 @@ jobs:
           retention-days: 30
 
       # ============================================================
-      # STEP 15: Build summary
+      # STEP 16: Build summary
       # ============================================================
       - name: Build summary
         if: always()
@@ -316,7 +332,7 @@ jobs:
           echo "======================================"
 
       # ============================================================
-      # STEP 16: Notify on failure (optional)
+      # STEP 17: Notify on failure (optional)
       # ============================================================
       - name: Notify build failure
         if: failure()

@@ -13,6 +13,7 @@ import com.parishod.watomagic.botjs.BotLogCapture;
 import com.parishod.watomagic.botjs.BotValidator;
 import com.parishod.watomagic.botjs.RateLimiter;
 import com.parishod.watomagic.replyproviders.model.NotificationData;
+import com.parishod.watomagic.model.utils.NotificationUtils;
 
 import java.io.File;
 import java.io.FileReader;
@@ -45,9 +46,11 @@ public class BotJsReplyProvider implements ReplyProvider {
             try {
                 // Log de inicio de ejecución
                 if (BotLogCapture.isEnabled()) {
+                    String title = NotificationUtils.getTitle(notificationData.getStatusBarNotification());
+                    String packageName = notificationData.getStatusBarNotification().getPackageName();
                     String notifInfo = String.format("Bot execution started for: %s (package: %s)",
-                            notificationData.getTitle(),
-                            notificationData.getAppPackage());
+                            title != null ? title : "unknown",
+                            packageName);
                     BotLogCapture.addLog("info", notifInfo);
                 }
 
@@ -166,9 +169,8 @@ public class BotJsReplyProvider implements ReplyProvider {
             } catch (BotExecutionException e) {
                 Log.e(TAG, "Bot execution failed", e);
                 if (BotLogCapture.isEnabled()) {
-                    String errorDetails = String.format("Bot execution failed: %s - %s",
-                            e.getMessage(),
-                            e.getErrorDetails() != null ? e.getErrorDetails() : "no details");
+                    String errorDetails = String.format("Bot execution failed: %s",
+                            e.getDetailedMessage() != null ? e.getDetailedMessage() : e.getMessage());
                     BotLogCapture.addLog("error", errorDetails);
                 }
                 callback.onFailure("Bot execution error: " + e.getMessage());
