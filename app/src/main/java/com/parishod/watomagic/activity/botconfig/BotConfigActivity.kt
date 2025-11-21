@@ -16,8 +16,17 @@ import com.google.android.material.textfield.TextInputEditText
 import com.parishod.watomagic.R
 import com.parishod.watomagic.activity.BaseActivity
 import com.parishod.watomagic.botjs.BotRepository
+import com.parishod.watomagic.botjs.BotLogCapture
+import com.parishod.watomagic.botjs.BotJsEngine
 import com.parishod.watomagic.model.preferences.PreferencesManager
+import com.parishod.watomagic.replyproviders.model.NotificationData
 import com.parishod.watomagic.workers.BotUpdateWorker
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.io.File
+import java.io.FileReader
+import android.service.notification.StatusBarNotification
+import android.os.Build
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -42,6 +51,9 @@ class BotConfigActivity : BaseActivity() {
     private lateinit var testBotButton: Button
     private lateinit var autoUpdateSwitch: SwitchMaterial
     private lateinit var deleteBotButton: Button
+    private lateinit var debugModeSwitch: SwitchMaterial
+    private lateinit var viewLogsButton: Button
+    private lateinit var testWebhookButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,6 +103,24 @@ class BotConfigActivity : BaseActivity() {
         testBotButton.setOnClickListener { testBot() }
         deleteBotButton.setOnClickListener { deleteBot() }
 
+        // Debug UI
+        debugModeSwitch = findViewById(R.id.debugModeSwitch)
+        viewLogsButton = findViewById(R.id.viewLogsButton)
+        testWebhookButton = findViewById(R.id.testWebhookButton)
+
+        debugModeSwitch.isChecked = preferencesManager.isBotJsDebugModeEnabled()
+        debugModeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            preferencesManager.setBotJsDebugMode(isChecked)
+            BotLogCapture.setEnabled(isChecked)
+            updateUIVisibility()
+        }
+
+        viewLogsButton.setOnClickListener { openLogViewer() }
+        testWebhookButton.setOnClickListener { testWebhook() }
+
+        // Inicializar BotLogCapture según preferencias
+        BotLogCapture.setEnabled(preferencesManager.isBotJsDebugModeEnabled())
+
         // Cargar URL si existe
         preferencesManager.getBotJsUrl()?.let {
             botUrlInput.setText(it)
@@ -132,8 +162,139 @@ class BotConfigActivity : BaseActivity() {
     }
 
     private fun testBot() {
-        showSuccess("Función de prueba en desarrollo")
-        // TODO: Implementar test con notificación dummy
+        val botInfo = botRepository.getInstalledBotInfo()
+        if (botInfo == null) {
+            showError("No hay bot instalado")
+            return
+        }
+
+        // Habilitar debug temporalmente
+        val wasDebugEnabled = BotLogCapture.isEnabled()
+        BotLogCapture.setEnabled(true)
+        BotLogCapture.clear()
+
+        lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                try {
+                    // Crear notificación de prueba
+                    val testNotification = createTestNotification()
+
+                    // Cargar código del bot
+                    val jsCode = loadBotCode()
+
+                    // Ejecutar bot
+                    val botJsEngine = BotJsEngine(this@BotConfigActivity)
+                    botJsEngine.initialize()
+                    try {
+                        val response = botJsEngine.executeBot(jsCode, testNotification)
+                        Result.success(response)
+                    } finally {
+                        botJsEngine.cleanup()
+                    }
+                } catch (e: Exception) {
+                    Result.failure(e)
+                }
+            }
+
+            // Restaurar modo debug
+            if (!wasDebugEnabled) {
+                BotLogCapture.setEnabled(false)
+            }
+
+            if (result.isSuccess) {
+                showSuccess("Test exitoso. Ver logs para detalles.")
+                openLogViewer()
+            } else {
+                showError("Test falló: ${result.exceptionOrNull()?.message}")
+                openLogViewer()
+            }
+        }
+    }
+
+    private fun createTestNotification(): NotificationData {
+        // Crear notificación dummy para testing
+        // Nota: StatusBarNotification requiere API real, creamos un mock simple
+        return object : NotificationData {
+            override fun getTitle(): String = "Test WhatsApp Message"
+            override fun getBody(): String = "Hola, este es un mensaje de prueba"
+            override fun getAppPackage(): String = "com.whatsapp"
+            override fun getTimestamp(): Long = System.currentTimeMillis()
+            override fun isGroup(): Boolean = false
+            override fun getStatusBarNotification(): StatusBarNotification {
+                throw UnsupportedOperationException("Test notification - no real SBN")
+            }
+        }
+    }
+
+    private fun loadBotCode(): String {
+        val botsDir = File(filesDir, "bots")
+        val botFile = File(botsDir, "active-bot.js")
+        return FileReader(botFile).use { it.readText() }
+    }
+
+    private fun testWebhook() {
+        val url = botUrlInput.text?.toString()?.trim() ?: ""
+        if (url.isEmpty()) {
+            showError("Ingresa una URL primero")
+            return
+        }
+
+        downloadProgress.visibility = View.VISIBLE
+
+        lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                try {
+                    val client = OkHttpClient()
+                    val request = Request.Builder().url(url).build()
+                    val response = client.newCall(request).execute()
+
+                    if (response.isSuccessful) {
+                        val body = response.body?.string()?.take(200) ?: ""
+                        Result.success("HTTP ${response.code}: $body")
+                    } else {
+                        Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
+                    }
+                } catch (e: Exception) {
+                    Result.failure(e)
+                }
+            }
+
+            downloadProgress.visibility = View.GONE
+
+            if (result.isSuccess) {
+                showSuccess("Webhook OK: ${result.getOrNull()}")
+            } else {
+                showError("Webhook Error: ${result.exceptionOrNull()?.message}")
+            }
+        }
+    }
+
+    private fun openLogViewer() {
+        val logs = BotLogCapture.getLogs()
+        if (logs.isEmpty()) {
+            showError("No hay logs disponibles")
+            return
+        }
+
+        val logText = logs.joinToString("\n") { log ->
+            val time = SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault())
+                .format(Date(log.timestamp))
+            "[$time] [${log.level.uppercase()}] ${log.message}"
+        }
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_log_viewer, null)
+        val logTextView = dialogView.findViewById<TextView>(R.id.logTextView)
+        logTextView.text = logText
+
+        AlertDialog.Builder(this)
+            .setTitle("Logs de Ejecución (${logs.size})")
+            .setView(dialogView)
+            .setPositiveButton("Cerrar", null)
+            .setNeutralButton("Limpiar") { _, _ ->
+                BotLogCapture.clear()
+                showSuccess("Logs limpiados")
+            }
+            .show()
     }
 
     private fun deleteBot() {

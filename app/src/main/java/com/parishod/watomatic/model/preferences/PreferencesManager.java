@@ -61,6 +61,7 @@ public class PreferencesManager {
     private final String KEY_BOT_JS_URL = "pref_bot_js_url";
     private final String KEY_BOT_JS_AUTO_UPDATE = "pref_bot_js_auto_update";
     private final String KEY_BOT_JS_SCRIPT_PATH = "pref_bot_js_script_path";
+    private final String KEY_BOT_JS_DEBUG_MODE = "pref_bot_js_debug_mode";
     private static PreferencesManager _instance;
     private final SharedPreferences _sharedPrefs;
     private SharedPreferences _encryptedSharedPrefs;
@@ -579,5 +580,15 @@ public class PreferencesManager {
 
     public String getBotJsScriptPath() {
         return _sharedPrefs.getString(KEY_BOT_JS_SCRIPT_PATH, null);
+    }
+
+    public void setBotJsDebugMode(boolean enabled) {
+        SharedPreferences.Editor editor = _sharedPrefs.edit();
+        editor.putBoolean(KEY_BOT_JS_DEBUG_MODE, enabled);
+        editor.apply();
+    }
+
+    public boolean isBotJsDebugModeEnabled() {
+        return _sharedPrefs.getBoolean(KEY_BOT_JS_DEBUG_MODE, false);
     }
 }
