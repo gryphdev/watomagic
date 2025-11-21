@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.parishod.watomagic.botjs.BotExecutionException;
 import com.parishod.watomagic.botjs.BotJsEngine;
+import com.parishod.watomagic.botjs.BotLogCapture;
 import com.parishod.watomagic.botjs.BotValidator;
 import com.parishod.watomagic.botjs.RateLimiter;
 import com.parishod.watomagic.replyproviders.model.NotificationData;
@@ -42,65 +43,120 @@ public class BotJsReplyProvider implements ReplyProvider {
         // Ejecutar en thread background para no bloquear el UI thread
         new Thread(() -> {
             try {
+                // Log de inicio de ejecución
+                if (BotLogCapture.isEnabled()) {
+                    String notifInfo = String.format("Bot execution started for: %s (package: %s)",
+                            notificationData.getTitle(),
+                            notificationData.getAppPackage());
+                    BotLogCapture.addLog("info", notifInfo);
+                }
+
                 // Verificar rate limiting
                 if (!rateLimiter.tryAcquire()) {
                     Log.w(TAG, "Rate limit exceeded, skipping bot execution");
+                    if (BotLogCapture.isEnabled()) {
+                        BotLogCapture.addLog("warn", "Rate limit exceeded - bot execution skipped");
+                    }
                     callback.onFailure("Rate limit exceeded");
                     return;
                 }
-                
+
                 // Cargar bot.js desde almacenamiento interno
                 String jsCode = loadBotCode(context);
-                
+
                 if (jsCode == null || jsCode.trim().isEmpty()) {
                     Log.e(TAG, "Bot code not found or empty");
+                    if (BotLogCapture.isEnabled()) {
+                        BotLogCapture.addLog("error", "Bot code not found or empty");
+                    }
                     callback.onFailure("Bot code not found");
                     return;
+                }
+
+                if (BotLogCapture.isEnabled()) {
+                    BotLogCapture.addLog("info", String.format("Bot code loaded (%d bytes)", jsCode.length()));
                 }
 
                 // Validar código
                 if (!BotValidator.validate(jsCode)) {
                     Log.e(TAG, "Bot code validation failed");
+                    if (BotLogCapture.isEnabled()) {
+                        BotLogCapture.addLog("error", "Bot code validation failed");
+                    }
                     callback.onFailure("Bot validation failed");
                     return;
+                }
+
+                if (BotLogCapture.isEnabled()) {
+                    BotLogCapture.addLog("info", "Bot code validated successfully");
                 }
 
                 // Ejecutar bot
                 BotJsEngine engine = new BotJsEngine(context);
                 engine.initialize();
                 try {
+                    if (BotLogCapture.isEnabled()) {
+                        BotLogCapture.addLog("info", "Executing bot script...");
+                    }
+
                     String responseJson = engine.executeBot(jsCode, notificationData);
+
+                    if (BotLogCapture.isEnabled()) {
+                        BotLogCapture.addLog("info", "Bot execution completed, parsing response...");
+                    }
 
                     // Parsear respuesta
                     JsonObject responseObj = gson.fromJson(responseJson, JsonObject.class);
                     String action = responseObj.get("action").getAsString();
+
+                    if (BotLogCapture.isEnabled()) {
+                        BotLogCapture.addLog("info", String.format("Bot returned action: %s", action));
+                    }
 
                     // Manejar acción
                     switch (action) {
                         case "REPLY":
                             if (responseObj.has("replyText")) {
                                 String replyText = responseObj.get("replyText").getAsString();
+                                if (BotLogCapture.isEnabled()) {
+                                    BotLogCapture.addLog("info", String.format("Sending reply: %s", replyText));
+                                }
                                 callback.onSuccess(replyText);
                             } else {
                                 Log.e(TAG, "REPLY action missing replyText");
+                                if (BotLogCapture.isEnabled()) {
+                                    BotLogCapture.addLog("error", "REPLY action missing replyText field");
+                                }
                                 callback.onFailure("Bot response missing replyText");
                             }
                             break;
-                            
+
                         case "DISMISS":
+                            if (BotLogCapture.isEnabled()) {
+                                BotLogCapture.addLog("info", "Bot requested DISMISS - notification will be dismissed");
+                            }
                             callback.onFailure("DISMISS");
                             break;
-                            
+
                         case "KEEP":
+                            if (BotLogCapture.isEnabled()) {
+                                BotLogCapture.addLog("info", "Bot requested KEEP - no action taken");
+                            }
                             callback.onFailure("KEEP");
                             break;
-                            
+
                         case "SNOOZE":
+                            if (BotLogCapture.isEnabled()) {
+                                BotLogCapture.addLog("info", "Bot requested SNOOZE - notification will be snoozed");
+                            }
                             callback.onFailure("SNOOZE");
                             break;
-                            
+
                         default:
                             Log.e(TAG, "Unknown bot action: " + action);
+                            if (BotLogCapture.isEnabled()) {
+                                BotLogCapture.addLog("error", String.format("Unknown bot action: %s", action));
+                            }
                             callback.onFailure("Unknown action: " + action);
                     }
                 } finally {
@@ -109,9 +165,18 @@ public class BotJsReplyProvider implements ReplyProvider {
 
             } catch (BotExecutionException e) {
                 Log.e(TAG, "Bot execution failed", e);
+                if (BotLogCapture.isEnabled()) {
+                    String errorDetails = String.format("Bot execution failed: %s - %s",
+                            e.getMessage(),
+                            e.getErrorDetails() != null ? e.getErrorDetails() : "no details");
+                    BotLogCapture.addLog("error", errorDetails);
+                }
                 callback.onFailure("Bot execution error: " + e.getMessage());
             } catch (Exception e) {
                 Log.e(TAG, "Bot execution failed", e);
+                if (BotLogCapture.isEnabled()) {
+                    BotLogCapture.addLog("error", String.format("Unexpected error: %s", e.getMessage()));
+                }
                 callback.onFailure("Bot execution error: " + e.getMessage());
             }
         }).start();

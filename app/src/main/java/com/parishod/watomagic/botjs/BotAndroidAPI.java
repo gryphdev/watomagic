@@ -48,6 +48,7 @@ public class BotAndroidAPI {
 
     // Logging
     public void log(String level, String message) {
+        // Log a Logcat (siempre)
         switch (level) {
             case "error":
                 Log.e(TAG, message);
@@ -62,6 +63,9 @@ public class BotAndroidAPI {
                 Log.d(TAG, message);
                 break;
         }
+
+        // Capturar en BotLogCapture si el modo debug está habilitado
+        BotLogCapture.addLog(level, message);
     }
 
     // Storage
