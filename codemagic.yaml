@@ -269,7 +269,23 @@ workflows:
           echo "✅ All signing variables configured correctly (from Code signing identity)"
 
       # ============================================================
-      # SCRIPT 6: Run Unit Tests (non-blocking)
+      # SCRIPT 6: Verify Import Statements
+      # ============================================================
+      - name: Verify import statements
+        script: |
+          echo "🔍 Verifying import statements in project..."
+          echo ""
+          
+          # Make script executable
+          chmod +x scripts/check_imports.sh
+          
+          # Run import verification
+          ./scripts/check_imports.sh
+          
+          echo "✅ Import verification completed"
+
+      # ============================================================
+      # SCRIPT 7: Run Unit Tests (non-blocking)
       # ============================================================
       - name: Run unit tests
         script: |
@@ -291,7 +307,7 @@ workflows:
           echo "✅ Unit test execution completed (check logs for results)"
 
       # ============================================================
-      # SCRIPT 7: Run Lint Checks (non-blocking)
+      # SCRIPT 8: Run Lint Checks (non-blocking)
       # ============================================================
       - name: Run lint checks
         script: |
@@ -312,7 +328,7 @@ workflows:
           echo "✅ Lint check completed (check logs for results)"
 
       # ============================================================
-      # SCRIPT 8: Build Android Release APK (SIGNED)
+      # SCRIPT 9: Build Android Release APK (SIGNED)
       # ============================================================
       - name: Build Android Release APK (SIGNED)
         script: |
@@ -360,7 +376,7 @@ workflows:
           echo "✅ Gradle build command completed"
 
       # ============================================================
-      # SCRIPT 9: Validate APK Build Artifacts
+      # SCRIPT 10: Validate APK Build Artifacts
       # ============================================================
       - name: Validate APK artifacts
         script: |
@@ -411,7 +427,7 @@ workflows:
           fi
 
       # ============================================================
-      # SCRIPT 10: Display Build Summary
+      # SCRIPT 11: Display Build Summary
       # ============================================================
       - name: Build summary
         script: |

@@ -8,15 +8,24 @@ import androidx.annotation.NonNull;
 
 import com.parishod.watomagic.replyproviders.model.NotificationData;
 
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.NativeJSON;
+import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import app.cash.quickjs.QuickJs;
-import app.cash.quickjs.QuickJsException;
-
 /**
- * Wrapper simple sobre QuickJS que permitirá ejecutar bot.js en futuras fases.
+ * Motor JavaScript usando Rhino para ejecutar bots.
+ *
+ * Rhino proporciona:
+ * - Interoperabilidad completa Java↔JavaScript
+ * - API estándar JSR-223 de Java
+ * - Tamaño pequeño (~1.5 MB)
+ * - 100% Java (sin binarios nativos)
  */
 public class BotJsEngine {
 
@@ -24,7 +33,8 @@ public class BotJsEngine {
     private static final int EXECUTION_TIMEOUT_MS = 5_000;
 
     private final Context context;
-    private QuickJs quickJs;
+    private org.mozilla.javascript.Context rhinoContext;
+    private Scriptable scope;
     private BotAndroidAPI androidAPI;
 
     public BotJsEngine(@NonNull Context context) {
@@ -32,9 +42,24 @@ public class BotJsEngine {
     }
 
     public void initialize() {
-        quickJs = QuickJs.create();
+        // Entrar en contexto de Rhino
+        rhinoContext = org.mozilla.javascript.Context.enter();
+
+        // Configurar para Android (modo interpretado, no compilado)
+        rhinoContext.setOptimizationLevel(-1);
+
+        // Configurar límites de seguridad
+        rhinoContext.setInstructionObserverThreshold(10000);
+        rhinoContext.setMaximumInterpreterStackDepth(100);
+
+        // Crear scope global con objetos estándar de JavaScript
+        scope = rhinoContext.initStandardObjects();
+
+        // Crear e inyectar API de Android
         androidAPI = new BotAndroidAPI(context);
         injectAndroidAPIs();
+
+        Log.i(TAG, "Rhino engine initialized successfully");
     }
 
     public String executeBot(@NonNull String jsCode,
@@ -42,17 +67,43 @@ public class BotJsEngine {
             throws BotExecutionException {
         ensureInitialized();
 
-        final String notificationJson = BotNotificationMapper.toJson(notificationData);
         Callable<String> task = () -> {
             try {
-                quickJs.evaluate(jsCode, "bot.js");
-                String serializedCall = buildInvocationScript(notificationJson);
-                Object result = quickJs.evaluate(serializedCall, "bot-invoke.js");
-                return result != null ? result.toString() : "";
-            } catch (QuickJsException e) {
+                // Evaluar el código del bot (define la función processNotification)
+                rhinoContext.evaluateString(scope, jsCode, "bot.js", 1, null);
+
+                // Verificar que processNotification existe
+                Object processNotifObj = scope.get("processNotification", scope);
+                if (!(processNotifObj instanceof Function)) {
+                    throw new BotExecutionException(
+                        "Bot must export processNotification function",
+                        "processNotification not found or not a function",
+                        ""
+                    );
+                }
+
+                // Convertir NotificationData a objeto JavaScript
+                String notificationJson = BotNotificationMapper.toJson(notificationData);
+                Object notificationObj = NativeJSON.parse(rhinoContext, scope, notificationJson,
+                    (cx, sc, thisObj, args) -> args[1]);
+
+                // Llamar a processNotification con el objeto de notificación
+                Function processNotification = (Function) processNotifObj;
+                Object result = processNotification.call(rhinoContext, scope, scope,
+                    new Object[]{notificationObj});
+
+                // Convertir resultado a JSON
+                if (result instanceof NativeObject) {
+                    return (String) NativeJSON.stringify(rhinoContext, scope, result, null, null);
+                } else {
+                    return org.mozilla.javascript.Context.toString(result);
+                }
+
+            } catch (Exception e) {
+                String errorMessage = e.getMessage() != null ? e.getMessage() : "Unknown error";
                 throw new BotExecutionException(
                         "Bot execution failed",
-                        e.getMessage(),
+                        errorMessage,
                         Log.getStackTraceString(e)
                 );
             }
@@ -73,97 +124,23 @@ public class BotJsEngine {
     }
 
     public void cleanup() {
-        if (quickJs != null) {
-            quickJs.close();
-            quickJs = null;
+        if (rhinoContext != null) {
+            org.mozilla.javascript.Context.exit();
+            rhinoContext = null;
+            scope = null;
         }
     }
 
     private void injectAndroidAPIs() {
-        // Inyectar API de Android en el runtime de QuickJS
-        // QuickJS de Cash App requiere crear funciones JavaScript que llamen a código Java
-
-        // Crear el objeto Android en el scope global
-        String androidWrapper =
-            "(function() {" +
-            "  globalThis.Android = {" +
-            "    _javaLog: null," +
-            "    _javaStorageGet: null," +
-            "    _javaStorageSet: null," +
-            "    _javaStorageRemove: null," +
-            "    _javaStorageKeys: null," +
-            "    _javaHttpRequest: null," +
-            "    _javaGetCurrentTime: null," +
-            "    _javaGetAppName: null," +
-            "    " +
-            "    log: function(level, message) {" +
-            "      if (!this._javaLog) throw new Error('Android.log not available');" +
-            "      this._javaLog(level, message);" +
-            "    }," +
-            "    " +
-            "    storageGet: function(key) {" +
-            "      if (!this._javaStorageGet) throw new Error('Android.storageGet not available');" +
-            "      return this._javaStorageGet(key);" +
-            "    }," +
-            "    " +
-            "    storageSet: function(key, value) {" +
-            "      if (!this._javaStorageSet) throw new Error('Android.storageSet not available');" +
-            "      this._javaStorageSet(key, value);" +
-            "    }," +
-            "    " +
-            "    storageRemove: function(key) {" +
-            "      if (!this._javaStorageRemove) throw new Error('Android.storageRemove not available');" +
-            "      this._javaStorageRemove(key);" +
-            "    }," +
-            "    " +
-            "    storageKeys: function() {" +
-            "      if (!this._javaStorageKeys) throw new Error('Android.storageKeys not available');" +
-            "      return this._javaStorageKeys();" +
-            "    }," +
-            "    " +
-            "    httpRequest: function(options) {" +
-            "      if (!this._javaHttpRequest) throw new Error('Android.httpRequest not available');" +
-            "      var optionsJson = typeof options === 'string' ? options : JSON.stringify(options);" +
-            "      return this._javaHttpRequest(optionsJson);" +
-            "    }," +
-            "    " +
-            "    getCurrentTime: function() {" +
-            "      if (!this._javaGetCurrentTime) throw new Error('Android.getCurrentTime not available');" +
-            "      return this._javaGetCurrentTime();" +
-            "    }," +
-            "    " +
-            "    getAppName: function(packageName) {" +
-            "      if (!this._javaGetAppName) throw new Error('Android.getAppName not available');" +
-            "      return this._javaGetAppName(packageName);" +
-            "    }" +
-            "  };" +
-            "})();";
-
         try {
-            // Evaluar el wrapper que crea el objeto Android
-            quickJs.evaluate(androidWrapper, "android-api-wrapper.js");
+            // Crear objeto JavaScript AndroidWrapper que expone las APIs
+            // Rhino permite exponer objetos Java directamente a JavaScript
+            Object wrappedAndroid = org.mozilla.javascript.Context.javaToJS(androidAPI, scope);
+            ScriptableObject.putProperty(scope, "Android", wrappedAndroid);
 
-            // Inyectar las funciones Java usando la API de QuickJS
-            // NOTA: QuickJS de Cash App usa set() para inyectar funciones
-            // Cada función se registra como propiedad en Android._javaXXX
-
-            // Log function
-            quickJs.set("Android._javaLog", new LogFunction());
-
-            // Storage functions
-            quickJs.set("Android._javaStorageGet", new StorageGetFunction());
-            quickJs.set("Android._javaStorageSet", new StorageSetFunction());
-            quickJs.set("Android._javaStorageRemove", new StorageRemoveFunction());
-            quickJs.set("Android._javaStorageKeys", new StorageKeysFunction());
-
-            // HTTP function
-            quickJs.set("Android._javaHttpRequest", new HttpRequestFunction());
-
-            // Utility functions
-            quickJs.set("Android._javaGetCurrentTime", new GetCurrentTimeFunction());
-            quickJs.set("Android._javaGetAppName", new GetAppNameFunction());
-
-            Log.i(TAG, "Android APIs injected successfully into QuickJS runtime");
+            Log.i(TAG, "Android APIs injected successfully via Rhino");
+            Log.i(TAG, "Available APIs: log, storageGet, storageSet, storageRemove, " +
+                      "storageKeys, httpRequest, getCurrentTime, getAppName");
 
         } catch (Exception e) {
             Log.e(TAG, "Failed to inject Android APIs", e);
@@ -171,88 +148,10 @@ public class BotJsEngine {
         }
     }
 
-    // Clases para implementar las funciones que QuickJS puede llamar
-    // Estas implementan la interfaz funcional que QuickJS espera
-
-    private class LogFunction implements java.util.function.BiConsumer<String, String> {
-        @Override
-        public void accept(String level, String message) {
-            androidAPI.log(level, message);
-        }
-    }
-
-    private class StorageGetFunction implements java.util.function.Function<String, String> {
-        @Override
-        public String apply(String key) {
-            return androidAPI.storageGet(key);
-        }
-    }
-
-    private class StorageSetFunction implements java.util.function.BiConsumer<String, String> {
-        @Override
-        public void accept(String key, String value) {
-            androidAPI.storageSet(key, value);
-        }
-    }
-
-    private class StorageRemoveFunction implements java.util.function.Consumer<String> {
-        @Override
-        public void accept(String key) {
-            androidAPI.storageRemove(key);
-        }
-    }
-
-    private class StorageKeysFunction implements java.util.function.Supplier<String[]> {
-        @Override
-        public String[] get() {
-            return androidAPI.storageKeys();
-        }
-    }
-
-    private class HttpRequestFunction implements java.util.function.Function<String, String> {
-        @Override
-        public String apply(String optionsJson) {
-            try {
-                return androidAPI.httpRequest(optionsJson);
-            } catch (IOException e) {
-                throw new RuntimeException("HTTP request failed: " + e.getMessage(), e);
-            }
-        }
-    }
-
-    private class GetCurrentTimeFunction implements java.util.function.Supplier<Long> {
-        @Override
-        public Long get() {
-            return androidAPI.getCurrentTime();
-        }
-    }
-
-    private class GetAppNameFunction implements java.util.function.Function<String, String> {
-        @Override
-        public String apply(String packageName) {
-            return androidAPI.getAppName(packageName);
-        }
-    }
-
     private void ensureInitialized() {
-        if (quickJs == null) {
+        if (rhinoContext == null || scope == null) {
             throw new IllegalStateException("BotJsEngine is not initialized");
         }
-    }
-
-    private String buildInvocationScript(String notificationJson) {
-        String escapedJson = escapeForSingleQuotes(notificationJson);
-        return "JSON.stringify(processNotification(JSON.parse('"
-                + escapedJson + "')))";
-    }
-
-    private String escapeForSingleQuotes(String value) {
-        if (TextUtils.isEmpty(value)) {
-            return "";
-        }
-        return value
-                .replace("\\", "\\\\")
-                .replace("'", "\\'");
     }
 
     /**
@@ -270,8 +169,7 @@ public class BotJsEngine {
             builder.append("\"title\":\"").append(escape(safeString(data.getStatusBarNotification().getNotification().extras.getCharSequence("android.title")))).append("\",");
             builder.append("\"body\":\"").append(escape(safeString(data.getStatusBarNotification().getNotification().extras.getCharSequence("android.text")))).append("\",");
             builder.append("\"timestamp\":").append(data.getStatusBarNotification().getPostTime()).append(',');
-            builder.append("\"isGroup\":").append(data.getStatusBarNotification().getNotification().extras.getBoolean("android.isGroupConversation", false)).append(',');
-            builder.append("\"actions\":[]"); // Placeholder hasta mapear RemoteInputs.
+            builder.append("\"isGroup\":").append(data.getStatusBarNotification().getNotification().extras.getBoolean("android.isGroupConversation", false));
             builder.append('}');
             return builder.toString();
         }

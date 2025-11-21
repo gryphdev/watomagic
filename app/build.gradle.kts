@@ -130,8 +130,9 @@ dependencies {
     implementation(libs.browser)
     implementation(libs.security.crypto)
 
-    // QuickJS JavaScript Engine for BotJS runtime
-    implementation("app.cash.quickjs:quickjs-android:0.9.2")
+    // Rhino JavaScript Engine for BotJS runtime
+    // Rhino 1.7.15 - Lightweight (~1.5 MB), full Java↔JS interop
+    implementation("org.mozilla:rhino:1.7.15")
 
     // Firebase and Google Sign-In
     // Add flavor-specific deps dynamically

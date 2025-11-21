@@ -18,6 +18,19 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Verify import statements
+        run: |
+          echo "🔍 Verifying import statements in project..."
+          echo ""
+          
+          # Make script executable
+          chmod +x scripts/check_imports.sh
+          
+          # Run import verification (fails build if errors found)
+          ./scripts/check_imports.sh
+          
+          echo "✅ Import verification completed"
+
       - name: Build Project
         run: ./gradlew assemble
 
