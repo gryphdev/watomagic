@@ -203,14 +203,15 @@ function processNotification(notification) {
 - `Android.getCurrentTime()` - Timestamp for rate limiting
 - `Android.getAppName(packageName)` - Friendly app names
 
-All APIs are exposed via Rhino's `Context.javaToJS()` for seamless Java↔JS interoperability.
+All APIs are exposed via Rhino's `FunctionObject` and custom `ScriptableObject` for seamless Java↔JS interoperability. Each method is explicitly wrapped to ensure proper function exposure in JavaScript.
 
 ### Bot Security
 - **Timeout**: 5 seconds max execution
 - **Size limit**: 100 KB max
 - **Sandbox**: No filesystem, no eval(), no dangerous patterns
 - **HTTPS only**: All network requests must be secure
-- **Rate limiting**: 100 executions per minute
+- **Rate limiting**: 100 executions per minute (bot execution)
+- **Download rate limiting**: 3 minutes between downloads of different bots (bypassed for same URL updates)
 - **ES5 compatibility**: Bots must use ES5 syntax (no `async/await`, use `var`, string concatenation with `+`)
 
 ## Key Design Decisions
@@ -226,10 +227,11 @@ All APIs are exposed via Rhino's `Context.javaToJS()` for seamless Java↔JS int
 ### 2. Rhino Over QuickJS/V8
 - **Size**: ~1.5 MB (lightweight)
 - **ES5 + ES6 partial**: Stable compatibility
-- **Java↔JS interop**: Full bidirectional communication via `Context.javaToJS()`
+- **Java↔JS interop**: Full bidirectional communication via `FunctionObject` and custom `ScriptableObject` wrappers
 - **Maintained**: Mozilla/community support
 - **Migration**: Replaced QuickJS 0.9.2 which lacked Java interoperability
 - **Dependency**: `app/build.gradle.kts` uses `org.mozilla:rhino:1.7.15`
+- **API Exposure**: Methods are explicitly exposed using `FunctionObject` to ensure proper JavaScript function binding
 
 ### 3. No Over-Engineering
 The `docs/PLAN_BOTJS_SYSTEM.md` describes many "nice to have" features. **Focus on essentials**:
@@ -343,7 +345,7 @@ All core features have been implemented and migrated to Rhino as of 2025-01-21:
 - **Execute bots** automatically on incoming notifications
 - **Auto-update** bots every 6 hours (configurable)
 - **GUI configuration** - Enable/disable, set URL, view bot info, test execution
-- **Secure sandbox** - 5s timeout, size limits, HTTPS-only, rate limiting
+- **Secure sandbox** - 5s timeout, size limits, HTTPS-only, rate limiting (100 exec/min, 3 min between downloads)
 - **Persistent storage** - Bot metadata (URL, hash, timestamp)
 - **Fallback system** - If bot fails, falls back to static/OpenAI replies
 
