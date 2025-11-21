@@ -1,7 +1,8 @@
 # BotJS API Reference
 
-**Versión del documento:** 0.1 (2025-11-15)  
-**Estado del runtime:** pendiente de implementación en Watomagic.
+**Versión del documento:** 0.2 (2025-01-21)
+**JavaScript Engine:** Mozilla Rhino 1.7.15 (ES5 + ES6 parcial)
+**Estado:** ✅ Implementado y funcional
 
 ---
 
@@ -63,7 +64,7 @@ interface HttpRequestOptions {
   timeoutMs?: number;            // Opcional (<= 5000). Default: 4000
 }
 ```
-- Retorna `Promise<string>` con el cuerpo de la respuesta.
+- Retorna `string` con el cuerpo de la respuesta (operación síncrona, bloquea hasta recibir respuesta o timeout).
 - Errores comunes: `ERR_HTTP_TIMEOUT`, `ERR_HTTP_NON_200`.
 
 ### `Android.getCurrentTime()`
@@ -76,9 +77,9 @@ interface HttpRequestOptions {
 
 ## 3. Restricciones del sandbox
 - Tiempo máximo de CPU: **5000 ms**. Se aborta con `TimeoutException`.
-- Memoria máxima por ejecución: 4 MB (límite interno de QuickJS).
+- Memoria máxima por ejecución: 4 MB (límite interno de Rhino).
 - No hay acceso a `require`, `import`, `XMLHttpRequest`, `fetch`, `localStorage`, `navigator`.
-- `Math.random()` está permitido pero usa la implementación de QuickJS (no criptográfica).
+- `Math.random()` está permitido pero usa la implementación de Rhino (no criptográfica).
 - Todos los módulos se ejecutan en un único thread y se destruyen tras cada notificación.
 
 ---

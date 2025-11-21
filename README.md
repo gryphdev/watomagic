@@ -22,12 +22,12 @@ Watomagic envía una respuesta automática a todos los que te contacten en apps 
 
 ## 🧩 Plataforma BotJS ✅ **IMPLEMENTADO**
 
-Sistema de bots JavaScript descargables que permite personalizar completamente la lógica de respuesta automática. **Completado en noviembre 2025 (tag: `opus-cortex-sonnet-2`)**.
+Sistema de bots JavaScript descargables que permite personalizar completamente la lógica de respuesta automática. **Completado en noviembre 2025**.
 
 ### Características implementadas:
 
 - ✅ **Descarga segura** de `bot.js` desde HTTPS con validación SHA-256 opcional
-- ✅ **Motor QuickJS sandbox** con APIs controladas (`Android.log`, `Android.httpRequest`, storage)
+- ✅ **Motor Rhino JavaScript** (ES5/ES6 parcial) con interoperabilidad Java↔JS completa y APIs controladas (`Android.log`, `Android.httpRequest`, storage)
 - ✅ **GUI completa** - Pantalla Material 3 para configurar, probar y gestionar bots
 - ✅ **Auto-updates** - WorkManager verificando nuevas versiones cada 6 horas
 - ✅ **Seguridad robusta** - Timeout 5s, rate limiting, validación de patrones peligrosos
