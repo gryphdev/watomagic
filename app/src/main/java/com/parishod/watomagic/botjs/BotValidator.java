@@ -26,24 +26,52 @@ public final class BotValidator {
 
     public static boolean validate(String jsCode) {
         if (jsCode == null) {
-            Log.w(TAG, "Bot code is null");
+            String message = "Bot code is null";
+            Log.w(TAG, message);
+            if (BotLogCapture.isEnabled()) {
+                BotLogCapture.addLog("error", message);
+            }
             return false;
         }
 
-        if (jsCode.getBytes(StandardCharsets.UTF_8).length > MAX_BOT_SIZE_BYTES) {
-            Log.w(TAG, "Bot too large");
+        if (jsCode.trim().isEmpty()) {
+            String message = "Bot code is empty";
+            Log.w(TAG, message);
+            if (BotLogCapture.isEnabled()) {
+                BotLogCapture.addLog("error", message);
+            }
+            return false;
+        }
+
+        int botSize = jsCode.getBytes(StandardCharsets.UTF_8).length;
+        if (botSize > MAX_BOT_SIZE_BYTES) {
+            String message = String.format("Bot too large: %d bytes (max: %d bytes)", botSize, MAX_BOT_SIZE_BYTES);
+            Log.w(TAG, message);
+            if (BotLogCapture.isEnabled()) {
+                BotLogCapture.addLog("error", message);
+            }
             return false;
         }
 
         for (Pattern pattern : BLACKLISTED_PATTERNS) {
-            if (pattern.matcher(jsCode).find()) {
-                Log.w(TAG, "Dangerous pattern detected: " + pattern.pattern());
+            java.util.regex.Matcher matcher = pattern.matcher(jsCode);
+            if (matcher.find()) {
+                int position = matcher.start();
+                String message = String.format("Dangerous pattern detected: '%s' at position %d", pattern.pattern(), position);
+                Log.w(TAG, message);
+                if (BotLogCapture.isEnabled()) {
+                    BotLogCapture.addLog("error", message);
+                }
                 return false;
             }
         }
 
         if (!jsCode.contains("processNotification")) {
-            Log.w(TAG, "Missing processNotification function");
+            String message = "Missing processNotification function. Bot code must contain a function named 'processNotification'";
+            Log.w(TAG, message);
+            if (BotLogCapture.isEnabled()) {
+                BotLogCapture.addLog("error", message);
+            }
             return false;
         }
 
