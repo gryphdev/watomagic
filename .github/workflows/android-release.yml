@@ -3,15 +3,13 @@ name: Watomagic Android Release Build
 on:
   # Trigger manually from Actions tab
   workflow_dispatch:
-  # Also trigger on push to main branch with version tags
+  # Only trigger on version tags (v*) - creates GitHub Release automatically
   push:
-    branches:
-      - main
     tags:
       - 'v*'
 
 permissions:
-  contents: read
+  contents: write  # ✅ Required to create releases and upload assets
   actions: read
 
 env:
@@ -348,6 +346,57 @@ jobs:
           name: watomagic-release-apk
           path: app/build/outputs/apk/Default/release/*.apk
           retention-days: 30
+
+      # ============================================================
+      # STEP 15b: Calculate version info for release
+      # ============================================================
+      - name: Calculate version info
+        if: success() && startsWith(github.ref, 'refs/tags/v')
+        id: version
+        env:
+          BASE_VERSION_CODE: ${{ env.BASE_VERSION_CODE }}
+        run: |
+          VERSION_CODE=$((BASE_VERSION_CODE + GITHUB_RUN_NUMBER))
+          VERSION_NAME="1.$GITHUB_RUN_NUMBER"
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "📦 Version Code: $VERSION_CODE"
+          echo "📦 Version Name: $VERSION_NAME"
+
+      # ============================================================
+      # STEP 15c: Create GitHub Release and upload APK (only for tags v*)
+      # ============================================================
+      - name: Create GitHub Release
+        if: success() && startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## Watomagic ${{ github.ref_name }}
+            
+            ### 📦 APK Download
+            - **Default (F-Droid variant)**: `app-Default-release.apk`
+            
+            ### 🔐 Build Information
+            - **Version Code**: ${{ steps.version.outputs.version_code }}
+            - **Version Name**: ${{ steps.version.outputs.version_name }}
+            - **Build Type**: Release (SIGNED)
+            - **Flavor**: Default
+            - **Package**: ${{ env.PACKAGE_NAME }}
+            
+            ### 📋 Installation
+            1. Download the APK from the assets below
+            2. Enable "Install from unknown sources" on your Android device
+            3. Install using: `adb install -r app-Default-release.apk`
+            
+            ---
+            *This release was automatically created from tag ${{ github.ref_name }}*
+          files: |
+            app/build/outputs/apk/Default/release/app-Default-release.apk
+          draft: false
+          prerelease: false
+          generate_release_notes: true
 
       # ============================================================
       # STEP 16: Upload test reports
