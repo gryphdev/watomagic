@@ -132,8 +132,6 @@ Verifica automáticamente:
 - Detección de archivos por tipo (Activity, Fragment, Worker, etc.)
 - Categorización y reporte de errores/warnings
 
-### Verificación de compilación
-Ver documentación completa en `docs/COMPILATION_SUCCESS_GUIDE.md`
 
 ---
 

@@ -44,7 +44,6 @@ El sistema BotJS está **completamente funcional** y listo para producción:
 - `docs/BOT_DEVELOPMENT_GUIDE.md`: Desarrollo de bots JavaScript
 - `docs/BOT_API_REFERENCE.md`: Referencia de APIs
 - `docs/ARCHITECTURE.md`: Arquitectura técnica actualizada
-- `docs/COMPILATION_SUCCESS_GUIDE.md`: Build y troubleshooting
 - `docs/CODEMAGIC_QUICKSTART.md`: Configuración de firma Android en Codemagic
 - `CLAUDE.md`: Guía completa del proyecto actualizada
 - `README.md`: Estado actualizado con BotJS IMPLEMENTADO

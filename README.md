@@ -48,7 +48,6 @@ Sistema de bots JavaScript descargables que permite personalizar completamente l
 - [Guía de desarrollo](./docs/BOT_DEVELOPMENT_GUIDE.md) — Cómo crear tus propios bots
 - [API Reference](./docs/BOT_API_REFERENCE.md) — APIs disponibles para bots
 - [Arquitectura técnica](./docs/ARCHITECTURE.md) — Diseño del sistema
-- [Guía de compilación](./docs/COMPILATION_SUCCESS_GUIDE.md) — Build y troubleshooting
 
 ---
 
@@ -96,7 +95,6 @@ Esta app depende de la función de respuestas rápidas desde notificaciones espe
 - [Guía de desarrollo de bots](./docs/BOT_DEVELOPMENT_GUIDE.md) — Crea tus propios bots JavaScript
 - [API Reference](./docs/BOT_API_REFERENCE.md) — Documentación de APIs disponibles
 - [Arquitectura del sistema](./docs/ARCHITECTURE.md) — Diseño técnico completo
-- [Guía de compilación](./docs/COMPILATION_SUCCESS_GUIDE.md) — Build, troubleshooting y CI/CD
 - [Plan original BotJS](./docs/PLAN_BOTJS_SYSTEM.md) — Roadmap y diseño inicial
 
 ---
