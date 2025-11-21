@@ -34,42 +34,39 @@ public class BotJsEngine {
     private static final int EXECUTION_TIMEOUT_MS = 5_000;
 
     private final Context context;
-    private org.mozilla.javascript.Context rhinoContext;
-    private Scriptable scope;
-    private BotAndroidAPI androidAPI;
+    private final BotAndroidAPI androidAPI;
 
     public BotJsEngine(@NonNull Context context) {
         this.context = context.getApplicationContext();
+        this.androidAPI = new BotAndroidAPI(this.context);
     }
 
     public void initialize() {
-        // Entrar en contexto de Rhino
-        rhinoContext = org.mozilla.javascript.Context.enter();
-
-        // Configurar para Android (modo interpretado, no compilado)
-        rhinoContext.setOptimizationLevel(-1);
-
-        // Configurar límites de seguridad
-        rhinoContext.setInstructionObserverThreshold(10000);
-        rhinoContext.setMaximumInterpreterStackDepth(100);
-
-        // Crear scope global con objetos estándar de JavaScript
-        scope = rhinoContext.initStandardObjects();
-
-        // Crear e inyectar API de Android
-        androidAPI = new BotAndroidAPI(context);
-        injectAndroidAPIs();
-
-        Log.i(TAG, "Rhino engine initialized successfully");
+        // No-op: Context is now created per-execution thread
+        // This method is kept for API compatibility
+        Log.i(TAG, "BotJsEngine ready (Context will be created per execution)");
     }
 
     public String executeBot(@NonNull String jsCode,
                              @NonNull NotificationData notificationData)
             throws BotExecutionException {
-        ensureInitialized();
-
         Callable<String> task = () -> {
+            // Create Rhino Context on the execution thread (required for thread-local Context)
+            org.mozilla.javascript.Context rhinoContext = org.mozilla.javascript.Context.enter();
             try {
+                // Configurar para Android (modo interpretado, no compilado)
+                rhinoContext.setOptimizationLevel(-1);
+
+                // Configurar límites de seguridad
+                rhinoContext.setInstructionObserverThreshold(10000);
+                rhinoContext.setMaximumInterpreterStackDepth(100);
+
+                // Crear scope global con objetos estándar de JavaScript
+                Scriptable scope = rhinoContext.initStandardObjects();
+
+                // Inyectar API de Android en este scope
+                injectAndroidAPIs(rhinoContext, scope);
+
                 // Evaluar el código del bot (define la función processNotification)
                 rhinoContext.evaluateString(scope, jsCode, "bot.js", 1, null);
 
@@ -107,6 +104,9 @@ public class BotJsEngine {
                         errorMessage,
                         Log.getStackTraceString(e)
                 );
+            } finally {
+                // Always exit Context on the execution thread
+                org.mozilla.javascript.Context.exit();
             }
         };
 
@@ -125,14 +125,11 @@ public class BotJsEngine {
     }
 
     public void cleanup() {
-        if (rhinoContext != null) {
-            org.mozilla.javascript.Context.exit();
-            rhinoContext = null;
-            scope = null;
-        }
+        // No-op: Context is now created per-execution and cleaned up automatically
+        // This method is kept for API compatibility
     }
 
-    private void injectAndroidAPIs() {
+    private void injectAndroidAPIs(org.mozilla.javascript.Context rhinoContext, Scriptable scope) {
         try {
             // Crear objeto JavaScript AndroidWrapper que expone las APIs
             // Rhino permite exponer objetos Java directamente a JavaScript
@@ -140,7 +137,7 @@ public class BotJsEngine {
             ScriptableObject.putProperty(scope, "Android", wrappedAndroid);
 
             // Crear e inyectar localStorage wrapper que usa Android.storage* internamente
-            injectLocalStorage();
+            injectLocalStorage(rhinoContext, scope);
 
             Log.i(TAG, "Android APIs injected successfully via Rhino");
             Log.i(TAG, "Available APIs: log, storageGet, storageSet, storageRemove, " +
@@ -157,7 +154,7 @@ public class BotJsEngine {
      * Inyecta un objeto localStorage global que usa Android.storage* internamente.
      * Proporciona la API estándar de localStorage (getItem, setItem, removeItem, clear, key, length).
      */
-    private void injectLocalStorage() {
+    private void injectLocalStorage(org.mozilla.javascript.Context rhinoContext, Scriptable scope) {
         // Crear funciones una vez para reutilizarlas (comportamiento estándar de localStorage)
         final org.mozilla.javascript.BaseFunction getItemFunc = new org.mozilla.javascript.BaseFunction() {
             @Override
@@ -289,11 +286,6 @@ public class BotJsEngine {
         ScriptableObject.putProperty(scope, "localStorage", localStorage);
     }
 
-    private void ensureInitialized() {
-        if (rhinoContext == null || scope == null) {
-            throw new IllegalStateException("BotJsEngine is not initialized");
-        }
-    }
 
     /**
      * Utilidad interna para mapear NotificationData a JSON.
