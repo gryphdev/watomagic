@@ -16,8 +16,13 @@ class CooldownAdapter(
 
     private var selectedHour: Int = 0
     private var selectedMinute: Int = 1
-    private var isHoursSelected: Boolean = false
+    private var selectedSecond: Int = 0
+    private var timeUnit: TimeUnit = TimeUnit.MINUTES
     private var isReset: Boolean = false
+
+    private enum class TimeUnit {
+        HOURS, MINUTES, SECONDS
+    }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val toggleButtonGroup: MaterialButtonToggleGroup = view.findViewById(R.id.toggle_button_group)
@@ -33,24 +38,41 @@ class CooldownAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         if (!isReset) {
             items.getOrNull(position)?.let {
-                val totalMinutes = it.cooldownInMinutes
-                if (totalMinutes >= 60 && totalMinutes % 60 == 0) {
-                    isHoursSelected = true
-                    selectedHour = totalMinutes / 60
-                } else {
-                    isHoursSelected = false
-                    selectedMinute = totalMinutes
+                val totalSeconds = it.cooldownInSeconds
+                when {
+                    totalSeconds >= 3600 && totalSeconds % 3600 == 0 -> {
+                        timeUnit = TimeUnit.HOURS
+                        selectedHour = totalSeconds / 3600
+                    }
+                    totalSeconds >= 60 && totalSeconds % 60 == 0 -> {
+                        timeUnit = TimeUnit.MINUTES
+                        selectedMinute = totalSeconds / 60
+                    }
+                    else -> {
+                        timeUnit = TimeUnit.SECONDS
+                        selectedSecond = totalSeconds
+                    }
                 }
             }
         }
         isReset = false
 
-        holder.toggleButtonGroup.check(if (isHoursSelected) R.id.button_hours else R.id.button_minutes)
+        val buttonId = when (timeUnit) {
+            TimeUnit.HOURS -> R.id.button_hours
+            TimeUnit.MINUTES -> R.id.button_minutes
+            TimeUnit.SECONDS -> R.id.button_seconds
+        }
+        holder.toggleButtonGroup.check(buttonId)
         setupNumberPicker(holder)
 
         holder.toggleButtonGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
-                isHoursSelected = checkedId == R.id.button_hours
+                timeUnit = when (checkedId) {
+                    R.id.button_hours -> TimeUnit.HOURS
+                    R.id.button_minutes -> TimeUnit.MINUTES
+                    R.id.button_seconds -> TimeUnit.SECONDS
+                    else -> TimeUnit.MINUTES
+                }
                 setupNumberPicker(holder)
                 notifyTimeChange()
             }
@@ -61,14 +83,22 @@ class CooldownAdapter(
     private fun setupNumberPicker(holder: ViewHolder) {
         holder.numberPicker.apply {
             minValue = 0
-            maxValue = if (isHoursSelected) 24 else 59
-            value = if (isHoursSelected) selectedHour else selectedMinute
+            maxValue = when (timeUnit) {
+                TimeUnit.HOURS -> 24
+                TimeUnit.MINUTES -> 59
+                TimeUnit.SECONDS -> 59
+            }
+            value = when (timeUnit) {
+                TimeUnit.HOURS -> selectedHour
+                TimeUnit.MINUTES -> selectedMinute
+                TimeUnit.SECONDS -> selectedSecond
+            }
             wrapSelectorWheel = true
             setOnValueChangedListener { _, _, newVal ->
-                if (isHoursSelected) {
-                    selectedHour = newVal
-                } else {
-                    selectedMinute = newVal
+                when (timeUnit) {
+                    TimeUnit.HOURS -> selectedHour = newVal
+                    TimeUnit.MINUTES -> selectedMinute = newVal
+                    TimeUnit.SECONDS -> selectedSecond = newVal
                 }
                 notifyTimeChange()
             }
@@ -76,8 +106,12 @@ class CooldownAdapter(
     }
 
     private fun notifyTimeChange() {
-        val totalMinutes = if (isHoursSelected) selectedHour * 60 else selectedMinute
-        onCooldownTimeChanged(totalMinutes)
+        val totalSeconds = when (timeUnit) {
+            TimeUnit.HOURS -> selectedHour * 3600
+            TimeUnit.MINUTES -> selectedMinute * 60
+            TimeUnit.SECONDS -> selectedSecond
+        }
+        onCooldownTimeChanged(totalSeconds)
     }
 
     override fun getItemCount(): Int = items.size
@@ -86,6 +120,8 @@ class CooldownAdapter(
         isReset = true
         selectedHour = 0
         selectedMinute = 0
+        selectedSecond = 0
+        timeUnit = TimeUnit.MINUTES
         notifyDataSetChanged()
     }
 }

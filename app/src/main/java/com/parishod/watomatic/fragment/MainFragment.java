@@ -358,20 +358,24 @@ public class MainFragment extends Fragment implements DialogActionListener {
 
     private void updateCooldownFilterDisplay() {
         long cooldownInMillis = preferencesManager.getAutoReplyDelay();
-        long minutes = cooldownInMillis / (60 * 1000);
-        if (minutes == 0) {
+        long totalSeconds = cooldownInMillis / 1000;
+        if (totalSeconds == 0) {
             replyCooldownDescription.setText(R.string.no_cooldown);
             return;
         }
-        long hours = minutes / 60;
-        minutes = minutes % 60;
+        long hours = totalSeconds / 3600;
+        long minutes = (totalSeconds % 3600) / 60;
+        long seconds = totalSeconds % 60;
 
         StringBuilder cooldownText = new StringBuilder();
         if (hours > 0) {
             cooldownText.append(hours).append(" ").append(getResources().getString(hours > 1 ? R.string.hours : R.string.hour)).append(" ");
         }
         if (minutes > 0) {
-            cooldownText.append(minutes).append(" ").append(getResources().getString(minutes > 1 ? R.string.minutes : R.string.minute));
+            cooldownText.append(minutes).append(" ").append(getResources().getString(minutes > 1 ? R.string.minutes : R.string.minute)).append(" ");
+        }
+        if (seconds > 0) {
+            cooldownText.append(seconds).append(" ").append(getResources().getString(seconds > 1 ? R.string.seconds : R.string.second));
         }
         replyCooldownDescription.setText(cooldownText.toString().trim());
     }
@@ -690,9 +694,9 @@ public class MainFragment extends Fragment implements DialogActionListener {
     // Dialog 3: Cooldown with selection boxes
     private void showCooldownDialog() {
         List<CooldownItem> cooldownOptions = new ArrayList<>();
-        long cooldownInMinutes = preferencesManager.getAutoReplyDelay() / (60 * 1000);
-        initialCooldownTime = (int) cooldownInMinutes;
-        cooldownOptions.add(new CooldownItem((int) cooldownInMinutes));
+        long cooldownInSeconds = preferencesManager.getAutoReplyDelay() / 1000;
+        initialCooldownTime = (int) cooldownInSeconds;
+        cooldownOptions.add(new CooldownItem((int) cooldownInSeconds));
 
         DialogConfig config = new DialogConfig(
                 DialogType.COOLDOWN,
@@ -714,7 +718,7 @@ public class MainFragment extends Fragment implements DialogActionListener {
     public void onSaveClicked(DialogType dialogType) {
         if (dialogType == DialogType.COOLDOWN) {
             if(selectedCooldownTime != -1) {
-                long cooldownInMillis = selectedCooldownTime * 60 * 1000L;
+                long cooldownInMillis = selectedCooldownTime * 1000L;
                 preferencesManager.setAutoReplyDelay(cooldownInMillis);
                 updateCooldownFilterDisplay();
                 Toast.makeText(mActivity, "Cooldown settings saved", Toast.LENGTH_SHORT).show();
@@ -746,14 +750,14 @@ public class MainFragment extends Fragment implements DialogActionListener {
     }
 
     @Override
-    public void onCooldownChanged(int totalMinutes) {
-        selectedCooldownTime = totalMinutes;
+    public void onCooldownChanged(int totalSeconds) {
+        selectedCooldownTime = totalSeconds;
         if (selectedCooldownTime != initialCooldownTime) {
             Fragment dialogFragment = getParentFragmentManager().findFragmentByTag("cooldown_dialog");
             if (dialogFragment instanceof UniversalDialogFragment) {
                 ((UniversalDialogFragment) dialogFragment).setSaveButtonEnabled(true);
             }
         }
-        Log.d("Dialog", "Total cooldown time: " + totalMinutes);
+        Log.d("Dialog", "Total cooldown time: " + totalSeconds + " seconds");
     }
 }

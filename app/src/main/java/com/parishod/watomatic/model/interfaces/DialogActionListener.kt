@@ -7,5 +7,5 @@ interface DialogActionListener {
     fun onItemToggled(position: Int, isChecked: Boolean) {}
     fun onItemSelected(position: Int, isSelected: Boolean) {}
     fun onSearchQuery(query: String) {}
-    fun onCooldownChanged(totalMinutes: Int) {}
+    fun onCooldownChanged(totalSeconds: Int) {}
 }
