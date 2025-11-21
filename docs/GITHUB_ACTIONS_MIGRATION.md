@@ -4,151 +4,139 @@ This guide documents the migration from **Codemagic** to **GitHub Actions** for 
 
 ## Overview
 
-The GitHub Actions workflow (`/.github/workflows/android-release.yml`) provides feature parity with the Codemagic setup:
+The GitHub Actions workflow (`.github/workflows/android-release.yml`) provides feature parity with Codemagic plus optimizations:
 
 - ✅ Android APK builds with signing
 - ✅ Unit tests and lint checks (non-blocking)
-- ✅ Artifact storage and downloads
-- ✅ Version code management
-- ✅ macOS runners (included in GitHub Free tier)
+- ✅ Artifact storage (30 days retention)
+- ✅ Automatic version code management
+- ✅ **Linux runners** (faster, free for public repos)
+- ✅ **Early secret validation** (fails fast if secrets missing)
+- ✅ **Optimized caching** (Gradle + Android SDK)
 
-## Setup Instructions
+## Quick Setup
 
-### 1. Configure GitHub Secrets
+### 1. Configure GitHub Environment Secrets
 
-Go to your repository: **Settings → Secrets and variables → Actions → New repository secret**
+**Settings → Environments → watomagic → Add secret**
 
-Add these secrets (same values as Codemagic):
+The workflow uses the **`watomagic` environment** with 4 secrets:
 
-| Secret Name | Value | Notes |
-|-------------|-------|-------|
-| `KEYSTORE_BASE64` | Base64-encoded keystore file | See encoding steps below |
-| `KEYSTORE_PASSWORD` | Your keystore password | Same as Codemagic `KEYSTORE_PASSWORD` |
-| `KEY_ALIAS` | Your key alias | Same as Codemagic `KEY_ALIAS` |
-| `KEY_PASSWORD` | Your key password | Same as Codemagic `KEY_PASSWORD` |
+| Secret Name | Description |
+|-------------|-------------|
+| `KEYSTORE_BASE64` | Base64-encoded keystore file |
+| `KEYSTORE_PASSWORD` | Keystore password |
+| `KEY_ALIAS` | Key alias (e.g., `watomagic`) |
+| `KEY_PASSWORD` | Key password |
 
-### 2. Encode Your Keystore for GitHub Secrets
+**Note**: Environment secrets are used instead of repository secrets for better security isolation.
 
-If you have the keystore file locally:
+### 2. Encode Keystore
 
 ```bash
-# On macOS/Linux
+# Encode keystore to base64
 base64 -i watomagic-release.keystore | tr -d '\n' > keystore.b64
 
-# Copy the contents to clipboard
+# Copy to clipboard
 cat keystore.b64 | pbcopy  # macOS
 cat keystore.b64 | xclip -selection clipboard  # Linux
 
-# Then paste into GitHub secret KEYSTORE_BASE64
+# Paste into GitHub secret KEYSTORE_BASE64
 ```
 
-If you need to extract the keystore from Codemagic:
+### 3. Run Workflow
 
-1. Download the keystore from Codemagic (if you still have access)
-2. Encode it using the command above
-3. Add to GitHub secrets
+1. Go to **Actions** tab → **Watomagic Android Release Build**
+2. Click **Run workflow** → **Run workflow**
+3. Download APK from **Artifacts** after completion
 
-### 3. Test the Workflow
+## Workflow Features
 
-1. Go to **Actions** tab in your GitHub repository
-2. Select **"Watomagic Android Release Build"** workflow
-3. Click **"Run workflow"** → **"Run workflow"** (manual trigger)
-4. Monitor the build progress
-5. Download the APK from **Artifacts** section after completion
+### Triggers
+- **Manual**: Actions tab → Run workflow
+- **Automatic**: Push to `main` branch
+- **Tags**: Push tags matching `v*` pattern
 
-### 4. Verify Build Output
+### Version Management
+- **Base Version Code**: `10000`
+- **Dynamic**: `BASE_VERSION_CODE + GITHUB_RUN_NUMBER`
+- **Version Name**: `1.{GITHUB_RUN_NUMBER}`
 
-After the first successful build:
+**Example:**
+- Run #1 → Version Code: `10001`, Name: `1.1`
+- Run #2 → Version Code: `10002`, Name: `1.2`
 
-- ✅ APK should be available in **Artifacts** section
-- ✅ APK should be signed (verify with `apksigner verify`)
-- ✅ Version code should increment automatically
-- ✅ Test reports should be available (if tests ran)
+### Optimizations
+- **Early secret validation**: Fails in ~10 seconds if secrets missing (vs ~5 minutes)
+- **Gradle cache**: Speeds up dependency downloads
+- **Android SDK cache**: Reduces setup time
+- **Linux runners**: 20-40% faster than macOS, free for public repos
 
-## Workflow Triggers
-
-The workflow runs automatically on:
-
-- **Manual trigger**: Actions tab → Run workflow
-- **Push to main branch**: Any commit to `main`
-- **Version tags**: Tags matching `v*` pattern (e.g., `v1.0.0`)
-
-## Key Differences from Codemagic
+## Differences from Codemagic
 
 | Feature | Codemagic | GitHub Actions |
 |---------|-----------|----------------|
-| **Build minutes** | Limited free tier | 2,000/month (private repos) |
-| **macOS runners** | ✅ Yes | ✅ Yes (included) |
-| **Keystore storage** | File upload in UI | Base64 in secrets |
-| **Artifact retention** | 30 days default | 30 days (configurable) |
-| **Notifications** | Email built-in | GitHub notifications + optional email steps |
-| **Integration** | Separate UI | ✅ Native GitHub integration |
-
-## Version Code Management
-
-The workflow uses the same versioning strategy as Codemagic:
-
-- **Base Version Code**: `10000` (defined in workflow `env`)
-- **Dynamic Version Code**: `BASE_VERSION_CODE + GITHUB_RUN_NUMBER`
-- **Version Name**: `1.{GITHUB_RUN_NUMBER}`
-
-Example:
-- Run #1 → Version Code: `10001`, Version Name: `1.1`
-- Run #2 → Version Code: `10002`, Version Name: `1.2`
+| **Runners** | macOS | **Linux (ubuntu-latest)** |
+| **Build speed** | Standard | **Faster (optimized cache)** |
+| **Free tier** | Limited | 2,000 min/month (private) |
+| **Keystore** | File upload | Base64 in environment secrets |
+| **Integration** | Separate UI | ✅ Native GitHub |
+| **Secret validation** | Late failure | **Early validation** |
 
 ## Troubleshooting
 
-### Build Fails: "KEYSTORE_BASE64 secret not set"
+### "KEYSTORE_BASE64 secret not set"
 
-**Solution**: Add the `KEYSTORE_BASE64` secret in GitHub repository settings.
+**Solution**: The workflow uses the **`watomagic` environment** and validates secrets early:
+1. Check workflow logs for which secrets are missing
+2. Go to **Settings → Environments → watomagic**
+3. Verify all 4 secrets are configured:
+   - `KEYSTORE_BASE64`
+   - `KEYSTORE_PASSWORD`
+   - `KEY_ALIAS`
+   - `KEY_PASSWORD`
 
-### Build Fails: "Keystore file not found"
+**Note**: The workflow is configured to use `environment: watomagic` (line 29). If you need to use a different environment, update the workflow file.
 
-**Solution**: Verify the base64 encoding is correct. The keystore should decode to a valid `.keystore` file.
+### "Keystore file too small"
+
+**Solution**: Base64 encoding failed. Re-encode:
+```bash
+base64 -i watomagic-release.keystore | tr -d '\n' | wc -c
+# Should be > 1000 characters
+```
 
 ### APK Not Signed
 
-**Solution**: Check that all signing secrets are set:
+**Solution**: Verify all secrets are set:
+- `KEYSTORE_BASE64` (base64-encoded file)
 - `KEYSTORE_PASSWORD`
 - `KEY_ALIAS`
 - `KEY_PASSWORD`
-- `KEYSTORE_BASE64`
 
-### Tests Fail but Build Continues
+### Tests/Lint Fail but Build Continues
 
-This is expected behavior. Tests are non-blocking (`continue-on-error: true`). Check the test reports in artifacts for details.
+**Expected behavior**: Tests and lint are non-blocking (`continue-on-error: true`). Check artifacts for reports.
 
 ## Migration Checklist
 
-- [x] GitHub Actions workflow file created (`.github/workflows/android-release.yml`)
-- [ ] GitHub secrets configured (KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD)
+- [x] GitHub Actions workflow created
+- [x] GitHub environment `watomagic` configured with 4 secrets
 - [ ] First workflow run successful
 - [ ] APK downloaded and verified (signed, installable)
-- [ ] (Optional) Update README to reference GitHub Actions
-- [ ] (Optional) Archive/delete `codemagic.yaml` after confirming GitHub Actions works
+- [ ] (Optional) Archive `codemagic.yaml`
 
-## Next Steps After Migration
+## Security Reminder
 
-1. **Test thoroughly**: Run multiple builds to ensure consistency
-2. **Update documentation**: Update any references to Codemagic in README/docs
-3. **Team notification**: Inform team members about the new CI/CD location
-4. **Monitor builds**: Watch for any issues in the first few builds
+⚠️ **IMPORTANT**: The keystore is critical for app updates:
+- Back up keystore securely (password manager, secure vault)
+- Secure GitHub secrets access
+- If keystore is lost, you cannot update the app on Google Play
 
 ## Support
 
 If you encounter issues:
-
 1. Check workflow logs in GitHub Actions
-2. Verify all secrets are set correctly
-3. Compare with Codemagic build logs (if available)
-4. Review the workflow file for any environment-specific issues
-
-## Keystore Security Reminder
-
-⚠️ **IMPORTANT**: The keystore is critical for app updates. Ensure:
-
-- Keystore is backed up securely (password manager, secure vault)
-- GitHub secrets are properly secured
-- Only trusted team members have access to secrets
-- If keystore is lost, you cannot update the app on Google Play
-
+2. Review early secret validation output
+3. Verify all secrets are correctly set
+4. Compare with previous Codemagic builds (if available)
