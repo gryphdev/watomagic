@@ -138,14 +138,153 @@ public class BotJsEngine {
             Object wrappedAndroid = org.mozilla.javascript.Context.javaToJS(androidAPI, scope);
             ScriptableObject.putProperty(scope, "Android", wrappedAndroid);
 
+            // Crear e inyectar localStorage wrapper que usa Android.storage* internamente
+            injectLocalStorage();
+
             Log.i(TAG, "Android APIs injected successfully via Rhino");
             Log.i(TAG, "Available APIs: log, storageGet, storageSet, storageRemove, " +
                       "storageKeys, httpRequest, getCurrentTime, getAppName");
+            Log.i(TAG, "localStorage API available (wraps Android.storage*)");
 
         } catch (Exception e) {
             Log.e(TAG, "Failed to inject Android APIs", e);
             throw new RuntimeException("Android API injection failed: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Inyecta un objeto localStorage global que usa Android.storage* internamente.
+     * Proporciona la API estándar de localStorage (getItem, setItem, removeItem, clear, key, length).
+     */
+    private void injectLocalStorage() {
+        // Crear objeto localStorage usando Rhino
+        Scriptable localStorage = rhinoContext.newObject(scope);
+        
+        // getItem(key) -> Android.storageGet(key)
+        ScriptableObject.putProperty(localStorage, "getItem", new org.mozilla.javascript.BaseFunction() {
+            @Override
+            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                if (args.length == 0 || args[0] == null) {
+                    return null;
+                }
+                String key = org.mozilla.javascript.Context.toString(args[0]);
+                String value = androidAPI.storageGet(key);
+                return value != null ? value : null;
+            }
+        });
+
+        // setItem(key, value) -> Android.storageSet(key, value)
+        ScriptableObject.putProperty(localStorage, "setItem", new org.mozilla.javascript.BaseFunction() {
+            @Override
+            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                if (args.length < 2) {
+                    throw new org.mozilla.javascript.EcmaError(
+                        cx.createError("TypeError", "Failed to execute 'setItem' on 'Storage': 2 arguments required")
+                    );
+                }
+                String key = org.mozilla.javascript.Context.toString(args[0]);
+                String value = org.mozilla.javascript.Context.toString(args[1]);
+                androidAPI.storageSet(key, value);
+                return org.mozilla.javascript.Context.getUndefinedValue();
+            }
+        });
+
+        // removeItem(key) -> Android.storageRemove(key)
+        ScriptableObject.putProperty(localStorage, "removeItem", new org.mozilla.javascript.BaseFunction() {
+            @Override
+            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                if (args.length == 0 || args[0] == null) {
+                    return org.mozilla.javascript.Context.getUndefinedValue();
+                }
+                String key = org.mozilla.javascript.Context.toString(args[0]);
+                androidAPI.storageRemove(key);
+                return org.mozilla.javascript.Context.getUndefinedValue();
+            }
+        });
+
+        // clear() -> elimina todas las claves usando Android.storageKeys() y storageRemove()
+        ScriptableObject.putProperty(localStorage, "clear", new org.mozilla.javascript.BaseFunction() {
+            @Override
+            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                String[] keys = androidAPI.storageKeys();
+                for (String key : keys) {
+                    androidAPI.storageRemove(key);
+                }
+                return org.mozilla.javascript.Context.getUndefinedValue();
+            }
+        });
+
+        // key(index) -> retorna la clave en el índice dado
+        ScriptableObject.putProperty(localStorage, "key", new org.mozilla.javascript.BaseFunction() {
+            @Override
+            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                if (args.length == 0) {
+                    return null;
+                }
+                int index = (int) org.mozilla.javascript.Context.toNumber(args[0]);
+                String[] keys = androidAPI.storageKeys();
+                if (index < 0 || index >= keys.length) {
+                    return null;
+                }
+                return keys[index];
+            }
+        });
+
+        // Crear un ScriptableObject personalizado para localStorage que calcula length dinámicamente
+        Scriptable localStorageWrapper = new ScriptableObject() {
+            @Override
+            public String getClassName() {
+                return "Storage";
+            }
+
+            @Override
+            public Object get(String name, Scriptable start) {
+                // Interceptar acceso a 'length' para calcularlo dinámicamente
+                if ("length".equals(name)) {
+                    return androidAPI.storageKeys().length;
+                }
+                // Para otros métodos, delegar al objeto localStorage original
+                return localStorage.get(name, localStorage);
+            }
+
+            @Override
+            public void put(String name, Scriptable start, Object value) {
+                // localStorage es de solo lectura (solo métodos, no propiedades)
+                throw new org.mozilla.javascript.EcmaError(
+                    rhinoContext.createError("TypeError", "Cannot set property '" + name + "' on Storage object")
+                );
+            }
+
+            @Override
+            public boolean has(String name, Scriptable start) {
+                if ("length".equals(name)) {
+                    return true;
+                }
+                return localStorage.has(name, localStorage);
+            }
+
+            @Override
+            public Object[] getIds() {
+                // Retornar todos los métodos + length
+                Object[] originalIds = localStorage.getIds();
+                Object[] ids = new Object[originalIds.length + 1];
+                System.arraycopy(originalIds, 0, ids, 0, originalIds.length);
+                ids[originalIds.length] = "length";
+                return ids;
+            }
+        };
+
+        // Copiar todos los métodos al wrapper
+        Object[] methodNames = {"getItem", "setItem", "removeItem", "clear", "key"};
+        for (Object methodName : methodNames) {
+            Object method = localStorage.get((String) methodName, localStorage);
+            if (method != null) {
+                localStorageWrapper.put((String) methodName, localStorageWrapper, method);
+            }
+        }
+
+        // Inyectar localStorage wrapper como objeto global
+        ScriptableObject.putProperty(scope, "localStorage", localStorageWrapper);
     }
 
     private void ensureInitialized() {

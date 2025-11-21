@@ -49,6 +49,21 @@ declare const Android: {
 };
 
 /**
+ * API de localStorage estándar (compatible con navegadores)
+ * Internamente usa Android.storage* para persistencia
+ */
+interface Storage {
+    readonly length: number;
+    getItem(key: string): string | null;
+    setItem(key: string, value: string): void;
+    removeItem(key: string): void;
+    clear(): void;
+    key(index: number): string | null;
+}
+
+declare const localStorage: Storage;
+
+/**
  * Función principal que debe implementar el bot
  */
 declare function processNotification(notification: NotificationData): Promise<BotResponse> | BotResponse;

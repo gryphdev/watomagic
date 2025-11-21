@@ -15,18 +15,24 @@ async function processNotification(notification) {
     }
 
     // Ejemplo 2: Auto-respuesta con rate limiting de 1 hora
+    // Puedes usar localStorage (API estándar) o Android.storage* (ambos funcionan igual)
     if (notification.appPackage === 'com.whatsapp') {
-        const lastReply = Android.storageGet('lastAutoReply');
+        // Opción A: Usando localStorage (sintaxis estándar del navegador)
+        const lastReply = localStorage.getItem('lastAutoReply');
         const now = Android.getCurrentTime();
 
         if (!lastReply || now - parseInt(lastReply, 10) > 3600000) {
-            Android.storageSet('lastAutoReply', now.toString());
+            localStorage.setItem('lastAutoReply', now.toString());
 
             return {
                 action: 'REPLY',
                 replyText: 'Estoy ocupado ahora. Te respondo pronto!'
             };
         }
+        
+        // Opción B: También puedes usar Android.storage* directamente
+        // const lastReply = Android.storageGet('lastAutoReply');
+        // Android.storageSet('lastAutoReply', now.toString());
     }
 
     // Ejemplo 3: Usar API externa para clasificación inteligente
@@ -88,9 +94,9 @@ async function processNotification(notification) {
     }
 
     // Ejemplo 6: Rastrear frecuencia de notificaciones por app
-    const appNotifKey = `notif_count_${notification.appPackage}`;
-    const count = parseInt(Android.storageGet(appNotifKey) || '0', 10) + 1;
-    Android.storageSet(appNotifKey, count.toString());
+    const appNotifKey = 'notif_count_' + notification.appPackage;
+    const count = parseInt(localStorage.getItem(appNotifKey) || '0', 10) + 1;
+    localStorage.setItem(appNotifKey, count.toString());
 
     if (count > 10) {
         const appName = Android.getAppName(notification.appPackage);
