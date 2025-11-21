@@ -1,8 +1,9 @@
 # BotJS API Reference
 
-**Versión del documento:** 0.2 (2025-01-21)
+**Versión del documento:** 0.3 (2025-01-21)
 **JavaScript Engine:** Mozilla Rhino 1.7.15 (ES5 + ES6 parcial)
 **Estado:** ✅ Implementado y funcional
+**Cambios en v0.3:** Añadido objeto global `localStorage` compatible con API estándar
 
 ---
 
@@ -52,6 +53,51 @@
 ### `Android.storageKeys()`
 - Devuelve `string[]` con todas las claves almacenadas.
 
+---
+
+## 3. Objeto global `localStorage`
+
+**Disponible desde:** v0.2 (2025-01-21)
+
+Watomagic proporciona un objeto `localStorage` global compatible con la API estándar del navegador. Internamente usa `Android.storage*` para persistencia.
+
+### `localStorage.getItem(key)`
+- Retorna `string | null`.
+- Equivalente a `Android.storageGet(key)`.
+
+### `localStorage.setItem(key, value)`
+- Guarda `value` (string) de forma persistente.
+- Equivalente a `Android.storageSet(key, value)`.
+
+### `localStorage.removeItem(key)`
+- Elimina la clave indicada.
+- Equivalente a `Android.storageRemove(key)`.
+
+### `localStorage.clear()`
+- Elimina todas las claves almacenadas.
+
+### `localStorage.key(index)`
+- Retorna `string | null` con la clave en el índice dado (0-based).
+
+### `localStorage.length`
+- Propiedad de solo lectura que retorna el número de claves almacenadas.
+- Se calcula dinámicamente en cada acceso.
+
+**Ejemplo de uso:**
+```javascript
+// Sintaxis estándar de localStorage
+localStorage.setItem('lastReply', Date.now().toString());
+var lastReply = localStorage.getItem('lastReply');
+
+// También puedes usar Android.storage* directamente
+Android.storageSet('lastReply', Date.now().toString());
+var lastReply = Android.storageGet('lastReply');
+```
+
+---
+
+## 4. Objeto global `Android` (continuación)
+
 ### `Android.httpRequest(options)`
 ```ts
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -71,20 +117,21 @@ interface HttpRequestOptions {
 - Retorna `number` (epoch ms). Ideal para rate limiting.
 
 ### `Android.getAppName(packageName)`
-- Retorna el nombre legible (por ejemplo, “WhatsApp”).
+- Retorna el nombre legible (por ejemplo, "WhatsApp").
 
 ---
 
-## 3. Restricciones del sandbox
+## 5. Restricciones del sandbox
 - Tiempo máximo de CPU: **5000 ms**. Se aborta con `TimeoutException`.
 - Memoria máxima por ejecución: 4 MB (límite interno de Rhino).
-- No hay acceso a `require`, `import`, `XMLHttpRequest`, `fetch`, `localStorage`, `navigator`.
+- No hay acceso a `require`, `import`, `XMLHttpRequest`, `fetch`, `navigator`.
+- **`localStorage` está disponible** (implementación personalizada que usa `Android.storage*`).
 - `Math.random()` está permitido pero usa la implementación de Rhino (no criptográfica).
 - Todos los módulos se ejecutan en un único thread y se destruyen tras cada notificación.
 
 ---
 
-## 4. Errores estándar
+## 6. Errores estándar
 | Código | Cuándo ocurre | Acción recomendada |
 |--------|---------------|--------------------|
 | `BOT_VALIDATION_FAILED` | Script demasiado grande o contiene patrones prohibidos. | Reducir tamaño y eliminar `eval`, `Function`, `__proto__`, `import()`. |
@@ -95,17 +142,18 @@ interface HttpRequestOptions {
 
 ---
 
-## 5. Versionado y compatibilidad
-- **Versión 0.1** (actual): primera iteración. Considera la interfaz estable, salvo ampliaciones en `Android`.
+## 7. Versionado y compatibilidad
+- **Versión 0.2** (actual): añadido `localStorage` global.
+- **Versión 0.1**: primera iteración con `Android.storage*`.
 - Los bots deberían declarar en un comentario superior qué versión de la API esperan:
   ```javascript
-  // BotJS API: 0.1
+  // BotJS API: 0.2
   ```
-- Cuando exista la versión 0.2+, Watomagic expondrá `Android.getApiVersion()` para permitir degradar funcionalidad.
+- Cuando exista la versión 0.3+, Watomagic expondrá `Android.getApiVersion()` para permitir degradar funcionalidad.
 
 ---
 
-## 6. Recursos relacionados
+## 8. Recursos relacionados
 - [Guía de desarrollo](./BOT_DEVELOPMENT_GUIDE.md)
 - [Guía de usuario](./BOT_USER_GUIDE.md)
 - [Plan maestro y roadmap](./PLAN_BOTJS_SYSTEM.md)
