@@ -13,6 +13,7 @@ import org.mozilla.javascript.NativeJSON;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.ScriptRuntime;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -174,9 +175,7 @@ public class BotJsEngine {
             @Override
             public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
                 if (args.length < 2) {
-                    throw new org.mozilla.javascript.EcmaError(
-                        cx.createError("TypeError", "Failed to execute 'setItem' on 'Storage': 2 arguments required")
-                    );
+                    throw ScriptRuntime.constructError("TypeError", "Failed to execute 'setItem' on 'Storage': 2 arguments required");
                 }
                 String key = org.mozilla.javascript.Context.toString(args[0]);
                 String value = org.mozilla.javascript.Context.toString(args[1]);
@@ -282,9 +281,7 @@ public class BotJsEngine {
             @Override
             public void delete(String name) {
                 // localStorage no permite eliminar propiedades
-                throw new org.mozilla.javascript.EcmaError(
-                    rhinoContext.createError("TypeError", "Cannot delete property '" + name + "' on Storage object")
-                );
+                throw ScriptRuntime.constructError("TypeError", "Cannot delete property '" + name + "' on Storage object");
             }
         };
 
