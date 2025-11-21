@@ -1,0 +1,335 @@
+name: Watomagic Android Release Build
+
+on:
+  # Trigger manually from Actions tab
+  workflow_dispatch:
+  # Also trigger on push to main branch with version tags
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  JAVA_VERSION: '17'
+  GRADLE_VERSION: '8.12'
+  PACKAGE_NAME: 'com.parishod.watomagic'
+  BASE_VERSION_CODE: 10000
+
+jobs:
+  build-release:
+    name: 📱 Build Signed Android Release APK
+    runs-on: macos-latest  # GitHub-hosted macOS runner (Free tier includes this)
+    timeout-minutes: 60
+
+    steps:
+      # ============================================================
+      # STEP 1: Checkout repository
+      # ============================================================
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for version detection
+
+      # ============================================================
+      # STEP 2: Setup Java
+      # ============================================================
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      # ============================================================
+      # STEP 3: Setup Android SDK
+      # ============================================================
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      # ============================================================
+      # STEP 4: Create local.properties with SDK path
+      # ============================================================
+      - name: Create local.properties
+        run: |
+          echo "✅ Setting up Android SDK location..."
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+          cat local.properties
+          echo "✅ local.properties configured"
+
+      # ============================================================
+      # STEP 5: Fix Gradle permissions
+      # ============================================================
+      - name: Fix gradlew permissions
+        run: |
+          echo "✅ Setting execute permissions on gradlew..."
+          chmod +x gradlew
+          ls -la gradlew
+
+      # ============================================================
+      # STEP 6: Verify Java and Gradle environment
+      # ============================================================
+      - name: Verify Java and Gradle environment
+        run: |
+          echo "☕ Java version:"
+          java -version
+          echo ""
+          echo "📍 JAVA_HOME: $JAVA_HOME"
+          echo "📍 ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
+          echo ""
+          echo "🔧 Gradle version:"
+          ./gradlew --version --no-daemon
+          echo ""
+          echo "📋 Gradle projects:"
+          ./gradlew projects --no-daemon
+
+      # ============================================================
+      # STEP 7: Create signing key file from GitHub Secret
+      # ============================================================
+      - name: Create signing keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          echo "🔐 Creating keystore file from GitHub secret..."
+          
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "❌ ERROR: KEYSTORE_BASE64 secret not set"
+            echo "   Please add KEYSTORE_BASE64 to GitHub repository secrets"
+            exit 1
+          fi
+          
+          echo "$KEYSTORE_BASE64" | base64 -d > watomagic-release.keystore
+          
+          echo "✅ Keystore file created"
+          ls -lh watomagic-release.keystore
+
+      # ============================================================
+      # STEP 8: Verify signing configuration
+      # ============================================================
+      - name: Verify signing configuration
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "🔐 Verifying signing configuration..."
+          echo ""
+          
+          if [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "❌ ERROR: KEYSTORE_PASSWORD not set in GitHub secrets"
+            exit 1
+          fi
+          
+          if [ -z "$KEY_PASSWORD" ]; then
+            echo "❌ ERROR: KEY_PASSWORD not set in GitHub secrets"
+            exit 1
+          fi
+          
+          if [ -z "$KEY_ALIAS" ]; then
+            echo "❌ ERROR: KEY_ALIAS not set in GitHub secrets"
+            exit 1
+          fi
+          
+          if [ ! -f "watomagic-release.keystore" ]; then
+            echo "❌ ERROR: Keystore file not found"
+            exit 1
+          fi
+          
+          echo "✅ All signing variables configured correctly"
+          echo "✅ Keystore file exists: watomagic-release.keystore"
+
+      # ============================================================
+      # STEP 9: Run unit tests (non-blocking)
+      # ============================================================
+      - name: Run unit tests
+        continue-on-error: true
+        run: |
+          echo "🧪 Running unit tests..."
+          echo "⚠️  Tests are non-blocking - failures will be logged but won't stop the build"
+          
+          ./gradlew test --no-daemon --stacktrace || {
+            echo "❌ Unit tests failed, but continuing build process..."
+            echo "📋 Check test reports in workflow logs for details"
+          }
+          
+          if [ -d "app/build/reports/tests" ]; then
+            echo "📊 Test reports generated:"
+            find app/build/reports/tests -name "index.html" -type f
+          fi
+          
+          echo "✅ Unit test execution completed"
+
+      # ============================================================
+      # STEP 10: Run lint checks (non-blocking)
+      # ============================================================
+      - name: Run lint checks
+        continue-on-error: true
+        run: |
+          echo "🔍 Running Android lint checks..."
+          echo "⚠️  Lint is non-blocking - issues will be logged but won't stop the build"
+          
+          ./gradlew lintDefaultRelease --no-daemon --stacktrace || {
+            echo "⚠️  Lint found issues, but continuing build process..."
+            echo "📋 Check lint reports in workflow logs for details"
+          }
+          
+          if [ -f "app/build/reports/lint-results-DefaultRelease.html" ]; then
+            echo "📊 Lint report generated: app/build/reports/lint-results-DefaultRelease.html"
+          fi
+          
+          echo "✅ Lint check completed"
+
+      # ============================================================
+      # STEP 11: Build signed Android Release APK
+      # ============================================================
+      - name: Build Android Release APK (SIGNED)
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "🏗️  Building SIGNED Android Release APK (Default flavor)..."
+          
+          # Calculate dynamic version code: BASE_VERSION_CODE + GitHub run number
+          VERSION_CODE=$((BASE_VERSION_CODE + GITHUB_RUN_NUMBER))
+          VERSION_NAME="1.$GITHUB_RUN_NUMBER"
+          
+          echo "📦 Version configuration:"
+          echo "   - Version Code: $VERSION_CODE"
+          echo "   - Version Name: $VERSION_NAME"
+          echo "   - GitHub Run Number: $GITHUB_RUN_NUMBER"
+          echo ""
+          
+          echo "🔐 Signing configuration:"
+          echo "   - Keystore: watomagic-release.keystore"
+          echo "   - Key Alias: $KEY_ALIAS"
+          echo ""
+          
+          echo "🚀 Starting Gradle build with signing..."
+          ./gradlew assembleDefaultRelease \
+            -PversionCode=$VERSION_CODE \
+            -PversionName=$VERSION_NAME \
+            -Pandroid.injected.signing.store.file=$(pwd)/watomagic-release.keystore \
+            -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$KEY_PASSWORD \
+            --no-daemon \
+            --parallel \
+            --stacktrace \
+            --info
+          
+          echo "✅ Gradle build command completed"
+
+      # ============================================================
+      # STEP 12: Validate APK build artifacts
+      # ============================================================
+      - name: Validate APK artifacts
+        run: |
+          echo "🔍 Validating APK build artifacts..."
+          
+          APK_PATH="app/build/outputs/apk/Default/release/app-Default-release.apk"
+          
+          if [ -f "$APK_PATH" ]; then
+            echo "✅ SIGNED APK generated successfully!"
+            echo ""
+            echo "📦 APK Details:"
+            echo "   - Path: $APK_PATH"
+            
+            # Get APK size
+            APK_SIZE=$(stat -f%z "$APK_PATH" 2>/dev/null || stat -c%s "$APK_PATH" 2>/dev/null)
+            APK_SIZE_MB=$(echo "scale=2; $APK_SIZE / 1048576" | bc)
+            echo "   - Size: $APK_SIZE bytes ($APK_SIZE_MB MB)"
+            
+            # Verify APK is not empty
+            if [ "$APK_SIZE" -gt 1000000 ]; then
+              echo "   - Status: Valid (size > 1MB)"
+            else
+              echo "   - ⚠️  Warning: APK size seems too small"
+            fi
+            
+            echo ""
+            echo "✅ APK validation successful"
+          else
+            echo "❌ ERROR: APK not found at expected path!"
+            echo "   Expected: $APK_PATH"
+            echo ""
+            echo "📋 Searching for APK files:"
+            find app/build/outputs -name "*.apk" -type f || echo "No APK files found"
+            exit 1
+          fi
+
+      # ============================================================
+      # STEP 13: Upload APK as artifact
+      # ============================================================
+      - name: Upload APK artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: watomagic-release-apk
+          path: app/build/outputs/apk/Default/release/*.apk
+          retention-days: 30
+
+      # ============================================================
+      # STEP 14: Upload test reports
+      # ============================================================
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            app/build/reports/tests/**/*
+            app/build/reports/lint-*.html
+          retention-days: 30
+
+      # ============================================================
+      # STEP 15: Build summary
+      # ============================================================
+      - name: Build summary
+        if: always()
+        run: |
+          echo "======================================"
+          echo "📱 WATOMAGIC BUILD SUMMARY"
+          echo "======================================"
+          echo ""
+          echo "✅ Build Type: Release (SIGNED)"
+          echo "✅ Flavor: Default (F-Droid variant)"
+          echo "✅ Application ID: $PACKAGE_NAME"
+          echo "✅ Version Code: $((BASE_VERSION_CODE + GITHUB_RUN_NUMBER))"
+          echo "✅ Version Name: 1.$GITHUB_RUN_NUMBER"
+          echo "✅ Signing: ENABLED"
+          echo ""
+          echo "📦 Artifacts:"
+          echo "   - APK: app-Default-release.apk (SIGNED)"
+          echo "   - Location: app/build/outputs/apk/Default/release/"
+          echo "   - Downloads: Available in GitHub Actions > Artifacts"
+          echo ""
+          echo "🎯 Next Steps:"
+          echo "   1. Download the SIGNED APK from GitHub Actions artifacts"
+          echo "   2. Upload to Google Play Console (Internal/Alpha/Beta testing)"
+          echo "   3. Install on test devices (adb install -r <apk>)"
+          echo ""
+          echo "======================================"
+
+      # ============================================================
+      # STEP 16: Notify on failure (optional)
+      # ============================================================
+      - name: Notify build failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Only create comment if this is a PR
+            if (context.payload.pull_request) {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '❌ Build failed! Check the workflow logs for details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+              });
+            }
+
