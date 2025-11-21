@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import com.parishod.watomagic.replyproviders.model.NotificationData;
 
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.FunctionObject;
 import org.mozilla.javascript.NativeJSON;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
@@ -131,10 +132,102 @@ public class BotJsEngine {
 
     private void injectAndroidAPIs(org.mozilla.javascript.Context rhinoContext, Scriptable scope) {
         try {
-            // Crear objeto JavaScript AndroidWrapper que expone las APIs
-            // Rhino permite exponer objetos Java directamente a JavaScript
-            Object wrappedAndroid = org.mozilla.javascript.Context.javaToJS(androidAPI, scope);
-            ScriptableObject.putProperty(scope, "Android", wrappedAndroid);
+            // Crear un ScriptableObject personalizado que expone los métodos de BotAndroidAPI
+            ScriptableObject androidObject = new ScriptableObject() {
+                @Override
+                public String getClassName() {
+                    return "Android";
+                }
+
+                @Override
+                public Object get(String name, Scriptable start) {
+                    // Exponer métodos como funciones
+                    try {
+                        if ("log".equals(name)) {
+                            return new FunctionObject("log", 
+                                BotAndroidAPI.class.getMethod("log", String.class, String.class),
+                                androidAPI);
+                        } else if ("storageGet".equals(name)) {
+                            return new FunctionObject("storageGet",
+                                BotAndroidAPI.class.getMethod("storageGet", String.class),
+                                androidAPI);
+                        } else if ("storageSet".equals(name)) {
+                            return new FunctionObject("storageSet",
+                                BotAndroidAPI.class.getMethod("storageSet", String.class, String.class),
+                                androidAPI);
+                        } else if ("storageRemove".equals(name)) {
+                            return new FunctionObject("storageRemove",
+                                BotAndroidAPI.class.getMethod("storageRemove", String.class),
+                                androidAPI);
+                        } else if ("storageKeys".equals(name)) {
+                            return new FunctionObject("storageKeys",
+                                BotAndroidAPI.class.getMethod("storageKeys"),
+                                androidAPI);
+                        } else if ("httpRequest".equals(name)) {
+                            // Wrapper personalizado para httpRequest que convierte objetos JS a JSON
+                            return new org.mozilla.javascript.BaseFunction() {
+                                @Override
+                                public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                                    try {
+                                        // Convertir argumento a JSON string si es un objeto
+                                        String optionsJson;
+                                        if (args.length == 0 || args[0] == null) {
+                                            throw ScriptRuntime.constructError("TypeError", "httpRequest requires an options object");
+                                        }
+                                        
+                                        if (args[0] instanceof NativeObject || args[0] instanceof Scriptable) {
+                                            // Es un objeto JavaScript, convertirlo a JSON
+                                            optionsJson = (String) NativeJSON.stringify(cx, scope, args[0], null, null);
+                                        } else {
+                                            // Ya es un string
+                                            optionsJson = org.mozilla.javascript.Context.toString(args[0]);
+                                        }
+                                        
+                                        // Llamar al método Java
+                                        return androidAPI.httpRequest(optionsJson);
+                                    } catch (java.io.IOException e) {
+                                        throw ScriptRuntime.constructError("Error", "HTTP request failed: " + e.getMessage());
+                                    } catch (Exception e) {
+                                        throw ScriptRuntime.constructError("Error", "httpRequest error: " + e.getMessage());
+                                    }
+                                }
+                            };
+                        } else if ("getCurrentTime".equals(name)) {
+                            return new FunctionObject("getCurrentTime",
+                                BotAndroidAPI.class.getMethod("getCurrentTime"),
+                                androidAPI);
+                        } else if ("getAppName".equals(name)) {
+                            return new FunctionObject("getAppName",
+                                BotAndroidAPI.class.getMethod("getAppName", String.class),
+                                androidAPI);
+                        }
+                    } catch (NoSuchMethodException e) {
+                        Log.e(TAG, "Method not found: " + name, e);
+                    }
+                    return Scriptable.NOT_FOUND;
+                }
+
+                @Override
+                public boolean has(String name, Scriptable start) {
+                    return "log".equals(name) || "storageGet".equals(name) || 
+                           "storageSet".equals(name) || "storageRemove".equals(name) ||
+                           "storageKeys".equals(name) || "httpRequest".equals(name) ||
+                           "getCurrentTime".equals(name) || "getAppName".equals(name);
+                }
+
+                @Override
+                public Object[] getIds() {
+                    return new Object[]{"log", "storageGet", "storageSet", "storageRemove",
+                                      "storageKeys", "httpRequest", "getCurrentTime", "getAppName"};
+                }
+            };
+
+            // Establecer el prototipo y el scope
+            androidObject.setPrototype(ScriptableObject.getObjectPrototype(scope));
+            androidObject.setParentScope(scope);
+
+            // Inyectar el objeto Android en el scope global
+            ScriptableObject.putProperty(scope, "Android", androidObject);
 
             // Crear e inyectar localStorage wrapper que usa Android.storage* internamente
             injectLocalStorage(rhinoContext, scope);
