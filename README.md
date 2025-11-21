@@ -30,7 +30,7 @@ Sistema de bots JavaScript descargables que permite personalizar completamente l
 - ✅ **Motor Rhino JavaScript** (ES5/ES6 parcial) con interoperabilidad Java↔JS completa y APIs controladas (`Android.log`, `Android.httpRequest`, storage)
 - ✅ **GUI completa** - Pantalla Material 3 para configurar, probar y gestionar bots
 - ✅ **Auto-updates** - WorkManager verificando nuevas versiones cada 6 horas
-- ✅ **Seguridad robusta** - Timeout 5s, rate limiting, validación de patrones peligrosos
+- ✅ **Seguridad robusta** - Timeout 5s, rate limiting (100 ejecuciones/min, 3 min entre descargas), validación de patrones peligrosos
 - ✅ **Fallback automático** - Si el bot falla, usa respuesta estática/OpenAI
 
 ### Cómo usar:

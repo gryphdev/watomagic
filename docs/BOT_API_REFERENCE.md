@@ -1,8 +1,9 @@
 # BotJS API Reference
 
-**Versión del documento:** 0.3 (2025-01-21)
+**Versión del documento:** 0.4 (2025-01-21)
 **JavaScript Engine:** Mozilla Rhino 1.7.15 (ES5 + ES6 parcial)
 **Estado:** ✅ Implementado y funcional
+**Cambios en v0.4:** Corrección de exposición de métodos Android usando `FunctionObject` y `ScriptableObject` personalizado
 **Cambios en v0.3:** Añadido objeto global `localStorage` compatible con API estándar
 
 ---
@@ -143,13 +144,15 @@ interface HttpRequestOptions {
 ---
 
 ## 7. Versionado y compatibilidad
-- **Versión 0.2** (actual): añadido `localStorage` global.
+- **Versión 0.4** (actual): corrección de exposición de métodos Android usando `FunctionObject` explícito.
+- **Versión 0.3**: añadido `localStorage` global.
+- **Versión 0.2**: primera iteración con `Android.storage*`.
 - **Versión 0.1**: primera iteración con `Android.storage*`.
 - Los bots deberían declarar en un comentario superior qué versión de la API esperan:
   ```javascript
-  // BotJS API: 0.2
+  // BotJS API: 0.4
   ```
-- Cuando exista la versión 0.3+, Watomagic expondrá `Android.getApiVersion()` para permitir degradar funcionalidad.
+- Cuando exista la versión 0.5+, Watomagic expondrá `Android.getApiVersion()` para permitir degradar funcionalidad.
 
 ---
 

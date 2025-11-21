@@ -27,7 +27,7 @@ ReplyProviderFactory ───────────────────�
 - Cada provider implementa `ReplyProvider.generateReply`.
 - `BotJsReplyProvider` serializa la notificación, invoca el motor Rhino y traduce la salida (`BotResponse`).
 - Si BotJS falla, el sistema vuelve al mensaje estático para mantener compatibilidad.
-- **Rhino** proporciona interoperabilidad Java↔JavaScript completa mediante `Context.javaToJS()`.
+- **Rhino** proporciona interoperabilidad Java↔JavaScript completa mediante `FunctionObject` y `ScriptableObject` personalizados para exponer métodos explícitamente.
 
 ---
 
@@ -101,7 +101,7 @@ ReplyProviderFactory ───────────────────�
 
 - ✅ **Fase 1 – Strategy Pattern**: Factory, providers (Static, OpenAI, BotJS) implementados y funcionando.
 - ✅ **Fase 2 – Assets TypeScript**: `bot-types.d.ts` y `example-bot.js` listos en `app/src/main/assets/`.
-- ✅ **Fases 3–4 – Rhino + Providers**: `BotJsEngine` migrado a Rhino, `BotAndroidAPI` expuesto mediante `Context.javaToJS()`, `BotJsReplyProvider` integrado.
+- ✅ **Fases 3–4 – Rhino + Providers**: `BotJsEngine` migrado a Rhino, `BotAndroidAPI` expuesto mediante `FunctionObject` y `ScriptableObject` personalizado, `BotJsReplyProvider` integrado.
 - ✅ **Fases 5–6 – Bot lifecycle completo**: `BotRepository` (con SHA-256), `BotUpdateWorker`, `BotConfigActivity` y `PreferencesManager` extendido.
 - 🟡 **Fase 7 – Testing & Seguridad**: Scaffolding listo, pendiente suites unitarias completas (objetivo >75% cobertura).
 - ✅ **Fase 8 – Cierre**: Documentación actualizada, compilación exitosa verificada.

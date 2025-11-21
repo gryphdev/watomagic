@@ -15,7 +15,7 @@ Permitir que cualquier usuario descargue, pruebe y administre bots JavaScript qu
 1. **Abrir Ajustes → Bots JavaScript**: se abrirá `BotConfigActivity` con cuatro tarjetas (estado, descarga, info y opciones avanzadas).
 2. **Habilitar el switch "Activar BotJS"**: mientras esté apagado, se usará la respuesta automática estándar u OpenAI, según preferencias.
 3. **Ingresar la URL del bot**: pegar la dirección HTTPS donde está publicado `bot.js`. La app validará tamaño, patrón y firma (cuando esté habilitada).
-4. **Descargar**: el botón “Descargar bot” lanzará la descarga y mostrará el spinner. Ante cualquier error se mostrará un Snackbar con el motivo (por ejemplo, timeout o validación).
+4. **Descargar**: el botón "Descargar bot" lanzará la descarga y mostrará el spinner. Ante cualquier error se mostrará un Snackbar con el motivo (por ejemplo, timeout o validación). **Nota**: Hay un rate limit de 3 minutos entre descargas de bots diferentes (se omite para actualizaciones de la misma URL).
 5. **Probar**: al finalizar la descarga, la tarjeta “Información del bot” mostrará URL, hash y fecha. El botón “Probar bot” ejecuta el script contra una notificación ficticia y muestra el resultado (`KEEP`, `REPLY`, etc.).
 6. **Auto‑update**: desde “Opciones avanzadas” se puede activar actualizaciones cada 6 horas (WorkManager). Si falla una actualización, el bot anterior se mantiene.
 7. **Logs y limpieza**: “Ver registros” abre los logs filtrados por la etiqueta `BotJS`, y “Eliminar bot” borra el archivo `active-bot.js` junto con su metadata.

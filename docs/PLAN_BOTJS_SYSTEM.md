@@ -236,7 +236,7 @@ Encapsular la lógica de respuestas estáticas (el comportamiento original de Wa
 - Validar que la URL sea HTTPS
 - Opcional: Verificar firma digital del bot
 - Sanitización de código (blacklist de patrones)
-- Rate limiting de descargas (máx 1 por hora)
+- Rate limiting de descargas (máx 1 cada 3 minutos, bypass para misma URL)
 
 ---
 
