@@ -1,7 +1,8 @@
 # Arquitectura del sistema BotJS
 
-**Última actualización:** 2025-11-19
-**Estado:** ✅ **IMPLEMENTACIÓN COMPLETA** – Todas las fases principales completadas y compilando exitosamente.
+**Última actualización:** 2025-01-21
+**JavaScript Engine:** Mozilla Rhino 1.7.15 (ES5 + ES6 parcial)
+**Estado:** ✅ **IMPLEMENTACIÓN COMPLETA** – Migrado de QuickJS a Rhino con interoperabilidad Java↔JS funcional.
 
 ---
 
@@ -15,17 +16,18 @@ NotificationService.sendReply()
         │
         ▼
 ReplyProviderFactory ──────────────────────────────┐
-   │ StaticReplyProvider                            │
-   │ OpenAIReplyProvider                            │
-   └ BotJsReplyProvider ──► BotJsEngine ──► QuickJS │
+   │ StaticReplyProvider                           │
+   │ OpenAIReplyProvider                           │
+   └ BotJsReplyProvider ──► BotJsEngine ──► Rhino  │
                                    │               │
                                    ▼               │
                               bot.js del usuario ◄─┘
 ```
 
 - Cada provider implementa `ReplyProvider.generateReply`.
-- `BotJsReplyProvider` serializa la notificación, invoca el motor QuickJS y traduce la salida (`BotResponse`).
+- `BotJsReplyProvider` serializa la notificación, invoca el motor Rhino y traduce la salida (`BotResponse`).
 - Si BotJS falla, el sistema vuelve al mensaje estático para mantener compatibilidad.
+- **Rhino** proporciona interoperabilidad Java↔JavaScript completa mediante `Context.javaToJS()`.
 
 ---
 
@@ -34,8 +36,8 @@ ReplyProviderFactory ───────────────────�
 | Módulo | Estado | Rol | Archivos | Líneas |
 |--------|--------|-----|----------|---------|
 | `replyproviders.*` | ✅ **Completo** | Interfaz, factory, Static, OpenAI y BotJsReplyProvider implementados | `BotJsReplyProvider.java` | 147 |
-| `botjs/BotJsEngine` | ✅ **Completo** | QuickJS wrapper con timeouts y ejecución segura | `BotJsEngine.java` | - |
-| `botjs/BotAndroidAPI` | ✅ **Completo** | APIs de logging, storage y HTTP (solo HTTPS) expuestas a bots | `BotAndroidAPI.java` | - |
+| `botjs/BotJsEngine` | ✅ **Migrado a Rhino** | Rhino wrapper con timeouts, ejecución segura e interoperabilidad Java↔JS | `BotJsEngine.java` | 189 |
+| `botjs/BotAndroidAPI` | ✅ **Completo** | APIs de logging, storage y HTTP (solo HTTPS) expuestas a bots mediante Rhino | `BotAndroidAPI.java` | - |
 | `botjs/BotRepository` | ✅ **Completo** | Download, validación SHA-256 opcional, almacenamiento de `active-bot.js` | `BotRepository.java` | 268 |
 | `botjs/BotValidator` | ✅ **Completo** | Validación de tamaño, patrones peligrosos y estructura | `BotValidator.java` | - |
 | `workers/BotUpdateWorker` | ✅ **Completo** | WorkManager con auto-updates cada 6 horas | `BotUpdateWorker.java` | 96 |
@@ -69,14 +71,15 @@ ReplyProviderFactory ───────────────────�
 ---
 
 ## 4. Seguridad y aislamiento
-- QuickJS se ejecuta en un thread dedicado con `TimeoutExecutor`.
+- Rhino se ejecuta en un thread dedicado con `TimeoutExecutor`.
 - Storage aislado en `SharedPreferences bot_storage`.
-- HTTP restringido a HTTPS y reforzado con OkHttp.
+- HTTP restringido a HTTPS y reforzado con OkHttp (operaciones síncronas).
 - Rate limiting: 100 ejecuciones/minuto por bot para evitar loops.
 - Validación estática previa a cada ejecución:
   - Tamaño ≤ 100 KB.
   - Patrones prohibidos: `eval(`, `Function(`, `__proto__`, `constructor[`, `import(`.
   - `processNotification` debe existir.
+- **ES5 Compatibility**: Rhino soporta ES5 completamente, ES6 parcialmente (no `async/await`).
 
 ---
 
@@ -88,7 +91,7 @@ ReplyProviderFactory ───────────────────�
 ---
 
 ## 6. Dependencias externas
-- **QuickJS Android (0.9.2)**: motor JS embebido.
+- **Mozilla Rhino (1.7.15)**: motor JS embebido con interoperabilidad Java↔JS completa (~1.5 MB).
 - **OkHttp / Retrofit**: ya presentes en el proyecto, reutilizados para descargas y APIs de bots.
 - **WorkManager**: ya disponible; se aprovecha para auto‑updates.
 
@@ -98,7 +101,7 @@ ReplyProviderFactory ───────────────────�
 
 - ✅ **Fase 1 – Strategy Pattern**: Factory, providers (Static, OpenAI, BotJS) implementados y funcionando.
 - ✅ **Fase 2 – Assets TypeScript**: `bot-types.d.ts` y `example-bot.js` listos en `app/src/main/assets/`.
-- ✅ **Fases 3–4 – QuickJS + Providers**: `BotJsEngine` conectado, `BotAndroidAPI` expuesto, `BotJsReplyProvider` integrado.
+- ✅ **Fases 3–4 – Rhino + Providers**: `BotJsEngine` migrado a Rhino, `BotAndroidAPI` expuesto mediante `Context.javaToJS()`, `BotJsReplyProvider` integrado.
 - ✅ **Fases 5–6 – Bot lifecycle completo**: `BotRepository` (con SHA-256), `BotUpdateWorker`, `BotConfigActivity` y `PreferencesManager` extendido.
 - 🟡 **Fase 7 – Testing & Seguridad**: Scaffolding listo, pendiente suites unitarias completas (objetivo >75% cobertura).
 - ✅ **Fase 8 – Cierre**: Documentación actualizada, compilación exitosa verificada.
@@ -109,6 +112,7 @@ ReplyProviderFactory ───────────────────�
 
 | Commit | Fecha | Descripción | Cambios |
 |--------|-------|-------------|---------|
+| `[pending]` | 2025-01-21 | Migrar de QuickJS 0.9.2 a Rhino 1.7.15 con interoperabilidad Java↔JS | `BotJsEngine.java` reescrito |
 | `745fd66` | 2025-11-19 | Implementar BotJS configuration activity y componentes relacionados | +1005 líneas |
 | `6fd8495` | 2025-11-19 | Agregar imports para Context y NotificationData en múltiples clases | 12 archivos |
 | `fff410c` | 2025-11-19 | Agregar script check_imports.sh para verificación de imports | +198 líneas |

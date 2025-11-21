@@ -9,7 +9,7 @@ Permitir que cualquier usuario descargue, pruebe y administre bots JavaScript qu
 - Requiere Android 8.0+ con permisos de notificación y responder desde notificaciones habilitados.
 - Solo se aceptan scripts alojados en **HTTPS**. Las URLs `http://` son rechazadas automáticamente.
 - Cada bot debe pesar menos de **100 KB** y exponer la función `processNotification`.
-- La ejecución está aislada mediante QuickJS, con un timeout duro de **5 segundos**.
+- La ejecución está aislada mediante Rhino, con un timeout duro de **5 segundos**.
 
 ## Flujo rápido
 1. **Abrir Ajustes → Bots JavaScript**: se abrirá `BotConfigActivity` con cuatro tarjetas (estado, descarga, info y opciones avanzadas).

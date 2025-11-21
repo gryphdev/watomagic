@@ -91,7 +91,7 @@ ReplyProviderFactory (NEW - minimal bridge)
     ├─ OpenAIReplyProvider (Watomatic logic extracted)
     └─ BotJsReplyProvider (NEW - our addition)
          ↓
-    BotJsEngine (NEW - QuickJS sandbox)
+    BotJsEngine (NEW - Rhino sandbox)
          ↓
     User's bot.js script
 ```
@@ -131,7 +131,7 @@ com.parishod.watomagic/          # ALL new BotJS code (isolated from upstream)
 │   ├── OpenAIReplyProvider.java  # Watomatic OpenAI (extracted)
 │   ├── BotJsReplyProvider.java  # ✅ NEW: Bot execution provider (147 lines)
 │   └── model/NotificationData.java
-├── botjs/                       # QuickJS runtime + management
+├── botjs/                       # Rhino runtime + management
 │   ├── BotJsEngine.java         # JavaScript executor
 │   ├── BotAndroidAPI.java       # APIs exposed to bots
 │   ├── BotValidator.java        # Security validation
@@ -154,11 +154,11 @@ com.parishod.watomatic/          # ORIGINAL Watomatic code (preserve compatibili
 
 ## BotJS Implementation Status
 
-### Current State (2025-11-19) - ✅ COMPLETE
+### Current State (2025-01-21) - ✅ COMPLETE
 - ✅ Strategy Pattern architecture implemented
 - ✅ TypeScript definitions for bot developers (`bot-types.d.ts`)
 - ✅ Example bot with real-world patterns (`example-bot.js`)
-- ✅ QuickJS runtime scaffolding (engine, APIs, validators)
+- ✅ Rhino runtime scaffolding (engine, APIs, validators)
 - ✅ **BotJsReplyProvider fully integrated** (commit 745fd66)
 - ✅ **GUI implemented** - Material 3 BotConfigActivity (commit 745fd66)
 - ✅ **Download/update system implemented** - BotRepository + BotUpdateWorker (commit 745fd66)
@@ -169,22 +169,22 @@ com.parishod.watomatic/          # ORIGINAL Watomatic code (preserve compatibili
 
 ### What Bots Can Do
 
-Bots receive notifications and return actions:
+Bots receive notifications and return actions (ES5 syntax for Rhino compatibility):
 
 ```javascript
-// bot.js - User's custom logic
-async function processNotification(notification) {
+// bot.js - User's custom logic (ES5)
+function processNotification(notification) {
     // notification = { appPackage, title, body, timestamp, isGroup, ... }
 
-    // Example: Call external API
-    const response = await Android.httpRequest({
+    // Example: Call external API (synchronous in Rhino)
+    var response = Android.httpRequest({
         url: 'https://api.example.com/classify',
         method: 'POST',
         headers: { 'Authorization': 'Bearer KEY' },
         body: JSON.stringify({ message: notification.body })
     });
 
-    const data = JSON.parse(response);
+    var data = JSON.parse(response);
 
     // Return action: REPLY, DISMISS, KEEP, or SNOOZE
     return {
@@ -194,12 +194,16 @@ async function processNotification(notification) {
 }
 ```
 
+**Important**: Rhino supports ES5 fully, ES6 partially. No `async/await` support - all operations are synchronous.
+
 ### Bot APIs (Android object)
 - `Android.log(level, message)` - Logging to Logcat
 - `Android.storageGet/Set/Remove(key)` - Persistent key-value storage
-- `Android.httpRequest(options)` - HTTP/HTTPS requests (HTTPS only)
+- `Android.httpRequest(options)` - **Synchronous** HTTP/HTTPS requests (HTTPS only, blocks until response)
 - `Android.getCurrentTime()` - Timestamp for rate limiting
 - `Android.getAppName(packageName)` - Friendly app names
+
+All APIs are exposed via Rhino's `Context.javaToJS()` for seamless Java↔JS interoperability.
 
 ### Bot Security
 - **Timeout**: 5 seconds max execution
@@ -207,6 +211,7 @@ async function processNotification(notification) {
 - **Sandbox**: No filesystem, no eval(), no dangerous patterns
 - **HTTPS only**: All network requests must be secure
 - **Rate limiting**: 100 executions per minute
+- **ES5 compatibility**: Bots must use ES5 syntax (no `async/await`, use `var`, string concatenation with `+`)
 
 ## Key Design Decisions
 
@@ -218,11 +223,13 @@ async function processNotification(notification) {
 
 **Everything Else**: New code in `com.parishod.watomagic` package (zero conflicts).
 
-### 2. QuickJS Over V8/Rhino
-- **Size**: ~2 MB vs ~7 MB (V8)
-- **ES2020 support**: Modern JavaScript
-- **Maintained**: Active development by Cash App
-- **Already added**: Dependency in `app/build.gradle.kts:114`
+### 2. Rhino Over QuickJS/V8
+- **Size**: ~1.5 MB (lightweight)
+- **ES5 + ES6 partial**: Stable compatibility
+- **Java↔JS interop**: Full bidirectional communication via `Context.javaToJS()`
+- **Maintained**: Mozilla/community support
+- **Migration**: Replaced QuickJS 0.9.2 which lacked Java interoperability
+- **Dependency**: `app/build.gradle.kts` uses `org.mozilla:rhino:1.7.15`
 
 ### 3. No Over-Engineering
 The `docs/PLAN_BOTJS_SYSTEM.md` describes many "nice to have" features. **Focus on essentials**:
@@ -274,7 +281,7 @@ public class AbstractBotExecutionStrategyFactoryBuilder {
 
 ### Testing Strategy
 - **Unit tests**: For all providers, validators, utilities
-- **Mock external deps**: QuickJS, HTTP, OpenAI
+- **Mock external deps**: Rhino, HTTP, OpenAI
 - **Integration test**: Full flow (notification → bot → reply)
 - **Target**: >75% coverage for BotJS code
 
@@ -292,7 +299,7 @@ git merge upstream/main
 # Conflicts should be minimal:
 # - NotificationService.sendReply(): Keep our ~20 line version
 # - PreferencesManager: Keep both their keys and our BotJS keys
-# - Build files: Keep our QuickJS dependency
+# - Build files: Keep our Rhino dependency
 ```
 
 ## Important Files
@@ -308,18 +315,19 @@ git merge upstream/main
 - `app/src/main/assets/example-bot.js` - Reference implementation
 
 ### Configuration
-- `app/build.gradle.kts` - Dependencies (QuickJS on line 114)
+- `app/build.gradle.kts` - Dependencies (Rhino on line 114)
 - `codemagic.yaml` - CI/CD pipeline
 - `gradle.properties` - Gradle configuration
 
 ### Core Implementation
 - `app/src/main/java/com/parishod/watomatic/service/NotificationService.java` - Entry point
 - `app/src/main/java/com/parishod/watomagic/replyproviders/` - Strategy pattern
-- `app/src/main/java/com/parishod/watomagic/botjs/` - QuickJS runtime
+- `app/src/main/java/com/parishod/watomagic/botjs/BotJsEngine.java` - Rhino runtime (189 lines)
+- `MIGRATION_QUICKJS_TO_RHINO.md` - Complete migration documentation
 
 ## Implementation Complete ✅
 
-All core features have been implemented as of 2025-11-19:
+All core features have been implemented and migrated to Rhino as of 2025-01-21:
 
 1. ✅ **BotJsEngine connected** - Runtime fully functional
 2. ✅ **BotJsReplyProvider created** - Bot execution integrated into notification flow
@@ -371,7 +379,10 @@ All core features have been implemented as of 2025-11-19:
 - WorkManager (for auto-updates if implemented)
 
 ### BotJS Addition
-- **QuickJS Android 0.9.2** - JavaScript engine (~2 MB added to APK)
+- **Mozilla Rhino 1.7.15** - JavaScript engine (~1.5 MB added to APK)
+  - Full Java↔JS interoperability
+  - ES5 + partial ES6 support
+  - Synchronous operations (no async/await)
 
 ### Build Flavors
 - **Default**: F-Droid variant (`com.parishod.watomagic`)
