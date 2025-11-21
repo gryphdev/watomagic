@@ -23,8 +23,9 @@ env:
 jobs:
   build-release:
     name: 📱 Build Signed Android Release APK
-    runs-on: macos-latest  # GitHub-hosted macOS runner (Free tier includes this)
+    runs-on: ubuntu-latest  # ✅ Linux is faster, free for public repos, and better for Android builds
     timeout-minutes: 60
+    environment: watomagic  # ✅ Uses environment secrets from "watomagic" environment
 
     steps:
       # ============================================================
@@ -36,23 +37,136 @@ jobs:
           fetch-depth: 0  # Full history for version detection
 
       # ============================================================
-      # STEP 2: Setup Java
+      # STEP 2: Verify signing secrets (EARLY - before heavy setup)
+      # ============================================================
+      - name: Verify signing secrets
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "🔐 Verifying signing secrets (early check)..."
+          echo ""
+          echo "🔍 Debugging secret access:"
+          echo "   - Workflow environment: ${{ job.environment || 'None (using repository secrets)' }}"
+          echo ""
+          
+          MISSING_SECRETS=()
+          
+          # Check KEYSTORE_BASE64
+          if [ -z "$KEYSTORE_BASE64" ] || [ "$KEYSTORE_BASE64" = "null" ]; then
+            MISSING_SECRETS+=("KEYSTORE_BASE64")
+            echo "   ❌ KEYSTORE_BASE64: NOT SET"
+          else
+            echo "   ✅ KEYSTORE_BASE64: SET (${#KEYSTORE_BASE64} characters)"
+          fi
+          
+          # Check KEYSTORE_PASSWORD
+          if [ -z "$KEYSTORE_PASSWORD" ] || [ "$KEYSTORE_PASSWORD" = "null" ]; then
+            MISSING_SECRETS+=("KEYSTORE_PASSWORD")
+            echo "   ❌ KEYSTORE_PASSWORD: NOT SET"
+          else
+            echo "   ✅ KEYSTORE_PASSWORD: SET (hidden)"
+          fi
+          
+          # Check KEY_ALIAS
+          if [ -z "$KEY_ALIAS" ] || [ "$KEY_ALIAS" = "null" ]; then
+            MISSING_SECRETS+=("KEY_ALIAS")
+            echo "   ❌ KEY_ALIAS: NOT SET"
+          else
+            echo "   ✅ KEY_ALIAS: SET ($KEY_ALIAS)"
+          fi
+          
+          # Check KEY_PASSWORD
+          if [ -z "$KEY_PASSWORD" ] || [ "$KEY_PASSWORD" = "null" ]; then
+            MISSING_SECRETS+=("KEY_PASSWORD")
+            echo "   ❌ KEY_PASSWORD: NOT SET"
+          else
+            echo "   ✅ KEY_PASSWORD: SET (hidden)"
+          fi
+          
+          echo ""
+          
+          # Fail early if any secrets are missing
+          if [ ${#MISSING_SECRETS[@]} -gt 0 ]; then
+            echo "❌ ERROR: Missing required secrets:"
+            for secret in "${MISSING_SECRETS[@]}"; do
+              echo "   - $secret"
+            done
+            echo ""
+            echo "📋 Solution:"
+            echo "   This workflow uses the 'watomagic' environment."
+            echo "   1. Go to: Settings → Environments → watomagic"
+            echo "   2. Add missing secrets to the 'watomagic' environment"
+            echo "   3. Required secrets: KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD"
+            exit 1
+          fi
+          
+          echo "✅ All signing secrets verified successfully"
+
+      # ============================================================
+      # STEP 3: Create signing keystore file (EARLY - before heavy setup)
+      # ============================================================
+      - name: Create signing keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          echo "🔐 Creating keystore file from GitHub secret..."
+          
+          # Decode and create keystore
+          echo "$KEYSTORE_BASE64" | base64 -d > watomagic-release.keystore
+          
+          # Verify keystore was created and is valid
+          if [ ! -f "watomagic-release.keystore" ]; then
+            echo "❌ ERROR: Failed to create keystore file"
+            exit 1
+          fi
+          
+          KEYSTORE_SIZE=$(stat -c%s watomagic-release.keystore 2>/dev/null || echo "0")
+          if [ "$KEYSTORE_SIZE" -lt 100 ]; then
+            echo "❌ ERROR: Keystore file too small ($KEYSTORE_SIZE bytes) - base64 decode may have failed"
+            echo "   Verify the KEYSTORE_BASE64 secret is correctly encoded"
+            exit 1
+          fi
+          
+          echo "✅ Keystore file created successfully"
+          echo "   - Size: $KEYSTORE_SIZE bytes"
+          ls -lh watomagic-release.keystore
+
+      # ============================================================
+      # STEP 4: Setup Java with Gradle cache
       # ============================================================
       - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
-          cache: 'gradle'
+          cache: 'gradle'  # ✅ Caches Gradle dependencies for faster builds
 
       # ============================================================
-      # STEP 3: Setup Android SDK
+      # STEP 5: Setup Android SDK
       # ============================================================
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
       # ============================================================
-      # STEP 4: Create local.properties with SDK path
+      # STEP 6: Cache Android SDK (additional optimization)
+      # ============================================================
+      - name: Cache Android SDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.android/cache
+            ~/.android/licenses
+          key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/build.gradle.kts', '**/gradle.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-android-sdk-
+        # Note: android-actions/setup-android@v3 handles SDK caching internally
+        # This cache is for additional Android-related files
+
+      # ============================================================
+      # STEP 7: Create local.properties with SDK path
       # ============================================================
       - name: Create local.properties
         run: |
@@ -62,7 +176,7 @@ jobs:
           echo "✅ local.properties configured"
 
       # ============================================================
-      # STEP 5: Fix Gradle permissions
+      # STEP 8: Fix Gradle permissions
       # ============================================================
       - name: Fix gradlew permissions
         run: |
@@ -71,7 +185,7 @@ jobs:
           ls -la gradlew
 
       # ============================================================
-      # STEP 6: Verify Java and Gradle environment
+      # STEP 9: Verify Java and Gradle environment
       # ============================================================
       - name: Verify Java and Gradle environment
         run: |
@@ -88,62 +202,7 @@ jobs:
           ./gradlew projects --no-daemon
 
       # ============================================================
-      # STEP 7: Create signing key file from GitHub Secret
-      # ============================================================
-      - name: Create signing keystore
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-        run: |
-          echo "🔐 Creating keystore file from GitHub secret..."
-          
-          if [ -z "$KEYSTORE_BASE64" ]; then
-            echo "❌ ERROR: KEYSTORE_BASE64 secret not set"
-            echo "   Please add KEYSTORE_BASE64 to GitHub repository secrets"
-            exit 1
-          fi
-          
-          echo "$KEYSTORE_BASE64" | base64 -d > watomagic-release.keystore
-          
-          echo "✅ Keystore file created"
-          ls -lh watomagic-release.keystore
-
-      # ============================================================
-      # STEP 8: Verify signing configuration
-      # ============================================================
-      - name: Verify signing configuration
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: |
-          echo "🔐 Verifying signing configuration..."
-          echo ""
-          
-          if [ -z "$KEYSTORE_PASSWORD" ]; then
-            echo "❌ ERROR: KEYSTORE_PASSWORD not set in GitHub secrets"
-            exit 1
-          fi
-          
-          if [ -z "$KEY_PASSWORD" ]; then
-            echo "❌ ERROR: KEY_PASSWORD not set in GitHub secrets"
-            exit 1
-          fi
-          
-          if [ -z "$KEY_ALIAS" ]; then
-            echo "❌ ERROR: KEY_ALIAS not set in GitHub secrets"
-            exit 1
-          fi
-          
-          if [ ! -f "watomagic-release.keystore" ]; then
-            echo "❌ ERROR: Keystore file not found"
-            exit 1
-          fi
-          
-          echo "✅ All signing variables configured correctly"
-          echo "✅ Keystore file exists: watomagic-release.keystore"
-
-      # ============================================================
-      # STEP 9: Verify import statements
+      # STEP 10: Verify import statements
       # ============================================================
       - name: Verify import statements
         run: |
@@ -159,7 +218,7 @@ jobs:
           echo "✅ Import verification completed"
 
       # ============================================================
-      # STEP 10: Run unit tests (non-blocking)
+      # STEP 11: Run unit tests (non-blocking)
       # ============================================================
       - name: Run unit tests
         continue-on-error: true
@@ -180,7 +239,7 @@ jobs:
           echo "✅ Unit test execution completed"
 
       # ============================================================
-      # STEP 11: Run lint checks (non-blocking)
+      # STEP 12: Run lint checks (non-blocking)
       # ============================================================
       - name: Run lint checks
         continue-on-error: true
@@ -200,13 +259,14 @@ jobs:
           echo "✅ Lint check completed"
 
       # ============================================================
-      # STEP 12: Build signed Android Release APK
+      # STEP 13: Build signed Android Release APK
       # ============================================================
       - name: Build Android Release APK (SIGNED)
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          BASE_VERSION_CODE: ${{ env.BASE_VERSION_CODE }}
         run: |
           echo "🏗️  Building SIGNED Android Release APK (Default flavor)..."
           
@@ -241,7 +301,7 @@ jobs:
           echo "✅ Gradle build command completed"
 
       # ============================================================
-      # STEP 13: Validate APK build artifacts
+      # STEP 14: Validate APK build artifacts
       # ============================================================
       - name: Validate APK artifacts
         run: |
@@ -255,8 +315,8 @@ jobs:
             echo "📦 APK Details:"
             echo "   - Path: $APK_PATH"
             
-            # Get APK size
-            APK_SIZE=$(stat -f%z "$APK_PATH" 2>/dev/null || stat -c%s "$APK_PATH" 2>/dev/null)
+            # Get APK size (✅ Fixed for Linux: stat -c%s)
+            APK_SIZE=$(stat -c%s "$APK_PATH")
             APK_SIZE_MB=$(echo "scale=2; $APK_SIZE / 1048576" | bc)
             echo "   - Size: $APK_SIZE bytes ($APK_SIZE_MB MB)"
             
@@ -279,7 +339,7 @@ jobs:
           fi
 
       # ============================================================
-      # STEP 14: Upload APK as artifact
+      # STEP 15: Upload APK as artifact
       # ============================================================
       - name: Upload APK artifact
         if: success()
@@ -290,7 +350,7 @@ jobs:
           retention-days: 30
 
       # ============================================================
-      # STEP 15: Upload test reports
+      # STEP 16: Upload test reports
       # ============================================================
       - name: Upload test reports
         if: always()
@@ -303,10 +363,13 @@ jobs:
           retention-days: 30
 
       # ============================================================
-      # STEP 16: Build summary
+      # STEP 17: Build summary
       # ============================================================
       - name: Build summary
         if: always()
+        env:
+          BASE_VERSION_CODE: ${{ env.BASE_VERSION_CODE }}
+          PACKAGE_NAME: ${{ env.PACKAGE_NAME }}
         run: |
           echo "======================================"
           echo "📱 WATOMAGIC BUILD SUMMARY"
@@ -318,6 +381,7 @@ jobs:
           echo "✅ Version Code: $((BASE_VERSION_CODE + GITHUB_RUN_NUMBER))"
           echo "✅ Version Name: 1.$GITHUB_RUN_NUMBER"
           echo "✅ Signing: ENABLED"
+          echo "✅ Runner: ubuntu-latest (Linux - faster & free)"
           echo ""
           echo "📦 Artifacts:"
           echo "   - APK: app-Default-release.apk (SIGNED)"
@@ -332,7 +396,7 @@ jobs:
           echo "======================================"
 
       # ============================================================
-      # STEP 17: Notify on failure (optional)
+      # STEP 18: Notify on failure (optional)
       # ============================================================
       - name: Notify build failure
         if: failure()
