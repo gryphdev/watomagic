@@ -134,7 +134,7 @@ public class BotRepository {
 
             // Validar código
             if (!BotValidator.validate(jsCode)) {
-                return Result.error("Bot validation failed");
+                return Result.error("Bot validation failed. Check logs (Logcat tag: BotValidator or debug mode logs) for details");
             }
 
             // Calcular hash

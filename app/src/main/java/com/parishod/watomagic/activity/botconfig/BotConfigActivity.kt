@@ -351,12 +351,16 @@ class BotConfigActivity : BaseActivity() {
     }
 
     private fun testWebhook() {
-        val url = botUrlInput.text?.toString()?.trim() ?: ""
+        // Primero intentar usar la URL del bot instalado, luego la del campo de texto
+        val botInfo = botRepository.getInstalledBotInfo()
+        val url = botInfo?.url ?: botUrlInput.text?.toString()?.trim() ?: ""
+        
         if (url.isEmpty()) {
             showError("Ingresa una URL primero")
             return
         }
 
+        val urlSource = if (botInfo != null) "bot instalado" else "campo de texto"
         downloadProgress.visibility = View.VISIBLE
 
         lifecycleScope.launch {
@@ -380,9 +384,9 @@ class BotConfigActivity : BaseActivity() {
             downloadProgress.visibility = View.GONE
 
             if (result.isSuccess) {
-                showSuccess("Webhook OK: ${result.getOrNull()}")
+                showSuccess("Webhook OK (URL desde $urlSource): ${result.getOrNull()}")
             } else {
-                showError("Webhook Error: ${result.exceptionOrNull()?.message}")
+                showError("Webhook Error (URL desde $urlSource): ${result.exceptionOrNull()?.message}")
             }
         }
     }
@@ -425,6 +429,7 @@ class BotConfigActivity : BaseActivity() {
                 preferencesManager.setBotJsEnabled(false)
                 preferencesManager.setBotJsAutoUpdate(false)
                 scheduleBotUpdateWorker(false)
+                botUrlInput.setText("") // Limpiar campo de URL
                 showSuccess("Bot eliminado")
                 loadBotInfo()
             }
