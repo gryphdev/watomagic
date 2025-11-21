@@ -157,11 +157,8 @@ public class BotJsEngine {
      * Proporciona la API estándar de localStorage (getItem, setItem, removeItem, clear, key, length).
      */
     private void injectLocalStorage() {
-        // Crear objeto localStorage usando Rhino
-        Scriptable localStorage = rhinoContext.newObject(scope);
-        
-        // getItem(key) -> Android.storageGet(key)
-        ScriptableObject.putProperty(localStorage, "getItem", new org.mozilla.javascript.BaseFunction() {
+        // Crear funciones una vez para reutilizarlas (comportamiento estándar de localStorage)
+        final org.mozilla.javascript.BaseFunction getItemFunc = new org.mozilla.javascript.BaseFunction() {
             @Override
             public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
                 if (args.length == 0 || args[0] == null) {
@@ -171,10 +168,9 @@ public class BotJsEngine {
                 String value = androidAPI.storageGet(key);
                 return value != null ? value : null;
             }
-        });
-
-        // setItem(key, value) -> Android.storageSet(key, value)
-        ScriptableObject.putProperty(localStorage, "setItem", new org.mozilla.javascript.BaseFunction() {
+        };
+        
+        final org.mozilla.javascript.BaseFunction setItemFunc = new org.mozilla.javascript.BaseFunction() {
             @Override
             public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
                 if (args.length < 2) {
@@ -187,10 +183,9 @@ public class BotJsEngine {
                 androidAPI.storageSet(key, value);
                 return org.mozilla.javascript.Context.getUndefinedValue();
             }
-        });
-
-        // removeItem(key) -> Android.storageRemove(key)
-        ScriptableObject.putProperty(localStorage, "removeItem", new org.mozilla.javascript.BaseFunction() {
+        };
+        
+        final org.mozilla.javascript.BaseFunction removeItemFunc = new org.mozilla.javascript.BaseFunction() {
             @Override
             public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
                 if (args.length == 0 || args[0] == null) {
@@ -200,10 +195,9 @@ public class BotJsEngine {
                 androidAPI.storageRemove(key);
                 return org.mozilla.javascript.Context.getUndefinedValue();
             }
-        });
-
-        // clear() -> elimina todas las claves usando Android.storageKeys() y storageRemove()
-        ScriptableObject.putProperty(localStorage, "clear", new org.mozilla.javascript.BaseFunction() {
+        };
+        
+        final org.mozilla.javascript.BaseFunction clearFunc = new org.mozilla.javascript.BaseFunction() {
             @Override
             public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
                 String[] keys = androidAPI.storageKeys();
@@ -212,10 +206,9 @@ public class BotJsEngine {
                 }
                 return org.mozilla.javascript.Context.getUndefinedValue();
             }
-        });
-
-        // key(index) -> retorna la clave en el índice dado
-        ScriptableObject.putProperty(localStorage, "key", new org.mozilla.javascript.BaseFunction() {
+        };
+        
+        final org.mozilla.javascript.BaseFunction keyFunc = new org.mozilla.javascript.BaseFunction() {
             @Override
             public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
                 if (args.length == 0) {
@@ -228,10 +221,10 @@ public class BotJsEngine {
                 }
                 return keys[index];
             }
-        });
-
-        // Crear un ScriptableObject personalizado para localStorage que calcula length dinámicamente
-        Scriptable localStorageWrapper = new ScriptableObject() {
+        };
+        
+        // Crear un ScriptableObject personalizado que implementa la API de localStorage
+        ScriptableObject localStorage = new ScriptableObject() {
             @Override
             public String getClassName() {
                 return "Storage";
@@ -239,52 +232,64 @@ public class BotJsEngine {
 
             @Override
             public Object get(String name, Scriptable start) {
-                // Interceptar acceso a 'length' para calcularlo dinámicamente
+                // Propiedad length: calculada dinámicamente
                 if ("length".equals(name)) {
                     return androidAPI.storageKeys().length;
                 }
-                // Para otros métodos, delegar al objeto localStorage original
-                return localStorage.get(name, localStorage);
+                
+                // Métodos: retornar las funciones reutilizables
+                if ("getItem".equals(name)) {
+                    return getItemFunc;
+                }
+                if ("setItem".equals(name)) {
+                    return setItemFunc;
+                }
+                if ("removeItem".equals(name)) {
+                    return removeItemFunc;
+                }
+                if ("clear".equals(name)) {
+                    return clearFunc;
+                }
+                if ("key".equals(name)) {
+                    return keyFunc;
+                }
+                
+                // Propiedad no encontrada
+                return Scriptable.NOT_FOUND;
             }
 
             @Override
             public void put(String name, Scriptable start, Object value) {
-                // localStorage es de solo lectura (solo métodos, no propiedades)
-                throw new org.mozilla.javascript.EcmaError(
-                    rhinoContext.createError("TypeError", "Cannot set property '" + name + "' on Storage object")
-                );
+                // localStorage es de solo lectura: no se pueden agregar/modificar propiedades
+                // El comportamiento estándar es que intentar establecer propiedades no hace nada
+                // (no lanza error, simplemente ignora)
+                // Esto permite que el código JavaScript intente establecer propiedades sin fallar
             }
 
             @Override
             public boolean has(String name, Scriptable start) {
-                if ("length".equals(name)) {
-                    return true;
-                }
-                return localStorage.has(name, localStorage);
+                // Verificar si la propiedad existe
+                return "length".equals(name) || "getItem".equals(name) || "setItem".equals(name) ||
+                       "removeItem".equals(name) || "clear".equals(name) || "key".equals(name);
             }
 
             @Override
             public Object[] getIds() {
-                // Retornar todos los métodos + length
-                Object[] originalIds = localStorage.getIds();
-                Object[] ids = new Object[originalIds.length + 1];
-                System.arraycopy(originalIds, 0, ids, 0, originalIds.length);
-                ids[originalIds.length] = "length";
-                return ids;
+                // Retornar todas las propiedades disponibles
+                return new Object[]{"length", "getItem", "setItem", "removeItem", "clear", "key"};
+            }
+
+            @Override
+            public void delete(String name) {
+                // localStorage no permite eliminar propiedades
+                throw new org.mozilla.javascript.EcmaError(
+                    rhinoContext.createError("TypeError", "Cannot delete property '" + name + "' on Storage object")
+                );
             }
         };
 
-        // Copiar todos los métodos al wrapper
-        Object[] methodNames = {"getItem", "setItem", "removeItem", "clear", "key"};
-        for (Object methodName : methodNames) {
-            Object method = localStorage.get((String) methodName, localStorage);
-            if (method != null) {
-                localStorageWrapper.put((String) methodName, localStorageWrapper, method);
-            }
-        }
-
-        // Inyectar localStorage wrapper como objeto global
-        ScriptableObject.putProperty(scope, "localStorage", localStorageWrapper);
+        // Inyectar localStorage como objeto global
+        ScriptableObject.putProperty(scope, "localStorage", localStorage);
     }
 
     private void ensureInitialized() {
