@@ -1,7 +1,6 @@
 package com.parishod.watomagic.botjs;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -9,7 +8,6 @@ import androidx.annotation.NonNull;
 import com.parishod.watomagic.replyproviders.model.NotificationData;
 
 import org.mozilla.javascript.Function;
-import org.mozilla.javascript.FunctionObject;
 import org.mozilla.javascript.NativeJSON;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
@@ -141,68 +139,113 @@ public class BotJsEngine {
 
                 @Override
                 public Object get(String name, Scriptable start) {
-                    // Exponer métodos como funciones
-                    try {
-                        if ("log".equals(name)) {
-                            return new FunctionObject("log", 
-                                BotAndroidAPI.class.getMethod("log", String.class, String.class),
-                                androidAPI);
-                        } else if ("storageGet".equals(name)) {
-                            return new FunctionObject("storageGet",
-                                BotAndroidAPI.class.getMethod("storageGet", String.class),
-                                androidAPI);
-                        } else if ("storageSet".equals(name)) {
-                            return new FunctionObject("storageSet",
-                                BotAndroidAPI.class.getMethod("storageSet", String.class, String.class),
-                                androidAPI);
-                        } else if ("storageRemove".equals(name)) {
-                            return new FunctionObject("storageRemove",
-                                BotAndroidAPI.class.getMethod("storageRemove", String.class),
-                                androidAPI);
-                        } else if ("storageKeys".equals(name)) {
-                            return new FunctionObject("storageKeys",
-                                BotAndroidAPI.class.getMethod("storageKeys"),
-                                androidAPI);
-                        } else if ("httpRequest".equals(name)) {
-                            // Wrapper personalizado para httpRequest que convierte objetos JS a JSON
-                            return new org.mozilla.javascript.BaseFunction() {
-                                @Override
-                                public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
-                                    try {
-                                        // Convertir argumento a JSON string si es un objeto
-                                        String optionsJson;
-                                        if (args.length == 0 || args[0] == null) {
-                                            throw ScriptRuntime.constructError("TypeError", "httpRequest requires an options object");
-                                        }
-                                        
-                                        if (args[0] instanceof NativeObject || args[0] instanceof Scriptable) {
-                                            // Es un objeto JavaScript, convertirlo a JSON
-                                            optionsJson = (String) NativeJSON.stringify(cx, scope, args[0], null, null);
-                                        } else {
-                                            // Ya es un string
-                                            optionsJson = org.mozilla.javascript.Context.toString(args[0]);
-                                        }
-                                        
-                                        // Llamar al método Java
-                                        return androidAPI.httpRequest(optionsJson);
-                                    } catch (java.io.IOException e) {
-                                        throw ScriptRuntime.constructError("Error", "HTTP request failed: " + e.getMessage());
-                                    } catch (Exception e) {
-                                        throw ScriptRuntime.constructError("Error", "httpRequest error: " + e.getMessage());
-                                    }
+                    // Exponer métodos como funciones usando BaseFunction
+                    if ("log".equals(name)) {
+                        return new org.mozilla.javascript.BaseFunction() {
+                            @Override
+                            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                                if (args.length < 2) {
+                                    throw ScriptRuntime.constructError("TypeError", "log requires 2 arguments: level and message");
                                 }
-                            };
-                        } else if ("getCurrentTime".equals(name)) {
-                            return new FunctionObject("getCurrentTime",
-                                BotAndroidAPI.class.getMethod("getCurrentTime"),
-                                androidAPI);
-                        } else if ("getAppName".equals(name)) {
-                            return new FunctionObject("getAppName",
-                                BotAndroidAPI.class.getMethod("getAppName", String.class),
-                                androidAPI);
-                        }
-                    } catch (NoSuchMethodException e) {
-                        Log.e(TAG, "Method not found: " + name, e);
+                                String level = org.mozilla.javascript.Context.toString(args[0]);
+                                String message = org.mozilla.javascript.Context.toString(args[1]);
+                                androidAPI.log(level, message);
+                                return org.mozilla.javascript.Context.getUndefinedValue();
+                            }
+                        };
+                    } else if ("storageGet".equals(name)) {
+                        return new org.mozilla.javascript.BaseFunction() {
+                            @Override
+                            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                                if (args.length == 0 || args[0] == null) {
+                                    return null;
+                                }
+                                String key = org.mozilla.javascript.Context.toString(args[0]);
+                                String value = androidAPI.storageGet(key);
+                                return value != null ? value : null;
+                            }
+                        };
+                    } else if ("storageSet".equals(name)) {
+                        return new org.mozilla.javascript.BaseFunction() {
+                            @Override
+                            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                                if (args.length < 2) {
+                                    throw ScriptRuntime.constructError("TypeError", "storageSet requires 2 arguments: key and value");
+                                }
+                                String key = org.mozilla.javascript.Context.toString(args[0]);
+                                String value = org.mozilla.javascript.Context.toString(args[1]);
+                                androidAPI.storageSet(key, value);
+                                return org.mozilla.javascript.Context.getUndefinedValue();
+                            }
+                        };
+                    } else if ("storageRemove".equals(name)) {
+                        return new org.mozilla.javascript.BaseFunction() {
+                            @Override
+                            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                                if (args.length == 0 || args[0] == null) {
+                                    return org.mozilla.javascript.Context.getUndefinedValue();
+                                }
+                                String key = org.mozilla.javascript.Context.toString(args[0]);
+                                androidAPI.storageRemove(key);
+                                return org.mozilla.javascript.Context.getUndefinedValue();
+                            }
+                        };
+                    } else if ("storageKeys".equals(name)) {
+                        return new org.mozilla.javascript.BaseFunction() {
+                            @Override
+                            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                                String[] keys = androidAPI.storageKeys();
+                                // Convertir array Java a array JavaScript
+                                return cx.newArray(scope, keys);
+                            }
+                        };
+                    } else if ("httpRequest".equals(name)) {
+                        // Wrapper personalizado para httpRequest que convierte objetos JS a JSON
+                        return new org.mozilla.javascript.BaseFunction() {
+                            @Override
+                            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                                try {
+                                    // Convertir argumento a JSON string si es un objeto
+                                    String optionsJson;
+                                    if (args.length == 0 || args[0] == null) {
+                                        throw ScriptRuntime.constructError("TypeError", "httpRequest requires an options object");
+                                    }
+                                    
+                                    if (args[0] instanceof NativeObject || args[0] instanceof Scriptable) {
+                                        // Es un objeto JavaScript, convertirlo a JSON
+                                        optionsJson = (String) NativeJSON.stringify(cx, scope, args[0], null, null);
+                                    } else {
+                                        // Ya es un string
+                                        optionsJson = org.mozilla.javascript.Context.toString(args[0]);
+                                    }
+                                    
+                                    // Llamar al método Java
+                                    return androidAPI.httpRequest(optionsJson);
+                                } catch (java.io.IOException e) {
+                                    throw ScriptRuntime.constructError("Error", "HTTP request failed: " + e.getMessage());
+                                } catch (Exception e) {
+                                    throw ScriptRuntime.constructError("Error", "httpRequest error: " + e.getMessage());
+                                }
+                            }
+                        };
+                    } else if ("getCurrentTime".equals(name)) {
+                        return new org.mozilla.javascript.BaseFunction() {
+                            @Override
+                            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                                return androidAPI.getCurrentTime();
+                            }
+                        };
+                    } else if ("getAppName".equals(name)) {
+                        return new org.mozilla.javascript.BaseFunction() {
+                            @Override
+                            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                                if (args.length == 0 || args[0] == null) {
+                                    throw ScriptRuntime.constructError("TypeError", "getAppName requires a package name");
+                                }
+                                String packageName = org.mozilla.javascript.Context.toString(args[0]);
+                                return androidAPI.getAppName(packageName);
+                            }
+                        };
                     }
                     return Scriptable.NOT_FOUND;
                 }
@@ -267,8 +310,15 @@ public class BotJsEngine {
                 if (args.length < 2) {
                     throw ScriptRuntime.constructError("TypeError", "Failed to execute 'setItem' on 'Storage': 2 arguments required");
                 }
+                // Validar que key no sea null/undefined
+                if (args[0] == null || args[0] == org.mozilla.javascript.Context.getUndefinedValue()) {
+                    throw ScriptRuntime.constructError("TypeError", "Failed to execute 'setItem' on 'Storage': key cannot be null or undefined");
+                }
                 String key = org.mozilla.javascript.Context.toString(args[0]);
-                String value = org.mozilla.javascript.Context.toString(args[1]);
+                // value puede ser null/undefined (se convierte a string "null" o "undefined")
+                String value = args[1] == null || args[1] == org.mozilla.javascript.Context.getUndefinedValue()
+                    ? "null"
+                    : org.mozilla.javascript.Context.toString(args[1]);
                 androidAPI.storageSet(key, value);
                 return org.mozilla.javascript.Context.getUndefinedValue();
             }
@@ -300,10 +350,15 @@ public class BotJsEngine {
         final org.mozilla.javascript.BaseFunction keyFunc = new org.mozilla.javascript.BaseFunction() {
             @Override
             public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
-                if (args.length == 0) {
+                if (args.length == 0 || args[0] == null || args[0] == org.mozilla.javascript.Context.getUndefinedValue()) {
                     return null;
                 }
-                int index = (int) org.mozilla.javascript.Context.toNumber(args[0]);
+                // Validar que el argumento sea un número válido
+                double numValue = org.mozilla.javascript.Context.toNumber(args[0]);
+                if (Double.isNaN(numValue) || Double.isInfinite(numValue)) {
+                    return null;
+                }
+                int index = (int) numValue;
                 String[] keys = androidAPI.storageKeys();
                 if (index < 0 || index >= keys.length) {
                     return null;
