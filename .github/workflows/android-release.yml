@@ -364,7 +364,33 @@ jobs:
           echo "📦 Version Name: $VERSION_NAME"
 
       # ============================================================
-      # STEP 15c: Create GitHub Release and upload APK (only for tags v*)
+      # STEP 15c: Rename APK with tag name (only for tags v*)
+      # ============================================================
+      - name: Rename APK for release
+        if: success() && startsWith(github.ref, 'refs/tags/v')
+        run: |
+          echo "📝 Renaming APK with tag name..."
+          
+          ORIGINAL_APK="app/build/outputs/apk/Default/release/app-Default-release.apk"
+          TAG_NAME="${{ github.ref_name }}"
+          NEW_APK_NAME="watomagic-${TAG_NAME}.apk"
+          NEW_APK_PATH="app/build/outputs/apk/Default/release/${NEW_APK_NAME}"
+          
+          if [ -f "$ORIGINAL_APK" ]; then
+            cp "$ORIGINAL_APK" "$NEW_APK_PATH"
+            echo "✅ APK renamed successfully:"
+            echo "   - Original: $ORIGINAL_APK"
+            echo "   - New: $NEW_APK_PATH"
+            echo "   - Tag: $TAG_NAME"
+            echo "NEW_APK_PATH=$NEW_APK_PATH" >> $GITHUB_ENV
+            echo "NEW_APK_NAME=$NEW_APK_NAME" >> $GITHUB_ENV
+          else
+            echo "❌ ERROR: Original APK not found at $ORIGINAL_APK"
+            exit 1
+          fi
+
+      # ============================================================
+      # STEP 15d: Create GitHub Release and upload APK (only for tags v*)
       # ============================================================
       - name: Create GitHub Release
         if: success() && startsWith(github.ref, 'refs/tags/v')
@@ -376,7 +402,7 @@ jobs:
             ## Watomagic ${{ github.ref_name }}
             
             ### 📦 APK Download
-            - **Default (F-Droid variant)**: `app-Default-release.apk`
+            - **Default (F-Droid variant)**: `${{ env.NEW_APK_NAME }}`
             
             ### 🔐 Build Information
             - **Version Code**: ${{ steps.version.outputs.version_code }}
@@ -388,12 +414,12 @@ jobs:
             ### 📋 Installation
             1. Download the APK from the assets below
             2. Enable "Install from unknown sources" on your Android device
-            3. Install using: `adb install -r app-Default-release.apk`
+            3. Install using: `adb install -r ${{ env.NEW_APK_NAME }}`
             
             ---
             *This release was automatically created from tag ${{ github.ref_name }}*
           files: |
-            app/build/outputs/apk/Default/release/app-Default-release.apk
+            ${{ env.NEW_APK_PATH }}
           draft: false
           prerelease: false
           generate_release_notes: true
