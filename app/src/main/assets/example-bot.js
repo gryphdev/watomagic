@@ -108,6 +108,43 @@ async function processNotification(notification) {
         };
     }
 
+    // Ejemplo 7: Procesar imágenes recibidas
+    if (notification.attachments && notification.attachments.length > 0) {
+        Android.log('info', `Notificación contiene ${notification.attachments.length} imagen(es)`);
+        
+        const firstAttachment = notification.attachments[0];
+        
+        // Obtener thumbnail si está disponible
+        if (firstAttachment.thumbnailBase64) {
+            Android.log('info', 'Thumbnail disponible para preview');
+        }
+        
+        // Leer imagen completa como base64 (máx 5MB)
+        if (firstAttachment.hasFile) {
+            try {
+                const imageBase64 = Android.readAttachmentAsBase64(firstAttachment.id);
+                if (imageBase64) {
+                    Android.log('info', `Imagen leída: ${imageBase64.length} caracteres base64`);
+                    
+                    // Aquí podrías enviar la imagen a una API externa para análisis
+                    // const analysis = await Android.httpRequest({
+                    //     url: 'https://api.example.com/analyze-image',
+                    //     method: 'POST',
+                    //     headers: { 'Content-Type': 'application/json' },
+                    //     body: JSON.stringify({ image: imageBase64 })
+                    // });
+                    
+                    return {
+                        action: 'REPLY',
+                        replyText: 'Gracias por la imagen! La he recibido correctamente.'
+                    };
+                }
+            } catch (error) {
+                Android.log('error', `Error leyendo imagen: ${error.message}`);
+            }
+        }
+    }
+
     // Por defecto: mantener notificación
     return {
         action: 'KEEP'

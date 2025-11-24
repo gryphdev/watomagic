@@ -86,6 +86,11 @@ public class NotificationService extends NotificationListenerService {
     }
 
     private void sendActualReply(StatusBarNotification sbn, NotificationWear notificationWear, String replyText) {
+        sendActualReply(sbn, notificationWear, replyText, null);
+    }
+
+    private void sendActualReply(StatusBarNotification sbn, NotificationWear notificationWear, String replyText,
+                                 java.util.List<com.parishod.watomagic.botjs.AttachmentSender.AttachmentToSend> attachments) {
         // customRepliesData = CustomRepliesData.getInstance(this); // Initialize if other methods from it are needed beyond replyText
 
         RemoteInput[] remoteInputs = new RemoteInput[notificationWear.getRemoteInputs().size()];
@@ -101,6 +106,14 @@ public class NotificationService extends NotificationListenerService {
         }
 
         RemoteInput.addResultsToIntent(remoteInputs, localIntent, localBundle);
+        
+        // Add attachments if provided
+        if (attachments != null && !attachments.isEmpty()) {
+            com.parishod.watomagic.botjs.AttachmentSender sender = 
+                new com.parishod.watomagic.botjs.AttachmentSender(this);
+            sender.addAttachmentsToIntent(localIntent, notificationWear, attachments);
+        }
+        
         try {
             if (notificationWear.getPendingIntent() != null) {
                 if (dbUtils == null) {
@@ -122,6 +135,11 @@ public class NotificationService extends NotificationListenerService {
         }
     }
 
+    public void sendReplyWithAttachments(StatusBarNotification sbn, NotificationWear notificationWear, String replyText,
+                                        java.util.List<com.parishod.watomagic.botjs.AttachmentSender.AttachmentToSend> attachments) {
+        sendActualReply(sbn, notificationWear, replyText, attachments);
+    }
+
     private void sendReply(StatusBarNotification sbn) {
         final NotificationWear notificationWear = NotificationUtils.extractWearNotification(sbn);
         if (notificationWear.getRemoteInputs().isEmpty()) {
@@ -135,11 +153,21 @@ public class NotificationService extends NotificationListenerService {
         CharSequence incomingMessageChars = sbn.getNotification().extras.getCharSequence(android.app.Notification.EXTRA_TEXT);
         String incomingMessage = (incomingMessageChars != null) ? incomingMessageChars.toString() : null;
 
+        // Extract attachments if bot is enabled and attachment access is allowed
+        java.util.List<com.parishod.watomagic.replyproviders.model.AttachmentInfo> attachments = 
+            java.util.Collections.emptyList();
+        if (preferencesManager.isBotJsEnabled() && preferencesManager.isBotJsAttachmentAccessEnabled()) {
+            com.parishod.watomagic.botjs.AttachmentExtractor extractor = 
+                new com.parishod.watomagic.botjs.AttachmentExtractor(this);
+            attachments = extractor.extractAttachments(sbn);
+        }
+
         NotificationData notificationData = new NotificationData(
                 sbn,
                 notificationWear,
                 incomingMessage,
-                fallbackReplyText
+                fallbackReplyText,
+                attachments
         );
 
         ReplyProvider provider = ReplyProviderFactory.getProvider(preferencesManager);
@@ -147,6 +175,11 @@ public class NotificationService extends NotificationListenerService {
             @Override
             public void onSuccess(@NonNull String reply) {
                 sendActualReply(sbn, notificationWear, reply);
+            }
+            
+            @Override
+            public void onSuccess(@NonNull String reply, @androidx.annotation.Nullable java.util.List<com.parishod.watomagic.botjs.AttachmentSender.AttachmentToSend> attachments) {
+                sendActualReply(sbn, notificationWear, reply, attachments);
             }
 
             @Override

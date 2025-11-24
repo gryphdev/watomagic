@@ -34,6 +34,8 @@ public class BotJsEngine {
 
     private final Context context;
     private final BotAndroidAPI androidAPI;
+    private AttachmentExtractor attachmentExtractor;
+    private java.util.List<com.parishod.watomagic.replyproviders.model.AttachmentInfo> currentAttachments;
 
     public BotJsEngine(@NonNull Context context) {
         this.context = context.getApplicationContext();
@@ -62,6 +64,10 @@ public class BotJsEngine {
 
                 // Crear scope global con objetos estándar de JavaScript
                 Scriptable scope = rhinoContext.initStandardObjects();
+
+                // Initialize attachment extractor and store attachments from notification
+                attachmentExtractor = new AttachmentExtractor(context);
+                currentAttachments = notificationData.getAttachments();
 
                 // Inyectar API de Android en este scope
                 injectAndroidAPIs(rhinoContext, scope);
@@ -246,6 +252,48 @@ public class BotJsEngine {
                                 return androidAPI.getAppName(packageName);
                             }
                         };
+                    } else if ("getAttachmentPath".equals(name)) {
+                        return new org.mozilla.javascript.BaseFunction() {
+                            @Override
+                            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                                if (args.length == 0 || args[0] == null) {
+                                    return null;
+                                }
+                                String attachmentId = org.mozilla.javascript.Context.toString(args[0]);
+                                String path = androidAPI.getAttachmentPath(attachmentExtractor, attachmentId);
+                                return path != null ? path : null;
+                            }
+                        };
+                    } else if ("readAttachmentAsBase64".equals(name)) {
+                        return new org.mozilla.javascript.BaseFunction() {
+                            @Override
+                            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                                if (args.length == 0 || args[0] == null) {
+                                    return null;
+                                }
+                                String attachmentId = org.mozilla.javascript.Context.toString(args[0]);
+                                String base64 = androidAPI.readAttachmentAsBase64(attachmentExtractor, attachmentId);
+                                return base64 != null ? base64 : null;
+                            }
+                        };
+                    } else if ("getAttachmentThumbnail".equals(name)) {
+                        return new org.mozilla.javascript.BaseFunction() {
+                            @Override
+                            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                                if (args.length == 0 || args[0] == null) {
+                                    return null;
+                                }
+                                String attachmentId = org.mozilla.javascript.Context.toString(args[0]);
+                                // Find attachment by ID
+                                for (com.parishod.watomagic.replyproviders.model.AttachmentInfo att : currentAttachments) {
+                                    if (att.getId().equals(attachmentId)) {
+                                        String thumbnail = androidAPI.getAttachmentThumbnail(att);
+                                        return thumbnail != null ? thumbnail : null;
+                                    }
+                                }
+                                return null;
+                            }
+                        };
                     }
                     return Scriptable.NOT_FOUND;
                 }
@@ -255,13 +303,16 @@ public class BotJsEngine {
                     return "log".equals(name) || "storageGet".equals(name) || 
                            "storageSet".equals(name) || "storageRemove".equals(name) ||
                            "storageKeys".equals(name) || "httpRequest".equals(name) ||
-                           "getCurrentTime".equals(name) || "getAppName".equals(name);
+                           "getCurrentTime".equals(name) || "getAppName".equals(name) ||
+                           "getAttachmentPath".equals(name) || "readAttachmentAsBase64".equals(name) ||
+                           "getAttachmentThumbnail".equals(name);
                 }
 
                 @Override
                 public Object[] getIds() {
                     return new Object[]{"log", "storageGet", "storageSet", "storageRemove",
-                                      "storageKeys", "httpRequest", "getCurrentTime", "getAppName"};
+                                      "storageKeys", "httpRequest", "getCurrentTime", "getAppName",
+                                      "getAttachmentPath", "readAttachmentAsBase64", "getAttachmentThumbnail"};
                 }
             };
 
@@ -277,7 +328,8 @@ public class BotJsEngine {
 
             Log.i(TAG, "Android APIs injected successfully via Rhino");
             Log.i(TAG, "Available APIs: log, storageGet, storageSet, storageRemove, " +
-                      "storageKeys, httpRequest, getCurrentTime, getAppName");
+                      "storageKeys, httpRequest, getCurrentTime, getAppName, " +
+                      "getAttachmentPath, readAttachmentAsBase64, getAttachmentThumbnail");
             Log.i(TAG, "localStorage API available (wraps Android.storage*)");
 
         } catch (Exception e) {
@@ -451,6 +503,25 @@ public class BotJsEngine {
             builder.append("\"body\":\"").append(escape(safeString(data.getStatusBarNotification().getNotification().extras.getCharSequence("android.text")))).append("\",");
             builder.append("\"timestamp\":").append(data.getStatusBarNotification().getPostTime()).append(',');
             builder.append("\"isGroup\":").append(data.getStatusBarNotification().getNotification().extras.getBoolean("android.isGroupConversation", false));
+            
+            // Add attachments array
+            builder.append(",\"attachments\":[");
+            java.util.List<com.parishod.watomagic.replyproviders.model.AttachmentInfo> attachments = data.getAttachments();
+            for (int i = 0; i < attachments.size(); i++) {
+                if (i > 0) builder.append(',');
+                com.parishod.watomagic.replyproviders.model.AttachmentInfo att = attachments.get(i);
+                builder.append('{');
+                builder.append("\"id\":\"").append(escape(att.getId())).append("\",");
+                builder.append("\"mimeType\":\"").append(escape(att.getMimeType())).append("\",");
+                builder.append("\"size\":").append(att.getSize()).append(',');
+                builder.append("\"hasFile\":").append(att.hasFile());
+                if (att.getThumbnailBase64() != null) {
+                    builder.append(",\"thumbnailBase64\":\"").append(escape(att.getThumbnailBase64())).append("\"");
+                }
+                builder.append('}');
+            }
+            builder.append(']');
+            
             builder.append('}');
             return builder.toString();
         }

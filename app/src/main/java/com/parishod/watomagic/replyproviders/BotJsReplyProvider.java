@@ -7,13 +7,16 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.parishod.watomagic.botjs.AttachmentSender;
 import com.parishod.watomagic.botjs.BotExecutionException;
 import com.parishod.watomagic.botjs.BotJsEngine;
 import com.parishod.watomagic.botjs.BotLogCapture;
 import com.parishod.watomagic.botjs.BotValidator;
 import com.parishod.watomagic.botjs.RateLimiter;
+import com.parishod.watomagic.model.preferences.PreferencesManager;
 import com.parishod.watomagic.replyproviders.model.NotificationData;
 import com.parishod.watomagic.model.utils.NotificationUtils;
+import com.parishod.watomagic.service.NotificationService;
 
 import java.io.File;
 import java.io.FileReader;
@@ -121,10 +124,40 @@ public class BotJsReplyProvider implements ReplyProvider {
                         case "REPLY":
                             if (responseObj.has("replyText")) {
                                 String replyText = responseObj.get("replyText").getAsString();
+                                
+                                // Check if attachments are included and send images is enabled
+                                java.util.List<AttachmentSender.AttachmentToSend> attachmentsToSend = null;
+                                if (responseObj.has("attachments")) {
+                                    PreferencesManager prefs = PreferencesManager.getPreferencesInstance(context);
+                                    if (prefs.isBotJsSendImagesEnabled()) {
+                                        try {
+                                            com.google.gson.JsonArray attachmentsArray = responseObj.getAsJsonArray("attachments");
+                                            attachmentsToSend = new java.util.ArrayList<>();
+                                            for (int i = 0; i < attachmentsArray.size(); i++) {
+                                                com.google.gson.JsonObject attObj = attachmentsArray.get(i).getAsJsonObject();
+                                                String path = attObj.get("path").getAsString();
+                                                String mimeType = attObj.get("mimeType").getAsString();
+                                                attachmentsToSend.add(new AttachmentSender.AttachmentToSend(path, mimeType));
+                                            }
+                                            if (BotLogCapture.isEnabled()) {
+                                                BotLogCapture.addLog("info", String.format("Bot included %d attachments", attachmentsToSend.size()));
+                                            }
+                                        } catch (Exception e) {
+                                            Log.e(TAG, "Error parsing attachments", e);
+                                        }
+                                    }
+                                }
+                                
                                 if (BotLogCapture.isEnabled()) {
                                     BotLogCapture.addLog("info", String.format("Sending reply: %s", replyText));
                                 }
-                                callback.onSuccess(replyText);
+                                
+                                // Send reply with attachments if available
+                                if (attachmentsToSend != null && !attachmentsToSend.isEmpty()) {
+                                    callback.onSuccess(replyText, attachmentsToSend);
+                                } else {
+                                    callback.onSuccess(replyText);
+                                }
                             } else {
                                 Log.e(TAG, "REPLY action missing replyText");
                                 if (BotLogCapture.isEnabled()) {
