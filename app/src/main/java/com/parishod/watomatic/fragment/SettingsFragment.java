@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 
-import androidx.annotation.NonNull;
+import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreference;
@@ -15,6 +15,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.parishod.watomagic.BuildConfig;
 import com.parishod.watomagic.R;
 import com.parishod.watomagic.activity.botconfig.BotConfigActivity;
+import com.parishod.watomagic.activity.main.MainActivity;
 import com.parishod.watomagic.model.preferences.PreferencesManager;
 import com.parishod.watomagic.flavor.FlavorNavigator;
 import com.parishod.watomagic.model.utils.AutoStartHelper;
@@ -30,6 +31,17 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             showNotificationPref.setTitle(getString(R.string.show_notification_label) + "(Beta)");
         }
 
+        ListPreference languagePref = findPreference(getString(R.string.key_pref_app_language));
+        if (languagePref != null) {
+            languagePref.setOnPreferenceChangeListener((preference, newValue) -> {
+                String thisLangStr = PreferencesManager.getPreferencesInstance(requireActivity()).getSelectedLanguageStr(null);
+                if (thisLangStr == null || !thisLangStr.equals(newValue)) {
+                    restartApp();
+                }
+                return true;
+            });
+        }
+
         Preference autoStartPref = findPreference(getString(R.string.pref_auto_start_permission));
         if (autoStartPref != null) {
             autoStartPref.setOnPreferenceClickListener(preference -> {
@@ -43,17 +55,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 foregroundServiceNotifPref.setVisible(false);
             }
-            foregroundServiceNotifPref.setOnPreferenceChangeListener((preference, newValue) -> {
-                /*if (newValue.equals(true)) {
-                    ServieUtils.getInstance(getActivity()).startNotificationService();
-                } else {
-                    ServieUtils.getInstance(getActivity()).stopNotificationService();
-                }*/
-                return true;
-            });
+            foregroundServiceNotifPref.setOnPreferenceChangeListener((preference, newValue) -> true);
         }
 
-        // Account/Login preference
         Preference accountPref = findPreference(getString(R.string.pref_account));
         if(BuildConfig.FLAVOR.equals("Default")){
             accountPref.setVisible(false);
@@ -63,12 +67,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             accountPref.setOnPreferenceClickListener(pref -> {
                 PreferencesManager pm = PreferencesManager.getPreferencesInstance(getContext());
                 if (pm.isLoggedIn()) {
-                    // Show logout confirmation dialog
                     if (getActivity() != null) {
                         showLogoutDialog(accountPref, pm);
                     }
                 } else {
-                    // Login
                     if (getActivity() != null) {
                         FlavorNavigator.INSTANCE.startLogin(getActivity());
                     }
@@ -77,7 +79,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             });
         }
 
-        // Bot Config preference
         Preference botConfigPref = findPreference("bot_config");
         if (botConfigPref != null) {
             botConfigPref.setOnPreferenceClickListener(pref -> {
@@ -88,6 +89,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             });
         }
+    }
+
+    private void restartApp() {
+        Intent intent = new Intent(requireActivity(), MainActivity.class);
+        requireActivity().startActivity(intent);
+        requireActivity().finishAffinity();
     }
 
     private void showLogoutDialog(Preference accountPref, PreferencesManager pm){
@@ -104,7 +111,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         view.findViewById(R.id.btnCancel).setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
-
     }
 
     private void updateAccountPreference(Preference accountPref) {
@@ -126,7 +132,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         super.onResume();
         if (getActivity() != null)
             getActivity().setTitle(R.string.settings);
-        // Refresh account summary in case login state changed
         Preference accountPref = findPreference(getString(R.string.pref_account));
         if (accountPref != null) {
             updateAccountPreference(accountPref);
@@ -138,5 +143,4 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             AutoStartHelper.getInstance().getAutoStartPermission(getActivity());
         }
     }
-
 }
