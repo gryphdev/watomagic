@@ -156,6 +156,9 @@ dependencies {
             add("implementation", platform(libs.firebase.bom))
             add("implementation", libs.firebase.auth)
             add("implementation", libs.play.services.auth)
+            add("implementation", libs.credentials)
+            add("implementation", libs.credentials.play.services.auth)
+            add("implementation", libs.googleid)
         }
     }
 }
