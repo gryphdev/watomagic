@@ -67,6 +67,9 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            enableUnitTestCoverage = true
+        }
         getByName("release") {
             // Enables code shrinking, obfuscation, and optimization for only
             // your project's release build type.
