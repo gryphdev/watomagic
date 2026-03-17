@@ -98,8 +98,13 @@ public class PreferencesManager {
         return _instance;
     }
 
+    @androidx.annotation.VisibleForTesting
+    public static void resetInstance() {
+        _instance = null;
+    }
+
     /**
-     * Execute this code when the singleton is first created. All the tasks that needs to be done
+     * Execute this code when the singleton is first created.
      * when the instance is first created goes here. For example, set specific keys based on new install
      * or app upgrade, etc.
      */
