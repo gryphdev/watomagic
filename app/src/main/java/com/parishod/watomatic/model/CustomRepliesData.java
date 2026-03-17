@@ -124,18 +124,30 @@ public class CustomRepliesData {
     }
 
     public String getTextToSendOrElse() {
+        // Load string resources with fallbacks for environments where resources are unavailable
+        // (e.g. unit-test environments using Robolectric), consistent with init() pattern.
+        String aiDefaultMessage;
+        String regularDefaultMessage;
+        try {
+            aiDefaultMessage = thisAppContext.getString(R.string.ai_auto_reply_default_message);
+            regularDefaultMessage = thisAppContext.getString(R.string.auto_reply_default_message);
+        } catch (android.content.res.Resources.NotFoundException e) {
+            aiDefaultMessage = "AI Replies Enabled\nMessages are smartly handled by AI";
+            regularDefaultMessage = "Auto Reply\nI'm currently unavailable and will get back to you as soon as I can.";
+        }
+
         String currentText;
-        if(preferencesManager.isOpenAIRepliesEnabled()){
-            try {
-                currentText = thisAppContext.getString(R.string.ai_auto_reply_default_message);
-            } catch (Resources.NotFoundException e) {
-                currentText = "I am currently busy. Will reply later.";
-            }
-        }else {
-            currentText = getOrElse(thisAppContext.getString(R.string.auto_reply_default_message));
+        if (preferencesManager.isOpenAIRepliesEnabled()) {
+            currentText = aiDefaultMessage;
+        } else {
+            currentText = getOrElse(regularDefaultMessage);
         }
         if (preferencesManager.isAppendwatomagicAttributionEnabled()) {
-            currentText += "\n\n" + RTL_ALIGN_INVISIBLE_CHAR + thisAppContext.getString(R.string.sent_using_watomagic);
+            try {
+                currentText += "\n\n" + RTL_ALIGN_INVISIBLE_CHAR + thisAppContext.getString(R.string.sent_using_watomagic);
+            } catch (android.content.res.Resources.NotFoundException e) {
+                currentText += "\n\n" + RTL_ALIGN_INVISIBLE_CHAR + "Sent using Watomagic";
+            }
         }
         return currentText;
     }
