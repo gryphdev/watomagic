@@ -95,7 +95,7 @@ class CustomReplyEditorActivity : BaseActivity() {
             if ((data != null))
                 data.getQueryParameter("message")
             else
-                customRepliesData?.get()
+                customRepliesData?.get() ?: ""
         )
 
         autoReplyText?.requestFocus()
