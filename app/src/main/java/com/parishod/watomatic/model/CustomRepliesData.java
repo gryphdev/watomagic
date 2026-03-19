@@ -4,6 +4,7 @@ package com.parishod.watomagic.model;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.text.Editable;
 
 import com.parishod.watomagic.R;
@@ -125,7 +126,11 @@ public class CustomRepliesData {
     public String getTextToSendOrElse() {
         String currentText;
         if(preferencesManager.isOpenAIRepliesEnabled()){
-            currentText = thisAppContext.getString(R.string.ai_auto_reply_default_message);
+            try {
+                currentText = thisAppContext.getString(R.string.ai_auto_reply_default_message);
+            } catch (Resources.NotFoundException e) {
+                currentText = "I am currently busy. Will reply later.";
+            }
         }else {
             currentText = getOrElse(thisAppContext.getString(R.string.auto_reply_default_message));
         }
