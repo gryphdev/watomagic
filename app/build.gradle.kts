@@ -15,16 +15,16 @@ android {
         targetSdk = 35
         // Support dynamic versioning from CI/CD (Codemagic)
         // If versionCode property is provided (e.g., -PversionCode=10050), use it
-        // Otherwise, fallback to static version 32
+        // Otherwise, fallback to static version 36
         versionCode = if (project.hasProperty("versionCode")) {
             project.property("versionCode").toString().toInt()
         } else {
-            32
+            36
         }
         versionName = if (project.hasProperty("versionName")) {
             project.property("versionName").toString()
         } else {
-            "1.32"
+            "1.36"
         }
 
         javaCompileOptions {
