@@ -25,6 +25,10 @@ securityCrypto = "1.0.0"
 google-services = "4.4.3"
 firebase-bom = "34.2.0"
 play-services-auth = "20.7.0"
+billing = "7.1.1"
+credentials = "1.3.0"
+googleid = "1.1.1"
+workTesting = "2.11.2"
 
 [libraries]
 mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
@@ -54,6 +58,11 @@ work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRunti
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth"}
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "play-services-auth" }
+billing = { module = "com.android.billingclient:billing", version.ref = "billing" }
+credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
+credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
+work-testing = { group = "androidx.work", name = "work-testing", version.ref = "workTesting" }
 
 [plugins]
 google-ksp = { id = "com.google.devtools.ksp", version.ref = "googleKsp" }
