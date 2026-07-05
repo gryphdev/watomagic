@@ -88,7 +88,10 @@ public class MainFragment extends Fragment implements DialogActionListener {
     private TextView replyCooldownDescription, messageTypeDescription, contactsSelectorDescription;
     private LinearLayout contactsFilterLL, messagesTypeLL, supportedAppsLL, replyCooldownLL;
     private TextView enabledAppsCount;
-    private final List<String> communityUrls = Arrays.asList();
+    private final List<String> communityUrls = Arrays.asList("https://t.me/WatomaticApp",
+            "https://fosstodon.org/@watomatic",
+            "https://twitter.com/watomatic",
+            "https://www.reddit.com/r/watomatic");
 
     @Nullable
     @Override

@@ -53,7 +53,7 @@
     <string name="share_subject">Atomatic: Auto Reply for Messaging apps</string>
     <string name="watomagic_community_label"><u>Community</u></string>
     <string name="watomagic_subreddit_label"><u>Let\'s discuss</u></string>
-    <string name="watomagic_subreddit_url" translatable="false"></string>
+    <string name="watomagic_subreddit_url" translatable="false">https://www.reddit.com/r/watomatic</string>
     <string name="watomagic_github_url" translatable="false"></string>
     <string name="watomagic_wato_message_url" translatable="false"></string>
     <string name="watomagic_whatsnew_label">What\'s New?</string>
