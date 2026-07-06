@@ -75,6 +75,7 @@ public class WhatsAppMediaResolver {
 
         DocumentFile best = null;
         long bestModified = Long.MIN_VALUE;
+        long bestDistance = Long.MAX_VALUE;
 
         Deque<DocumentFile> queue = new ArrayDeque<>();
         queue.add(root);
@@ -90,7 +91,9 @@ public class WhatsAppMediaResolver {
                     queue.addLast(child);
                 } else if (child.isFile() && isImageFile(child.getName())) {
                     long modified = child.lastModified();
-                    if (modified >= windowStart && modified <= windowEnd && modified > bestModified) {
+                    if (modified >= windowStart && modified <= windowEnd
+                            && isCloserMatch(modified, notificationTimestamp, bestModified, bestDistance)) {
+                        bestDistance = Math.abs(modified - notificationTimestamp);
                         bestModified = modified;
                         best = child;
                     }
@@ -98,6 +101,16 @@ public class WhatsAppMediaResolver {
             }
         }
         return best;
+    }
+
+    @VisibleForTesting
+    static boolean isCloserMatch(long modified, long notificationTimestamp,
+                                 long currentBestModified, long currentBestDistance) {
+        long distance = Math.abs(modified - notificationTimestamp);
+        if (distance != currentBestDistance) {
+            return distance < currentBestDistance;
+        }
+        return modified > currentBestModified;
     }
 
     @VisibleForTesting
