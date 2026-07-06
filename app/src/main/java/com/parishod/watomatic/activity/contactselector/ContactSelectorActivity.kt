@@ -7,7 +7,6 @@ import com.parishod.watomagic.R
 import com.parishod.watomagic.activity.BaseActivity
 import com.parishod.watomagic.databinding.ActivityContactSelectorBinding
 import com.parishod.watomagic.fragment.ContactSelectorFragment
-import com.parishod.watomagic.model.utils.ContactsHelper
 import com.parishod.watomagic.viewmodel.SwipeToKillAppDetectViewModel
 
 import androidx.core.view.ViewCompat
@@ -29,7 +28,7 @@ class ContactSelectorActivity : BaseActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         contactSelectorFragment = supportFragmentManager.findFragmentById(R.id.contact_selector_layout)
-                as ContactSelectorFragment
+                as? ContactSelectorFragment ?: return
 
         ViewModelProvider(this).get(SwipeToKillAppDetectViewModel::class.java)
 
@@ -45,14 +44,4 @@ class ContactSelectorActivity : BaseActivity() {
         return true
     }
 
-    override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<out String>,
-            grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == ContactsHelper.CONTACT_PERMISSION_REQUEST_CODE && this::contactSelectorFragment.isInitialized) {
-            contactSelectorFragment.loadContactList()
-        }
-    }
 }

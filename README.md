@@ -2,6 +2,10 @@
 
 Watomagic envía una respuesta automática a todos los que te contacten en apps de mensajería. Es especialmente útil si estás planeando migrar de estas apps, pero también podés usarlo como un contestador automático cuando estás de vacaciones.
 
+<a href='https://play.google.com/store/apps/details?id=com.parishod.atomatic'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' height="60" /></a>
+[<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="60">](https://f-droid.org/en/packages/com.parishod.watomatic/)
+<a href='https://apt.izzysoft.de/fdroid/index/apk/com.parishod.watomatic'><img alt='Get it on F-Droid via IzzyOnDroid' src='https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png' height="60" /></a>
+
 ### 📸 [Capturas de pantalla](./media/screenshots/)
 
 | [<img src="./media/screenshots/1.jpeg" alt="Captura 1">][scr-page-link] | [<img src="./media/screenshots/2.jpeg" alt="Captura 2">][scr-page-link] | [<img src="./media/screenshots/3.png" alt="Captura 3">][scr-page-link] | [<img src="./media/screenshots/4.png" alt="Captura 4">][scr-page-link] |

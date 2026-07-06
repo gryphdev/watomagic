@@ -10,7 +10,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import com.parishod.watomagic.R
 import com.parishod.watomagic.activity.BaseActivity
-import com.parishod.watomagic.fragment.GeneralSettingsFragment
 import com.parishod.watomagic.fragment.SettingsFragment
 import com.parishod.watomagic.viewmodel.SwipeToKillAppDetectViewModel
 
@@ -42,9 +41,6 @@ class SettingsActivity : BaseActivity() {
             when (currentFragment) {
                 is SettingsFragment -> {
                     supportActionBar?.title = getString(R.string.settings)
-                }
-                is GeneralSettingsFragment -> {
-                    supportActionBar?.title = getString(R.string.preference_category_general_label)
                 }
             }
         }

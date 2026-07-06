@@ -4,6 +4,7 @@ package com.parishod.watomagic.model;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.text.Editable;
 
 import com.parishod.watomagic.R;
@@ -41,8 +42,13 @@ public class CustomRepliesData {
         return _INSTANCE;
     }
 
+    @androidx.annotation.VisibleForTesting
+    public static void resetInstance() {
+        _INSTANCE = null;
+    }
+
     /**
-     * Execute this code when the singleton is first created. All the tasks that needs to be done
+     * Execute this code when the singleton is first created.
      * when the instance is first created goes here. For example, set specific keys based on new install
      * or app upgrade, etc.
      */
@@ -118,14 +124,30 @@ public class CustomRepliesData {
     }
 
     public String getTextToSendOrElse() {
+        // Load string resources with fallbacks for environments where resources are unavailable
+        // (e.g. unit-test environments using Robolectric), consistent with init() pattern.
+        String aiDefaultMessage;
+        String regularDefaultMessage;
+        try {
+            aiDefaultMessage = thisAppContext.getString(R.string.ai_auto_reply_default_message);
+            regularDefaultMessage = thisAppContext.getString(R.string.auto_reply_default_message);
+        } catch (android.content.res.Resources.NotFoundException e) {
+            aiDefaultMessage = "AI Replies Enabled\nMessages are smartly handled by AI";
+            regularDefaultMessage = "Auto Reply\nI'm currently unavailable and will get back to you as soon as I can.";
+        }
+
         String currentText;
-        if(preferencesManager.isOpenAIRepliesEnabled()){
-            currentText = thisAppContext.getString(R.string.ai_auto_reply_default_message);
-        }else {
-            currentText = getOrElse(thisAppContext.getString(R.string.auto_reply_default_message));
+        if (preferencesManager.isOpenAIRepliesEnabled()) {
+            currentText = aiDefaultMessage;
+        } else {
+            currentText = getOrElse(regularDefaultMessage);
         }
         if (preferencesManager.isAppendwatomagicAttributionEnabled()) {
-            currentText += "\n\n" + RTL_ALIGN_INVISIBLE_CHAR + thisAppContext.getString(R.string.sent_using_watomagic);
+            try {
+                currentText += "\n\n" + RTL_ALIGN_INVISIBLE_CHAR + thisAppContext.getString(R.string.sent_using_watomagic);
+            } catch (android.content.res.Resources.NotFoundException e) {
+                currentText += "\n\n" + RTL_ALIGN_INVISIBLE_CHAR + "Sent using Watomagic";
+            }
         }
         return currentText;
     }

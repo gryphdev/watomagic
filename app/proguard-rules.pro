@@ -50,11 +50,6 @@
     @com.google.gson.annotations.SerializedName <fields>;
 }
 
-# Moshi
--dontwarn com.squareup.moshi.**
--keep class com.squareup.moshi.** { *; }
--keep class **JsonAdapter { *; }
-
 # Rhino JavaScript Engine
 # Rhino includes debug tools (org.mozilla.javascript.tools) that depend on
 # AWT/Swing classes not available on Android. These tools are not used in

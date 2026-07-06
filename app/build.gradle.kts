@@ -3,6 +3,7 @@ plugins {
     id("kotlin-android")
     alias(libs.plugins.google.ksp)
     id("kotlin-parcelize")
+    id("jacoco")
 }
 
 android {
@@ -15,16 +16,16 @@ android {
         targetSdk = 35
         // Support dynamic versioning from CI/CD (Codemagic)
         // If versionCode property is provided (e.g., -PversionCode=10050), use it
-        // Otherwise, fallback to static version 31
+        // Otherwise, fallback to static version 36
         versionCode = if (project.hasProperty("versionCode")) {
             project.property("versionCode").toString().toInt()
         } else {
-            31
+            36
         }
         versionName = if (project.hasProperty("versionName")) {
             project.property("versionName").toString()
         } else {
-            "1.31"
+            "1.36"
         }
 
         javaCompileOptions {
@@ -34,6 +35,12 @@ android {
         }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
     }
 
     //Disable split language resources on .aab, necessary to allow the language changing
@@ -60,6 +67,9 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            enableUnitTestCoverage = true
+        }
         getByName("release") {
             // Enables code shrinking, obfuscation, and optimization for only
             // your project's release build type.
@@ -126,7 +136,6 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     ksp(libs.room.compiler)
     implementation(libs.core.ktx)
-    implementation(libs.kotlin.stdlib.jdk7)
     implementation(libs.gson)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
@@ -148,6 +157,9 @@ dependencies {
             add("implementation", platform(libs.firebase.bom))
             add("implementation", libs.firebase.auth)
             add("implementation", libs.play.services.auth)
+            add("implementation", libs.credentials)
+            add("implementation", libs.credentials.play.services.auth)
+            add("implementation", libs.googleid)
         }
     }
 }
@@ -160,4 +172,88 @@ gradle.startParameter.taskNames.any { task ->
     } else {
         false
     }
+}
+
+// JaCoCo coverage verification – enforces minimum thresholds
+tasks.register<JacocoCoverageVerification>("jacocoCoverageVerification") {
+    dependsOn("testDefaultDebugUnitTest")
+    group = "Verification"
+    description = "Enforces minimum JaCoCo coverage thresholds for model/utility classes."
+
+    val excludes = listOf(
+        "**/R.class", "**/R\$*.class",
+        "**/BuildConfig.*", "**/Manifest*.*",
+        "**/*Test*.*", "android/**/*.*",
+        "**/databinding/**", "**/*_MembersInjector.class",
+        "**/*_Factory.class", "**/*Directions*.*",
+        "**/*\$\$serializer.class",
+        // Exclude UI classes that cannot be unit-tested
+        "**/activity/**", "**/fragment/**",
+        "**/service/NotificationService.*", "**/service/ReplyService.*",
+        "**/model/adapters/**",
+        "**/billing/**", "**/backend/**",
+        "**/viewmodel/**"
+    )
+
+    val javaClasses = fileTree("${layout.buildDirectory.get()}/intermediates/javac/DefaultDebug/compileDefaultDebugJavaWithJavac/classes") {
+        exclude(excludes)
+    }
+    val kotlinClasses = fileTree("${layout.buildDirectory.get()}/tmp/kotlin-classes/DefaultDebug") {
+        exclude(excludes)
+    }
+
+    classDirectories.setFrom(files(javaClasses, kotlinClasses))
+    executionData.setFrom(
+        fileTree(layout.buildDirectory.get()) {
+            include("**/*.exec", "**/*.ec")
+        }
+    )
+
+    violationRules {
+        rule {
+            limit {
+                // Minimum instruction coverage for testable model/utility classes.
+                // Note: Robolectric tests do not contribute to JaCoCo offline
+                // instrumentation, so the reported number is lower than actual
+                // coverage. This threshold catches major regressions.
+                minimum = "0.05".toBigDecimal()
+            }
+        }
+    }
+}
+
+// JaCoCo unit test coverage report for the Default/Debug variant
+tasks.register<JacocoReport>("jacocoUnitTestReport") {
+    dependsOn("testDefaultDebugUnitTest")
+    group = "Reporting"
+    description = "Generates JaCoCo unit test coverage report for DefaultDebug variant."
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    val excludes = listOf(
+        "**/R.class", "**/R\$*.class",
+        "**/BuildConfig.*", "**/Manifest*.*",
+        "**/*Test*.*", "android/**/*.*",
+        "**/databinding/**", "**/*_MembersInjector.class",
+        "**/*_Factory.class", "**/*Directions*.*",
+        "**/*\$\$serializer.class"
+    )
+
+    val javaClasses = fileTree("${layout.buildDirectory.get()}/intermediates/javac/DefaultDebug/compileDefaultDebugJavaWithJavac/classes") {
+        exclude(excludes)
+    }
+    val kotlinClasses = fileTree("${layout.buildDirectory.get()}/tmp/kotlin-classes/DefaultDebug") {
+        exclude(excludes)
+    }
+
+    sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
+    classDirectories.setFrom(files(javaClasses, kotlinClasses))
+    executionData.setFrom(
+        fileTree(layout.buildDirectory.get()) {
+            include("**/*.exec", "**/*.ec")
+        }
+    )
 }

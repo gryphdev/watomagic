@@ -40,9 +40,10 @@ object Constants {
      */
     @JvmField
     val SUPPORTED_APPS: Set<App> = setOf(
-            App("WhatsApp", "com.whatsapp"),
-            App("Facebook Messenger", "com.facebook.orca"),
-            // App("Facebook Messenger Lite", "com.facebook.mlite"),
+        App("WhatsApp", "com.whatsapp"),
+        App("Facebook Messenger", "com.facebook.orca"),
+        App("Facebook Messenger Lite", "com.facebook.mlite"),
+        App("Telegram", "org.telegram.messenger"),
     )
 
     const val MIN_DAYS = 0
@@ -51,4 +52,15 @@ object Constants {
     const val EMAIL_ADDRESS = ""
     const val EMAIL_SUBJECT = "watomagic-Feedback"
     const val TELEGRAM_URL = "tg://resolve?domain=watomagic"
+
+    val PROVIDER_URLS = mapOf(
+        "OpenAI" to "https://api.openai.com/",
+        "Claude" to "https://api.anthropic.com/",
+        "Grok" to "https://api.x.ai/",
+        "Gemini" to "https://generativelanguage.googleapis.com/",
+        "DeepSeek" to "https://api.deepseek.com/",
+        "Mistral" to "https://api.mistral.ai/"
+    )
+
+    const val CUSTOM_AI_PROVIDER_NAME = "Custom OpenAI Compatible"
 }
