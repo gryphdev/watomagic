@@ -223,6 +223,34 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp" />
 
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/attachmentAccessSwitch"
+                        android:text="Permitir acceso a imágenes en notificaciones"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp" />
+
+                    <TextView
+                        android:text="El bot podrá acceder a imágenes recibidas en notificaciones"
+                        android:textAppearance="?attr/textAppearanceCaption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/sendImagesSwitch"
+                        android:text="Permitir enviar imágenes desde bot"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp" />
+
+                    <TextView
+                        android:text="El bot podrá enviar imágenes como respuesta (requiere permisos de almacenamiento)"
+                        android:textAppearance="?attr/textAppearanceCaption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp" />
+
                     <Button
                         android:id="@+id/deleteBotButton"
                         android:text="Eliminar Bot"

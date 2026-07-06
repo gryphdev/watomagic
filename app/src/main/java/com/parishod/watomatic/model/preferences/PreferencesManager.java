@@ -62,6 +62,8 @@ public class PreferencesManager {
     private final String KEY_BOT_JS_AUTO_UPDATE = "pref_bot_js_auto_update";
     private final String KEY_BOT_JS_SCRIPT_PATH = "pref_bot_js_script_path";
     private final String KEY_BOT_JS_DEBUG_MODE = "pref_bot_js_debug_mode";
+    private final String KEY_BOT_JS_ATTACHMENT_ACCESS_ENABLED = "pref_bot_js_attachment_access_enabled";
+    private final String KEY_BOT_JS_SEND_IMAGES_ENABLED = "pref_bot_js_send_images_enabled";
     private static PreferencesManager _instance;
     private final SharedPreferences _sharedPrefs;
     private SharedPreferences _encryptedSharedPrefs;
@@ -590,5 +592,25 @@ public class PreferencesManager {
 
     public boolean isBotJsDebugModeEnabled() {
         return _sharedPrefs.getBoolean(KEY_BOT_JS_DEBUG_MODE, false);
+    }
+
+    public void setBotJsAttachmentAccessEnabled(boolean enabled) {
+        SharedPreferences.Editor editor = _sharedPrefs.edit();
+        editor.putBoolean(KEY_BOT_JS_ATTACHMENT_ACCESS_ENABLED, enabled);
+        editor.apply();
+    }
+
+    public boolean isBotJsAttachmentAccessEnabled() {
+        return _sharedPrefs.getBoolean(KEY_BOT_JS_ATTACHMENT_ACCESS_ENABLED, false);
+    }
+
+    public void setBotJsSendImagesEnabled(boolean enabled) {
+        SharedPreferences.Editor editor = _sharedPrefs.edit();
+        editor.putBoolean(KEY_BOT_JS_SEND_IMAGES_ENABLED, enabled);
+        editor.apply();
+    }
+
+    public boolean isBotJsSendImagesEnabled() {
+        return _sharedPrefs.getBoolean(KEY_BOT_JS_SEND_IMAGES_ENABLED, false);
     }
 }

@@ -20,6 +20,16 @@
 | `timestamp` | `number` | Epoch en milisegundos. |
 | `isGroup` | `boolean` | `true` si la notificación pertenece a un chat grupal. |
 | `actions` | `string[]` | Lista de Quick Reply actions disponibles. |
+| `attachments` | `AttachmentInfo[]` | Imágenes extraídas de la notificación (requiere activar acceso en BotConfig). |
+
+### AttachmentInfo
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `id` | `string` | Identificador único del adjunto en la sesión del bot. |
+| `mimeType` | `string` | Tipo MIME (ej. `image/jpeg`). |
+| `size` | `number` | Tamaño en bytes (máx. 5 MB). |
+| `hasFile` | `boolean` | `true` si el archivo está disponible en sandbox. |
+| `thumbnailBase64` | `string?` | Miniatura JPEG en Base64 para preview. |
 
 ### BotResponse
 | Campo | Tipo | Obligatorio | Descripción |
@@ -28,6 +38,13 @@
 | `replyText` | `string` | Solo para `REPLY` | Texto que se enviará como respuesta. |
 | `snoozeMinutes` | `number` | Solo para `SNOOZE` | Minutos que la notificación debe posponerse. |
 | `reason` | `string` | No | Texto para logs y diagnósticos. |
+| `attachments` | `AttachmentToSend[]` | No | Imágenes a enviar con `REPLY` (requiere activar envío en BotConfig). |
+
+### AttachmentToSend
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `path` | `string` | Ruta relativa a `bot_attachments/` o absoluta dentro del sandbox de la app. |
+| `mimeType` | `string` | Tipo MIME del archivo (ej. `image/jpeg`). |
 
 ### Resultados y errores
 - Si `processNotification` lanza una excepción o retorna un valor inválido, Watomagic registra `BotExecutionException` y usa el mensaje de respaldo.
@@ -119,6 +136,42 @@ interface HttpRequestOptions {
 
 ### `Android.getAppName(packageName)`
 - Retorna el nombre legible (por ejemplo, "WhatsApp").
+
+### `Android.getAttachmentPath(id)`
+- Retorna la ruta absoluta del adjunto en sandbox, o `null`.
+
+### `Android.readAttachmentAsBase64(id)`
+- Lee el adjunto completo como Base64 (máx. 5 MB), o `null`.
+
+### `Android.getAttachmentThumbnail(id)`
+- Retorna el thumbnail Base64 del adjunto, o `null`.
+
+---
+
+## 4.1 Adjuntos (imágenes)
+
+### Fuentes soportadas (recepción)
+Las imágenes se extraen **desde la notificación**, no desde carpetas de WhatsApp (`/Android/media/com.whatsapp/`). Fuentes, en orden de prioridad:
+
+1. `MessagingStyle.Message.getDataUri()` — apps de mensajería modernas.
+2. `Notification.EXTRA_PICTURE` / `EXTRA_BIG_PICTURE` — bitmap embebido en extras.
+
+Los archivos se copian a `getExternalFilesDir()/bot_attachments/` (sandbox de Watomagic). Requiere activar **Acceso a adjuntos** en BotConfig.
+
+### Envío de imágenes (limitaciones)
+Para responder con imagen, el bot retorna `attachments` en `BotResponse`:
+
+```javascript
+return {
+  action: 'REPLY',
+  replyText: 'Aquí va la imagen',
+  attachments: [{ path: 'mi-imagen.jpg', mimeType: 'image/jpeg' }]
+};
+```
+
+El envío usa `RemoteInput.addDataResultToIntent()` — la API oficial para datos binarios en inline reply. **Solo funciona si la app destino declaró `setAllowDataType("image/*")` en su RemoteInput.** WhatsApp puede no soportarlo; en ese caso Watomagic envía el texto y registra un warning en log.
+
+No se requieren permisos de almacenamiento externo: todo opera en el sandbox de la app + FileProvider.
 
 ---
 

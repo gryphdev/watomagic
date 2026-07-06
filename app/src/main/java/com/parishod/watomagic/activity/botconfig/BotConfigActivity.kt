@@ -58,6 +58,8 @@ class BotConfigActivity : BaseActivity() {
     private lateinit var botLastUpdateText: TextView
     private lateinit var testBotButton: Button
     private lateinit var autoUpdateSwitch: SwitchMaterial
+    private lateinit var attachmentAccessSwitch: SwitchMaterial
+    private lateinit var sendImagesSwitch: SwitchMaterial
     private lateinit var deleteBotButton: Button
     private lateinit var debugModeSwitch: SwitchMaterial
     private lateinit var viewLogsButton: Button
@@ -101,10 +103,24 @@ class BotConfigActivity : BaseActivity() {
             updateUIVisibility()
         }
 
+        autoUpdateSwitch = findViewById(R.id.autoUpdateSwitch)
         autoUpdateSwitch.isChecked = preferencesManager.isBotJsAutoUpdateEnabled()
         autoUpdateSwitch.setOnCheckedChangeListener { _, isChecked ->
             preferencesManager.setBotJsAutoUpdate(isChecked)
             scheduleBotUpdateWorker(isChecked)
+        }
+
+        attachmentAccessSwitch = findViewById(R.id.attachmentAccessSwitch)
+        attachmentAccessSwitch.isChecked = preferencesManager.isBotJsAttachmentAccessEnabled()
+        attachmentAccessSwitch.setOnCheckedChangeListener { _, isChecked ->
+            preferencesManager.setBotJsAttachmentAccessEnabled(isChecked)
+            scheduleAttachmentCleanupWorker()
+        }
+
+        sendImagesSwitch = findViewById(R.id.sendImagesSwitch)
+        sendImagesSwitch.isChecked = preferencesManager.isBotJsSendImagesEnabled()
+        sendImagesSwitch.setOnCheckedChangeListener { _, isChecked ->
+            preferencesManager.setBotJsSendImagesEnabled(isChecked)
         }
 
         downloadBotButton.setOnClickListener { downloadBot() }
@@ -486,6 +502,28 @@ class BotConfigActivity : BaseActivity() {
             
             workManager.enqueueUniquePeriodicWork(
                 BotUpdateWorker.WORK_NAME,
+                androidx.work.ExistingPeriodicWorkPolicy.KEEP,
+                workRequest
+            )
+        }
+    }
+
+    private fun scheduleAttachmentCleanupWorker() {
+        val workManager = WorkManager.getInstance(this)
+        val preferencesManager = PreferencesManager.getPreferencesInstance(this)
+        
+        // Cancelar trabajo existente
+        workManager.cancelUniqueWork("attachment_cleanup_work")
+        
+        if (preferencesManager.isBotJsAttachmentAccessEnabled()) {
+            // Programar limpieza cada 6 horas
+            val workRequest = PeriodicWorkRequestBuilder<com.parishod.watomagic.workers.AttachmentCleanupWorker>(
+                6, TimeUnit.HOURS
+            )
+                .build()
+            
+            workManager.enqueueUniquePeriodicWork(
+                "attachment_cleanup_work",
                 androidx.work.ExistingPeriodicWorkPolicy.KEEP,
                 workRequest
             )

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.util.Base64;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,8 @@ import androidx.annotation.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
@@ -166,5 +169,46 @@ public class BotAndroidAPI {
         } catch (PackageManager.NameNotFoundException e) {
             return packageName;
         }
+    }
+
+    // Attachment access - these methods are called with attachment context from BotJsEngine
+    @Nullable
+    public String getAttachmentPath(@NonNull AttachmentExtractor extractor, @NonNull String attachmentId) {
+        try {
+            return extractor.getAttachmentPath(attachmentId);
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting attachment path", e);
+            return null;
+        }
+    }
+
+    @Nullable
+    public String readAttachmentAsBase64(@NonNull AttachmentExtractor extractor, @NonNull String attachmentId) {
+        try {
+            String path = extractor.getAttachmentPath(attachmentId);
+            if (path == null) {
+                return null;
+            }
+            
+            File file = new File(path);
+            if (!file.exists() || file.length() > 5 * 1024 * 1024) { // 5 MB max
+                return null;
+            }
+
+            FileInputStream fis = new FileInputStream(file);
+            byte[] buffer = new byte[(int) file.length()];
+            fis.read(buffer);
+            fis.close();
+
+            return Base64.encodeToString(buffer, Base64.NO_WRAP);
+        } catch (Exception e) {
+            Log.e(TAG, "Error reading attachment as base64", e);
+            return null;
+        }
+    }
+
+    @Nullable
+    public String getAttachmentThumbnail(@NonNull com.parishod.watomagic.replyproviders.model.AttachmentInfo attachment) {
+        return attachment.getThumbnailBase64();
     }
 }

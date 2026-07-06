@@ -293,8 +293,7 @@ jobs:
             -Pandroid.injected.signing.key.password=$KEY_PASSWORD \
             --no-daemon \
             --parallel \
-            --stacktrace \
-            --info
+            --stacktrace
           
           echo "✅ Gradle build command completed"
 

@@ -1,4 +1,15 @@
 /**
+ * Información de un archivo adjunto (imagen)
+ */
+interface AttachmentInfo {
+    id: string;
+    mimeType: string;
+    size: number;
+    hasFile: boolean;
+    thumbnailBase64?: string;
+}
+
+/**
  * Datos de la notificación entrante
  */
 interface NotificationData {
@@ -9,6 +20,15 @@ interface NotificationData {
     timestamp: number;
     isGroup: boolean;
     actions: string[];
+    attachments: AttachmentInfo[];
+}
+
+/**
+ * Información de un archivo adjunto para enviar
+ */
+interface AttachmentToSend {
+    path: string;              // Ruta relativa a bot_attachments/ o absoluta dentro del directorio de la app
+    mimeType: string;          // Tipo MIME (ej: "image/jpeg", "image/png")
 }
 
 /**
@@ -19,6 +39,7 @@ interface BotResponse {
     replyText?: string;        // Requerido si action = 'REPLY'
     snoozeMinutes?: number;    // Requerido si action = 'SNOOZE'
     reason?: string;           // Opcional: para logging/debugging
+    attachments?: AttachmentToSend[];  // Opcional: archivos adjuntos para enviar (solo si action = 'REPLY')
 }
 
 /**
@@ -46,6 +67,11 @@ declare const Android: {
     // Utilidades
     getCurrentTime(): number;
     getAppName(packageName: string): string;
+
+    // Attachment access
+    getAttachmentPath(id: string): string | null;
+    readAttachmentAsBase64(id: string): string | null;
+    getAttachmentThumbnail(id: string): string | null;
 };
 
 /**
