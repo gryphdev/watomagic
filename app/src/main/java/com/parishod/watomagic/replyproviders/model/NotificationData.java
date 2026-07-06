@@ -22,13 +22,14 @@ public class NotificationData {
     private final String fallbackReply;
     @NonNull
     private final List<AttachmentInfo> attachments;
+    private final boolean mediaPlaceholder;
 
     public NotificationData(StatusBarNotification statusBarNotification,
                             NotificationWear notificationWear,
                             @Nullable String incomingMessage,
                             String fallbackReply) {
-        this(statusBarNotification, notificationWear, incomingMessage, fallbackReply, 
-             Collections.emptyList());
+        this(statusBarNotification, notificationWear, incomingMessage, fallbackReply,
+             Collections.emptyList(), false);
     }
 
     public NotificationData(StatusBarNotification statusBarNotification,
@@ -36,11 +37,22 @@ public class NotificationData {
                             @Nullable String incomingMessage,
                             String fallbackReply,
                             @NonNull List<AttachmentInfo> attachments) {
+        this(statusBarNotification, notificationWear, incomingMessage, fallbackReply,
+             attachments, false);
+    }
+
+    public NotificationData(StatusBarNotification statusBarNotification,
+                            NotificationWear notificationWear,
+                            @Nullable String incomingMessage,
+                            String fallbackReply,
+                            @NonNull List<AttachmentInfo> attachments,
+                            boolean mediaPlaceholder) {
         this.statusBarNotification = statusBarNotification;
         this.notificationWear = notificationWear;
         this.incomingMessage = incomingMessage;
         this.fallbackReply = fallbackReply;
         this.attachments = attachments != null ? attachments : Collections.emptyList();
+        this.mediaPlaceholder = mediaPlaceholder;
     }
 
     public StatusBarNotification getStatusBarNotification() {
@@ -63,5 +75,9 @@ public class NotificationData {
     @NonNull
     public List<AttachmentInfo> getAttachments() {
         return attachments;
+    }
+
+    public boolean isMediaPlaceholder() {
+        return mediaPlaceholder;
     }
 }

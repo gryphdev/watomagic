@@ -211,4 +211,18 @@ public class BotAndroidAPI {
     public String getAttachmentThumbnail(@NonNull com.parishod.watomagic.replyproviders.model.AttachmentInfo attachment) {
         return attachment.getThumbnailBase64();
     }
+
+    @Nullable
+    public String readLatestWhatsAppImage(@NonNull WhatsAppMediaResolver resolver, long notificationTimestamp) {
+        try {
+            return resolver.readLatestImageBase64(notificationTimestamp);
+        } catch (Exception e) {
+            Log.e(TAG, "Error reading WhatsApp image via SAF", e);
+            return null;
+        }
+    }
+
+    public boolean hasWhatsAppMediaAccess(@NonNull WhatsAppMediaResolver resolver) {
+        return resolver.hasMediaFolderAccess();
+    }
 }

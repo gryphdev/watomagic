@@ -280,6 +280,29 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp" />
 
+                    <TextView
+                        android:text="Carpeta WhatsApp (SAF)"
+                        android:textAppearance="?attr/textAppearanceSubtitle1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" />
+
+                    <TextView
+                        android:id="@+id/whatsAppFolderStatusText"
+                        android:text="Sin acceso a carpeta de imágenes"
+                        android:textAppearance="?attr/textAppearanceCaption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp" />
+
+                    <Button
+                        android:id="@+id/whatsAppFolderButton"
+                        android:text="Seleccionar carpeta WhatsApp"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp" />
+
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/sendImagesSwitch"
                         android:text="Permitir enviar imágenes desde bot"

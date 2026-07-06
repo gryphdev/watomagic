@@ -34,6 +34,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.service.notification.StatusBarNotification
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.RemoteInput
 import com.parishod.watomagic.NotificationWear
 import kotlinx.coroutines.Dispatchers
@@ -48,6 +49,28 @@ import java.util.concurrent.TimeUnit
 class BotConfigActivity : BaseActivity() {
     private lateinit var preferencesManager: PreferencesManager
     private lateinit var botRepository: BotRepository
+
+    private val whatsAppFolderPicker = registerForActivityResult(
+        ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        if (uri != null) {
+            try {
+                contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+                preferencesManager.setBotJsWhatsAppMediaTreeUri(uri.toString())
+                updateWhatsAppFolderStatus()
+                Snackbar.make(
+                    whatsAppFolderButton,
+                    "Carpeta WhatsApp vinculada",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            } catch (e: SecurityException) {
+                showError("No se pudo guardar el acceso a la carpeta")
+            }
+        }
+    }
     
     private lateinit var enableBotSwitch: SwitchMaterial
     private lateinit var botUrlInput: TextInputEditText
@@ -60,6 +83,8 @@ class BotConfigActivity : BaseActivity() {
     private lateinit var testBotButton: Button
     private lateinit var autoUpdateSwitch: SwitchMaterial
     private lateinit var attachmentAccessSwitch: SwitchMaterial
+    private lateinit var whatsAppFolderButton: Button
+    private lateinit var whatsAppFolderStatusText: TextView
     private lateinit var sendImagesSwitch: SwitchMaterial
     private lateinit var deleteBotButton: Button
     private lateinit var debugModeSwitch: SwitchMaterial
@@ -123,6 +148,11 @@ class BotConfigActivity : BaseActivity() {
             preferencesManager.setBotJsAttachmentAccessEnabled(isChecked)
             scheduleAttachmentCleanupWorker()
         }
+
+        whatsAppFolderButton = findViewById(R.id.whatsAppFolderButton)
+        whatsAppFolderStatusText = findViewById(R.id.whatsAppFolderStatusText)
+        whatsAppFolderButton.setOnClickListener { whatsAppFolderPicker.launch(null) }
+        updateWhatsAppFolderStatus()
 
         sendImagesSwitch = findViewById(R.id.sendImagesSwitch)
         sendImagesSwitch.isChecked = preferencesManager.isBotJsSendImagesEnabled()
@@ -496,6 +526,15 @@ class BotConfigActivity : BaseActivity() {
         }
         
         updateUIVisibility()
+    }
+
+    private fun updateWhatsAppFolderStatus() {
+        if (!::whatsAppFolderStatusText.isInitialized) return
+        whatsAppFolderStatusText.text = if (preferencesManager.hasBotJsWhatsAppMediaAccess()) {
+            "Carpeta vinculada — el bot puede leer imágenes vía SAF"
+        } else {
+            "Sin acceso — selecciona WhatsApp/Media/WhatsApp Images"
+        }
     }
 
     private fun updateUIVisibility() {

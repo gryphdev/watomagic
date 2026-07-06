@@ -19,6 +19,7 @@ interface NotificationData {
     body: string;
     timestamp: number;
     isGroup: boolean;
+    isMediaPlaceholder: boolean;
     actions: string[];
     attachments: AttachmentInfo[];
 }
@@ -73,6 +74,10 @@ declare const Android: {
     getAttachmentPath(id: string): string | null;
     readAttachmentAsBase64(id: string): string | null;
     getAttachmentThumbnail(id: string): string | null;
+
+    // WhatsApp SAF media folder (requires folder selection in BotConfig)
+    hasWhatsAppMediaAccess(): boolean;
+    readLatestWhatsAppImage(notificationTimestamp: number): string | null;
 };
 
 /**

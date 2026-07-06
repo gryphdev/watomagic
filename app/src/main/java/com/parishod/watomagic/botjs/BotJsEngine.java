@@ -37,6 +37,7 @@ public class BotJsEngine {
     private final Context context;
     private final BotAndroidAPI androidAPI;
     private AttachmentExtractor attachmentExtractor;
+    private WhatsAppMediaResolver whatsAppMediaResolver;
     private java.util.List<com.parishod.watomagic.replyproviders.model.AttachmentInfo> currentAttachments;
 
     public BotJsEngine(@NonNull Context context) {
@@ -69,6 +70,7 @@ public class BotJsEngine {
 
                 // Initialize attachment extractor and store attachments from notification
                 attachmentExtractor = new AttachmentExtractor(context);
+                whatsAppMediaResolver = new WhatsAppMediaResolver(context);
                 currentAttachments = notificationData.getAttachments();
 
                 // Inyectar API de Android en este scope
@@ -311,6 +313,26 @@ public class BotJsEngine {
                                 return null;
                             }
                         };
+                    } else if ("readLatestWhatsAppImage".equals(name)) {
+                        return new org.mozilla.javascript.BaseFunction() {
+                            @Override
+                            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                                if (args.length == 0 || args[0] == null) {
+                                    return null;
+                                }
+                                double timestamp = org.mozilla.javascript.Context.toNumber(args[0]);
+                                String base64 = androidAPI.readLatestWhatsAppImage(
+                                        whatsAppMediaResolver, (long) timestamp);
+                                return base64 != null ? base64 : null;
+                            }
+                        };
+                    } else if ("hasWhatsAppMediaAccess".equals(name)) {
+                        return new org.mozilla.javascript.BaseFunction() {
+                            @Override
+                            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                                return androidAPI.hasWhatsAppMediaAccess(whatsAppMediaResolver);
+                            }
+                        };
                     }
                     return Scriptable.NOT_FOUND;
                 }
@@ -323,7 +345,8 @@ public class BotJsEngine {
                            "getCurrentTime".equals(name) || "getAppName".equals(name) ||
                            "getenv".equals(name) ||
                            "getAttachmentPath".equals(name) || "readAttachmentAsBase64".equals(name) ||
-                           "getAttachmentThumbnail".equals(name);
+                           "getAttachmentThumbnail".equals(name) || "readLatestWhatsAppImage".equals(name) ||
+                           "hasWhatsAppMediaAccess".equals(name);
                 }
 
                 @Override
@@ -331,7 +354,8 @@ public class BotJsEngine {
                     return new Object[]{"log", "storageGet", "storageSet", "storageRemove",
                                       "storageKeys", "httpRequest", "getCurrentTime", "getAppName",
                                       "getenv",
-                                      "getAttachmentPath", "readAttachmentAsBase64", "getAttachmentThumbnail"};
+                                      "getAttachmentPath", "readAttachmentAsBase64", "getAttachmentThumbnail",
+                                      "readLatestWhatsAppImage", "hasWhatsAppMediaAccess"};
                 }
             };
 
@@ -348,7 +372,8 @@ public class BotJsEngine {
             Log.i(TAG, "Android APIs injected successfully via Rhino");
             Log.i(TAG, "Available APIs: log, storageGet, storageSet, storageRemove, " +
                       "storageKeys, httpRequest, getCurrentTime, getAppName, getenv, " +
-                      "getAttachmentPath, readAttachmentAsBase64, getAttachmentThumbnail");
+                      "getAttachmentPath, readAttachmentAsBase64, getAttachmentThumbnail, " +
+                      "readLatestWhatsAppImage, hasWhatsAppMediaAccess");
             Log.i(TAG, "localStorage API available (wraps Android.storage*)");
 
         } catch (Exception e) {
@@ -522,6 +547,7 @@ public class BotJsEngine {
             builder.append("\"body\":\"").append(escape(safeString(data.getStatusBarNotification().getNotification().extras.getCharSequence("android.text")))).append("\",");
             builder.append("\"timestamp\":").append(data.getStatusBarNotification().getPostTime()).append(',');
             builder.append("\"isGroup\":").append(data.getStatusBarNotification().getNotification().extras.getBoolean("android.isGroupConversation", false));
+            builder.append(",\"isMediaPlaceholder\":").append(data.isMediaPlaceholder());
             
             // Add attachments array
             builder.append(",\"attachments\":[");

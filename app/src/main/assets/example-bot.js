@@ -108,7 +108,7 @@ async function processNotification(notification) {
         };
     }
 
-    // Ejemplo 7: Procesar imágenes recibidas
+    // Ejemplo 7: Procesar imágenes recibidas (notificación con URI/bitmap)
     if (notification.attachments && notification.attachments.length > 0) {
         Android.log('info', `Notificación contiene ${notification.attachments.length} imagen(es)`);
         
@@ -142,6 +142,23 @@ async function processNotification(notification) {
             } catch (error) {
                 Android.log('error', `Error leyendo imagen: ${error.message}`);
             }
+        }
+    }
+
+    // Ejemplo 8: Imagen WhatsApp vía SAF (caso común — solo placeholder 📷 en notificación)
+    if (notification.isMediaPlaceholder && Android.hasWhatsAppMediaAccess()) {
+        try {
+            var imageBase64 = Android.readLatestWhatsAppImage(notification.timestamp);
+            if (imageBase64) {
+                Android.log('info', 'Imagen WA leída vía SAF: ' + imageBase64.length + ' chars base64');
+                // Android.httpRequest({ url: 'https://api.example.com/ocr', method: 'POST', ... });
+                return {
+                    action: 'REPLY',
+                    replyText: 'Recibí tu imagen, la estoy procesando.'
+                };
+            }
+        } catch (error) {
+            Android.log('error', 'Error leyendo imagen WA: ' + error.message);
         }
     }
 

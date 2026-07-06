@@ -165,12 +165,19 @@ public class NotificationService extends NotificationListenerService {
             attachments = extractor.extractAttachments(sbn);
         }
 
+        boolean mediaPlaceholder = com.parishod.watomagic.botjs.MediaPlaceholderDetector.isMediaPlaceholder(
+                sbn.getPackageName(),
+                incomingMessage,
+                !attachments.isEmpty()
+        );
+
         NotificationData notificationData = new NotificationData(
                 sbn,
                 notificationWear,
                 incomingMessage,
                 fallbackReplyText,
-                attachments
+                attachments,
+                mediaPlaceholder
         );
 
         ReplyProvider provider = ReplyProviderFactory.getProvider(preferencesManager);

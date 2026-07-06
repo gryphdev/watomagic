@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.util.Log; // Ensure Log is imported
 
+import androidx.annotation.Nullable;
 import androidx.preference.PreferenceManager;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKeys;
@@ -63,6 +64,7 @@ public class PreferencesManager {
     private final String KEY_BOT_JS_SCRIPT_PATH = "pref_bot_js_script_path";
     private final String KEY_BOT_JS_DEBUG_MODE = "pref_bot_js_debug_mode";
     private final String KEY_BOT_JS_ATTACHMENT_ACCESS_ENABLED = "pref_bot_js_attachment_access_enabled";
+    private final String KEY_BOT_JS_WHATSAPP_MEDIA_TREE_URI = "pref_bot_js_whatsapp_media_tree_uri";
     private final String KEY_BOT_JS_SEND_IMAGES_ENABLED = "pref_bot_js_send_images_enabled";
     private final String KEY_BOT_JS_ENV_VARS = "pref_bot_js_env_vars";
     private static PreferencesManager _instance;
@@ -603,6 +605,25 @@ public class PreferencesManager {
 
     public boolean isBotJsAttachmentAccessEnabled() {
         return _sharedPrefs.getBoolean(KEY_BOT_JS_ATTACHMENT_ACCESS_ENABLED, false);
+    }
+
+    @Nullable
+    public String getBotJsWhatsAppMediaTreeUri() {
+        return _sharedPrefs.getString(KEY_BOT_JS_WHATSAPP_MEDIA_TREE_URI, null);
+    }
+
+    public void setBotJsWhatsAppMediaTreeUri(@Nullable String uri) {
+        SharedPreferences.Editor editor = _sharedPrefs.edit();
+        if (uri == null || uri.isEmpty()) {
+            editor.remove(KEY_BOT_JS_WHATSAPP_MEDIA_TREE_URI);
+        } else {
+            editor.putString(KEY_BOT_JS_WHATSAPP_MEDIA_TREE_URI, uri);
+        }
+        editor.apply();
+    }
+
+    public boolean hasBotJsWhatsAppMediaAccess() {
+        return getBotJsWhatsAppMediaTreeUri() != null;
     }
 
     public void setBotJsSendImagesEnabled(boolean enabled) {

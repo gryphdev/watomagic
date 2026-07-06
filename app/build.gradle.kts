@@ -117,6 +117,7 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.work.runtime)
     implementation(libs.activity)
+    implementation("androidx.documentfile:documentfile:1.0.1")
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)
     testImplementation(libs.robolectric)
