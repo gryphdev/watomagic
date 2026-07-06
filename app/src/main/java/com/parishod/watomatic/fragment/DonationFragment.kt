@@ -51,6 +51,11 @@ class DonationFragment : Fragment() {
         return binding.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun launchBitcoin(){
         val i = Intent(Intent.ACTION_VIEW)
         i.data = Uri.parse("bitcoin:${Constants.BITCOIN_ADDRESS}")
@@ -74,6 +79,7 @@ class DonationFragment : Fragment() {
         val call = donationsProgressService.getDonationProgress(url)
         call.enqueue(object : Callback<String?> {
             override fun onResponse(call: Call<String?>, response: Response<String?>) {
+                if (!isAdded || _binding == null) return
                 if (response.isSuccessful) {
                     response.body()?.let {
                         parseResponse(it)
@@ -85,6 +91,7 @@ class DonationFragment : Fragment() {
             }
 
             override fun onFailure(call: Call<String?>, t: Throwable) {
+                if (!isAdded || _binding == null) return
                 showDonationProgressData(0F)
                 Toast.makeText(activity, resources.getString(R.string.donations_data_fetch_error), Toast.LENGTH_SHORT).show()
             }

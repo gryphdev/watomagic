@@ -31,6 +31,9 @@ public class NotificationUtils {
             // then extract group name from title
             if (title == null) {
                 title = sbn.getNotification().extras.getString("android.title");
+                if (title == null) {
+                    return null;
+                }
                 int index = title.indexOf(':');
                 if (index != -1) {
                     title = title.substring(0, index);
@@ -38,7 +41,8 @@ public class NotificationUtils {
             }
 
             //To eliminate the case where group title has number of messages count in it
-            Parcelable[] b = (Parcelable[]) sbn.getNotification().extras.get("android.messages");
+            Object messagesObj = sbn.getNotification().extras.get("android.messages");
+            Parcelable[] b = (messagesObj instanceof Parcelable[]) ? (Parcelable[]) messagesObj : null;
             if (b != null && b.length > 1) {
                 int startIndex = title.lastIndexOf('(');
                 if (startIndex != -1) {
@@ -68,18 +72,47 @@ public class NotificationUtils {
     public static NotificationWear extractWearNotification(StatusBarNotification statusBarNotification) {
         //Should work for communicators such:"com.whatsapp", "com.facebook.orca", "com.google.android.talk", "jp.naver.line.android", "org.telegram.messenger"
 
+        List<NotificationCompat.Action> actions = new ArrayList<>();
+
+        int actionCount = NotificationCompat.getActionCount(statusBarNotification.getNotification());
+        for (int i = 0; i < actionCount; i++) {
+            actions.add(NotificationCompat.getAction(statusBarNotification.getNotification(), i));
+        }
+
         NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender(statusBarNotification.getNotification());
-        List<NotificationCompat.Action> actions = wearableExtender.getActions();
-        List<RemoteInput> remoteInputs = new ArrayList<>(actions.size());
+        actions.addAll(wearableExtender.getActions());
+
+        List<RemoteInput> remoteInputs = new ArrayList<>();
         PendingIntent pendingIntent = null;
+
+        NotificationCompat.Action bestAction = null;
+        RemoteInput bestRemoteInput = null;
+
         for (NotificationCompat.Action act : actions) {
             if (act != null && act.getRemoteInputs() != null) {
                 for (int x = 0; x < act.getRemoteInputs().length; x++) {
                     RemoteInput remoteInput = act.getRemoteInputs()[x];
-                    remoteInputs.add(remoteInput);
-                    pendingIntent = act.actionIntent;
+                    if (remoteInput.getAllowFreeFormInput()) {
+                        if (bestAction == null) {
+                            bestAction = act;
+                            bestRemoteInput = remoteInput;
+                        } else {
+                            boolean currentHasReply = act.getTitle() != null && act.getTitle().toString().toLowerCase().contains("reply");
+                            boolean bestHasReply = bestAction.getTitle() != null && bestAction.getTitle().toString().toLowerCase().contains("reply");
+
+                            if (currentHasReply && !bestHasReply) {
+                                bestAction = act;
+                                bestRemoteInput = remoteInput;
+                            }
+                        }
+                    }
                 }
             }
+        }
+
+        if (bestAction != null && bestRemoteInput != null) {
+            remoteInputs.add(bestRemoteInput);
+            pendingIntent = bestAction.actionIntent;
         }
 
         return new NotificationWear(
