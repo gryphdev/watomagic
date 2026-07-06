@@ -88,3 +88,16 @@
 -keep class org.mozilla.javascript.ImporterTopLevel { *; }
 -keep class org.mozilla.javascript.JavaToJSONConverters { *; }
 -keepclassmembers class org.mozilla.javascript.** { *; }
+
+# BotJS runtime (Rhino interop uses anonymous inner classes)
+-keep class com.parishod.watomagic.botjs.** { *; }
+-keep class com.parishod.watomagic.replyproviders.model.AttachmentInfo { *; }
+-keep class com.parishod.watomagic.NotificationWear { *; }
+
+# WorkManager workers (reflection-based instantiation)
+-keep class * extends androidx.work.Worker {
+    public <init>(android.content.Context, androidx.work.WorkerParameters);
+}
+
+# FileProvider for bot attachment sharing
+-keep class androidx.core.content.FileProvider { *; }

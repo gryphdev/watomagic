@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.parishod.watomagic.replyproviders.model.NotificationData;
+import com.parishod.watomagic.model.preferences.PreferencesManager;
 
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJSON;
@@ -17,6 +18,7 @@ import org.mozilla.javascript.ScriptRuntime;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import java.util.Map;
 
 /**
  * Motor JavaScript usando Rhino para ejecutar bots.
@@ -136,6 +138,9 @@ public class BotJsEngine {
 
     private void injectAndroidAPIs(org.mozilla.javascript.Context rhinoContext, Scriptable scope) {
         try {
+            String envText = PreferencesManager.getPreferencesInstance(context).getBotJsEnvVars();
+            final Map<String, String> envVars = BotEnvParser.parse(envText);
+
             // Crear un ScriptableObject personalizado que expone los métodos de BotAndroidAPI
             ScriptableObject androidObject = new ScriptableObject() {
                 @Override
@@ -252,6 +257,18 @@ public class BotJsEngine {
                                 return androidAPI.getAppName(packageName);
                             }
                         };
+                    } else if ("getenv".equals(name)) {
+                        return new org.mozilla.javascript.BaseFunction() {
+                            @Override
+                            public Object call(org.mozilla.javascript.Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+                                if (args.length == 0 || args[0] == null) {
+                                    return null;
+                                }
+                                String key = org.mozilla.javascript.Context.toString(args[0]);
+                                String value = envVars.get(key);
+                                return value != null ? value : null;
+                            }
+                        };
                     } else if ("getAttachmentPath".equals(name)) {
                         return new org.mozilla.javascript.BaseFunction() {
                             @Override
@@ -304,6 +321,7 @@ public class BotJsEngine {
                            "storageSet".equals(name) || "storageRemove".equals(name) ||
                            "storageKeys".equals(name) || "httpRequest".equals(name) ||
                            "getCurrentTime".equals(name) || "getAppName".equals(name) ||
+                           "getenv".equals(name) ||
                            "getAttachmentPath".equals(name) || "readAttachmentAsBase64".equals(name) ||
                            "getAttachmentThumbnail".equals(name);
                 }
@@ -312,6 +330,7 @@ public class BotJsEngine {
                 public Object[] getIds() {
                     return new Object[]{"log", "storageGet", "storageSet", "storageRemove",
                                       "storageKeys", "httpRequest", "getCurrentTime", "getAppName",
+                                      "getenv",
                                       "getAttachmentPath", "readAttachmentAsBase64", "getAttachmentThumbnail"};
                 }
             };
@@ -328,7 +347,7 @@ public class BotJsEngine {
 
             Log.i(TAG, "Android APIs injected successfully via Rhino");
             Log.i(TAG, "Available APIs: log, storageGet, storageSet, storageRemove, " +
-                      "storageKeys, httpRequest, getCurrentTime, getAppName, " +
+                      "storageKeys, httpRequest, getCurrentTime, getAppName, getenv, " +
                       "getAttachmentPath, readAttachmentAsBase64, getAttachmentThumbnail");
             Log.i(TAG, "localStorage API available (wraps Android.storage*)");
 

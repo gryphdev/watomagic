@@ -138,6 +138,13 @@ echo "🔍 Verificando imports requeridos en TODO el proyecto..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
+# Guard: detect wrong PreferencesManager package (watomatic vs watomagic)
+if rg -q 'import com\.parishod\.watomatic\.model\.preferences' app/src 2>/dev/null; then
+    echo "❌ Import incorrecto: usar com.parishod.watomagic.model.preferences"
+    rg 'import com\.parishod\.watomatic\.model\.preferences' app/src
+    exit 1
+fi
+
 # Buscar todos los archivos Java y Kotlin
 while IFS= read -r file; do
     FILES_CHECKED=$((FILES_CHECKED + 1))

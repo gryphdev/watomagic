@@ -67,6 +67,7 @@ declare const Android: {
     // Utilidades
     getCurrentTime(): number;
     getAppName(packageName: string): string;
+    getenv(key: string): string | null;
 
     // Attachment access
     getAttachmentPath(id: string): string | null;

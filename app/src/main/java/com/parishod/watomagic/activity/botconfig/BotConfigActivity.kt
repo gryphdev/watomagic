@@ -18,6 +18,7 @@ import com.parishod.watomagic.activity.BaseActivity
 import com.parishod.watomagic.botjs.BotRepository
 import com.parishod.watomagic.botjs.BotLogCapture
 import com.parishod.watomagic.botjs.BotJsEngine
+import com.parishod.watomagic.botjs.BotEnvParser
 import com.parishod.watomagic.model.preferences.PreferencesManager
 import com.parishod.watomagic.replyproviders.model.NotificationData
 import com.parishod.watomagic.workers.BotUpdateWorker
@@ -64,6 +65,7 @@ class BotConfigActivity : BaseActivity() {
     private lateinit var debugModeSwitch: SwitchMaterial
     private lateinit var viewLogsButton: Button
     private lateinit var testWebhookButton: Button
+    private lateinit var botEnvInput: TextInputEditText
 
     override fun onCreate(savedInstanceState: AndroidBundle?) {
         super.onCreate(savedInstanceState)
@@ -75,6 +77,11 @@ class BotConfigActivity : BaseActivity() {
         setupToolbar()
         setupViews()
         loadBotInfo()
+    }
+
+    override fun onPause() {
+        saveEnvVars()
+        super.onPause()
     }
 
     private fun setupToolbar() {
@@ -148,6 +155,26 @@ class BotConfigActivity : BaseActivity() {
         // Cargar URL si existe
         preferencesManager.getBotJsUrl()?.let {
             botUrlInput.setText(it)
+        }
+
+        botEnvInput = findViewById(R.id.botEnvInput)
+        botEnvInput.setText(preferencesManager.getBotJsEnvVars())
+        botEnvInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) saveEnvVars()
+        }
+    }
+
+    private fun saveEnvVars() {
+        if (!::botEnvInput.isInitialized) return
+        val text = botEnvInput.text?.toString() ?: ""
+        preferencesManager.setBotJsEnvVars(text)
+        val invalidCount = BotEnvParser.countInvalidLines(text)
+        if (invalidCount > 0) {
+            Snackbar.make(
+                botEnvInput,
+                "$invalidCount línea(s) con formato inválido (ignoradas)",
+                Snackbar.LENGTH_SHORT
+            ).show()
         }
     }
 

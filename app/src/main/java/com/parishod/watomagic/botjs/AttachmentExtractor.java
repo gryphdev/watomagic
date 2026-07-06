@@ -266,8 +266,8 @@ public class AttachmentExtractor {
     private Bitmap.CompressFormat getCompressFormat(@NonNull String mimeType) {
         if (mimeType.contains("png")) {
             return Bitmap.CompressFormat.PNG;
-        } else if (mimeType.contains("webp")) {
-            return Bitmap.CompressFormat.WEBP;
+        } else if (mimeType.contains("webp") && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            return Bitmap.CompressFormat.WEBP_LOSSLESS;
         }
         return Bitmap.CompressFormat.JPEG;
     }

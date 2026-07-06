@@ -92,6 +92,11 @@ android {
         dataBinding = true
         buildConfig = true
     }
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
     flavorDimensions += "version"
     productFlavors {
         create("GooglePlay") {
