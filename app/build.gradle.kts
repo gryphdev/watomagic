@@ -123,7 +123,6 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.work.runtime)
     implementation(libs.activity)
-    implementation(libs.work.testing)
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)
     testImplementation(libs.robolectric)

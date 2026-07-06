@@ -1,6 +1,6 @@
 package com.parishod.watomagic.model.utils;
 
-import static com.parishod.watomatic.model.utils.Constants.CUSTOM_AI_PROVIDER_NAME;
+import static com.parishod.watomagic.model.utils.Constants.CUSTOM_AI_PROVIDER_NAME;
 
 import android.content.Context;
 import android.util.Log;
