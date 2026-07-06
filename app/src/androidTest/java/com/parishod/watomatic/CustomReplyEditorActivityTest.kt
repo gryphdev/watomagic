@@ -21,13 +21,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Instrumented tests for [CustomReplyEditorActivity].
- *
- * Verifies the reply editor screen launches correctly and displays the
- * three reply method cards (manual, automatic AI, BYOK) along with the
- * save button and other key UI elements.
- */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class CustomReplyEditorActivityTest {
@@ -59,9 +52,7 @@ class CustomReplyEditorActivityTest {
     @Test
     fun activityLaunchesSuccessfully() {
         val scenario = launchActivity()
-        scenario.onActivity { activity ->
-            assertNotNull(activity)
-        }
+        scenario.onActivity { activity -> assertNotNull(activity) }
         scenario.close()
     }
 
@@ -73,27 +64,16 @@ class CustomReplyEditorActivityTest {
     }
 
     @Test
-    fun manualRepliesCardIsDisplayed() {
+    fun autoReplyInputIsDisplayed() {
         val scenario = launchActivity()
-        onView(withId(R.id.manual_replies_card)).check(matches(isDisplayed()))
+        onView(withId(R.id.autoReplyTextInputLayout)).check(matches(isDisplayed()))
         scenario.close()
     }
 
     @Test
-    fun automaticAiProviderCardIsDisplayed() {
+    fun aiProviderCardIsDisplayed() {
         val scenario = launchActivity()
-        onView(withId(R.id.automatic_ai_provider_card))
-            .perform(scrollTo())
-            .check(matches(isDisplayed()))
-        scenario.close()
-    }
-
-    @Test
-    fun otherAiProviderCardIsDisplayed() {
-        val scenario = launchActivity()
-        onView(withId(R.id.other_ai_provider_card))
-            .perform(scrollTo())
-            .check(matches(isDisplayed()))
+        onView(withId(R.id.ai_provider_card)).perform(scrollTo()).check(matches(isDisplayed()))
         scenario.close()
     }
 
@@ -112,33 +92,10 @@ class CustomReplyEditorActivityTest {
     }
 
     @Test
-    fun communityTemplatesLinkExists() {
-        val scenario = launchActivity()
-        scenario.onActivity { activity ->
-            val view = activity.findViewById<android.view.View>(R.id.tip_wato_message)
-            assertNotNull("Community templates link should exist", view)
-        }
-        scenario.close()
-    }
-
-    @Test
     fun activityCanBeRecreated() {
         val scenario = launchActivity()
         scenario.recreate()
-        scenario.onActivity { activity ->
-            assertNotNull(activity)
-        }
-        scenario.close()
-    }
-
-    @Test
-    fun manualReplyTextInputExists() {
-        val scenario = launchActivity()
-        // Manual is the default selected method, so the text input should exist
-        scenario.onActivity { activity ->
-            val view = activity.findViewById<android.view.View>(R.id.autoReplyTextInputEditText)
-            assertNotNull("Manual reply text input should exist", view)
-        }
+        scenario.onActivity { activity -> assertNotNull(activity) }
         scenario.close()
     }
 }
