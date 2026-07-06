@@ -85,7 +85,6 @@ class BotConfigActivity : BaseActivity() {
     private lateinit var attachmentAccessSwitch: SwitchMaterial
     private lateinit var whatsAppFolderButton: Button
     private lateinit var whatsAppFolderStatusText: TextView
-    private lateinit var sendImagesSwitch: SwitchMaterial
     private lateinit var deleteBotButton: Button
     private lateinit var debugModeSwitch: SwitchMaterial
     private lateinit var viewLogsButton: Button
@@ -153,12 +152,6 @@ class BotConfigActivity : BaseActivity() {
         whatsAppFolderStatusText = findViewById(R.id.whatsAppFolderStatusText)
         whatsAppFolderButton.setOnClickListener { whatsAppFolderPicker.launch(null) }
         updateWhatsAppFolderStatus()
-
-        sendImagesSwitch = findViewById(R.id.sendImagesSwitch)
-        sendImagesSwitch.isChecked = preferencesManager.isBotJsSendImagesEnabled()
-        sendImagesSwitch.setOnCheckedChangeListener { _, isChecked ->
-            preferencesManager.setBotJsSendImagesEnabled(isChecked)
-        }
 
         downloadBotButton.setOnClickListener { downloadBot() }
         testBotButton.setOnClickListener { testBot() }

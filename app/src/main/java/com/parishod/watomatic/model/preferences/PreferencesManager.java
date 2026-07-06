@@ -65,7 +65,6 @@ public class PreferencesManager {
     private final String KEY_BOT_JS_DEBUG_MODE = "pref_bot_js_debug_mode";
     private final String KEY_BOT_JS_ATTACHMENT_ACCESS_ENABLED = "pref_bot_js_attachment_access_enabled";
     private final String KEY_BOT_JS_WHATSAPP_MEDIA_TREE_URI = "pref_bot_js_whatsapp_media_tree_uri";
-    private final String KEY_BOT_JS_SEND_IMAGES_ENABLED = "pref_bot_js_send_images_enabled";
     private final String KEY_BOT_JS_ENV_VARS = "pref_bot_js_env_vars";
     private static PreferencesManager _instance;
     private final SharedPreferences _sharedPrefs;
@@ -624,16 +623,6 @@ public class PreferencesManager {
 
     public boolean hasBotJsWhatsAppMediaAccess() {
         return getBotJsWhatsAppMediaTreeUri() != null;
-    }
-
-    public void setBotJsSendImagesEnabled(boolean enabled) {
-        SharedPreferences.Editor editor = _sharedPrefs.edit();
-        editor.putBoolean(KEY_BOT_JS_SEND_IMAGES_ENABLED, enabled);
-        editor.apply();
-    }
-
-    public boolean isBotJsSendImagesEnabled() {
-        return _sharedPrefs.getBoolean(KEY_BOT_JS_SEND_IMAGES_ENABLED, false);
     }
 
     public void setBotJsEnvVars(String envVars) {

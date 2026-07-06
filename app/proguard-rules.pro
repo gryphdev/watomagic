@@ -99,5 +99,3 @@
     public <init>(android.content.Context, androidx.work.WorkerParameters);
 }
 
-# FileProvider for bot attachment sharing
--keep class androidx.core.content.FileProvider { *; }

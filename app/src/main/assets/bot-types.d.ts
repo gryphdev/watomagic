@@ -25,14 +25,6 @@ interface NotificationData {
 }
 
 /**
- * Información de un archivo adjunto para enviar
- */
-interface AttachmentToSend {
-    path: string;              // Ruta relativa a bot_attachments/ o absoluta dentro del directorio de la app
-    mimeType: string;          // Tipo MIME (ej: "image/jpeg", "image/png")
-}
-
-/**
  * Respuesta esperada del bot
  */
 interface BotResponse {
@@ -40,7 +32,6 @@ interface BotResponse {
     replyText?: string;        // Requerido si action = 'REPLY'
     snoozeMinutes?: number;    // Requerido si action = 'SNOOZE'
     reason?: string;           // Opcional: para logging/debugging
-    attachments?: AttachmentToSend[];  // Opcional: archivos adjuntos para enviar (solo si action = 'REPLY')
 }
 
 /**

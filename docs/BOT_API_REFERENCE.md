@@ -38,13 +38,6 @@
 | `replyText` | `string` | Solo para `REPLY` | Texto que se enviará como respuesta. |
 | `snoozeMinutes` | `number` | Solo para `SNOOZE` | Minutos que la notificación debe posponerse. |
 | `reason` | `string` | No | Texto para logs y diagnósticos. |
-| `attachments` | `AttachmentToSend[]` | No | Imágenes a enviar con `REPLY` (requiere activar envío en BotConfig). |
-
-### AttachmentToSend
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `path` | `string` | Ruta relativa a `bot_attachments/` o absoluta dentro del sandbox de la app. |
-| `mimeType` | `string` | Tipo MIME del archivo (ej. `image/jpeg`). |
 
 ### Resultados y errores
 - Si `processNotification` lanza una excepción o retorna un valor inválido, Watomagic registra `BotExecutionException` y usa el mensaje de respaldo.
@@ -158,20 +151,9 @@ Las imágenes se extraen **desde la notificación**, no desde carpetas de WhatsA
 
 Los archivos se copian a `getExternalFilesDir()/bot_attachments/` (sandbox de Watomagic). Requiere activar **Acceso a adjuntos** en BotConfig.
 
-### Envío de imágenes (limitaciones)
-Para responder con imagen, el bot retorna `attachments` en `BotResponse`:
+Para WhatsApp, cuando la notificación solo muestra un placeholder (ej. "📷 Foto"), usa `Android.readLatestWhatsAppImage(timestamp)` tras seleccionar la carpeta Media vía SAF en BotConfig.
 
-```javascript
-return {
-  action: 'REPLY',
-  replyText: 'Aquí va la imagen',
-  attachments: [{ path: 'mi-imagen.jpg', mimeType: 'image/jpeg' }]
-};
-```
-
-El envío usa `RemoteInput.addDataResultToIntent()` — la API oficial para datos binarios en inline reply. **Solo funciona si la app destino declaró `setAllowDataType("image/*")` en su RemoteInput.** WhatsApp puede no soportarlo; en ese caso Watomagic envía el texto y registra un warning en log.
-
-No se requieren permisos de almacenamiento externo: todo opera en el sandbox de la app + FileProvider.
+**Las respuestas del bot son solo texto.** No es posible enviar imágenes como reply vía notificaciones (WhatsApp no lo soporta).
 
 ---
 

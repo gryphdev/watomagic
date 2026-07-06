@@ -86,18 +86,11 @@ public class NotificationService extends NotificationListenerService {
     }
 
     private void sendActualReply(StatusBarNotification sbn, NotificationWear notificationWear, String replyText) {
-        sendActualReply(sbn, notificationWear, replyText, null);
-    }
-
-    private void sendActualReply(StatusBarNotification sbn, NotificationWear notificationWear, String replyText,
-                                 java.util.List<com.parishod.watomagic.botjs.AttachmentSender.AttachmentToSend> attachments) {
-        // customRepliesData = CustomRepliesData.getInstance(this); // Initialize if other methods from it are needed beyond replyText
-
         RemoteInput[] remoteInputs = new RemoteInput[notificationWear.getRemoteInputs().size()];
 
         Intent localIntent = new Intent();
         localIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        Bundle localBundle = new Bundle(); // notificationWear.bundle;
+        Bundle localBundle = new Bundle();
         int i = 0;
         for (RemoteInput remoteIn : notificationWear.getRemoteInputs()) {
             remoteInputs[i] = remoteIn;
@@ -106,17 +99,7 @@ public class NotificationService extends NotificationListenerService {
         }
 
         RemoteInput.addResultsToIntent(remoteInputs, localIntent, localBundle);
-        
-        // Add attachments if provided (text reply still sent if target app does not support images)
-        if (attachments != null && !attachments.isEmpty()) {
-            com.parishod.watomagic.botjs.AttachmentSender sender =
-                new com.parishod.watomagic.botjs.AttachmentSender(this);
-            boolean attached = sender.addAttachmentsToIntent(localIntent, notificationWear, attachments);
-            if (!attached) {
-                Log.w(TAG, "Target app does not support image attachments; sending text only");
-            }
-        }
-        
+
         try {
             if (notificationWear.getPendingIntent() != null) {
                 if (dbUtils == null) {
@@ -136,11 +119,6 @@ public class NotificationService extends NotificationListenerService {
         } catch (PendingIntent.CanceledException e) {
             Log.e(TAG, "sendActualReply error: " + e.getLocalizedMessage());
         }
-    }
-
-    public void sendReplyWithAttachments(StatusBarNotification sbn, NotificationWear notificationWear, String replyText,
-                                        java.util.List<com.parishod.watomagic.botjs.AttachmentSender.AttachmentToSend> attachments) {
-        sendActualReply(sbn, notificationWear, replyText, attachments);
     }
 
     private void sendReply(StatusBarNotification sbn) {
@@ -185,11 +163,6 @@ public class NotificationService extends NotificationListenerService {
             @Override
             public void onSuccess(@NonNull String reply) {
                 sendActualReply(sbn, notificationWear, reply);
-            }
-            
-            @Override
-            public void onSuccess(@NonNull String reply, @androidx.annotation.Nullable java.util.List<com.parishod.watomagic.botjs.AttachmentSender.AttachmentToSend> attachments) {
-                sendActualReply(sbn, notificationWear, reply, attachments);
             }
 
             @Override
