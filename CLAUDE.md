@@ -234,7 +234,7 @@ All APIs are exposed via Rhino's `FunctionObject` and custom `ScriptableObject` 
 - **API Exposure**: Methods are explicitly exposed using `FunctionObject` to ensure proper JavaScript function binding
 
 ### 3. No Over-Engineering
-The `docs/PLAN_BOTJS_SYSTEM.md` describes many "nice to have" features. **Focus on essentials**:
+Focus on essentials (avoid over-engineering optional features):
 - ✅ Bot execution (processNotification → BotResponse)
 - ✅ HTTP API calls (Android.httpRequest)
 - ✅ Persistent storage (Android.storage*)
@@ -307,8 +307,8 @@ git merge upstream/main
 ## Important Files
 
 ### Documentation
-- `docs/PLAN_BOTJS_SYSTEM.md` - Complete roadmap (reference, not gospel)
 - `docs/ARCHITECTURE.md` - Technical architecture
+- `docs/GITHUB_ACTIONS_MIGRATION.md` - CI/CD with GitHub Actions
 - `docs/BOT_DEVELOPMENT_GUIDE.md` - How to write bots
 - `docs/BOT_API_REFERENCE.md` - Bot API contract
 

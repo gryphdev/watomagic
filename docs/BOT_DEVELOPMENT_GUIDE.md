@@ -16,7 +16,7 @@ Los bots son scripts JavaScript auto‑contenidos que implementan `processNotifi
 - **Restricciones de sintaxis ES5**: No usar `async/await`, preferir `var` sobre `const`/`let`, usar concatenación `+` en lugar de template literals.
 
 ## 3. Kit de inicio
-1. Descargar la definición de tipos `bot-types.d.ts` (se publicará en `/app/src/main/assets/`).
+1. Copiar `app/src/main/assets/bot-types.d.ts` del repositorio.
 2. Crear un nuevo proyecto:
    ```bash
    mkdir watomagic-bot && cd watomagic-bot
@@ -104,7 +104,20 @@ function processNotification(notification) {
    */
   ```
 
-## 10. Próximos recursos
-- [Plan maestro BotJS](./PLAN_BOTJS_SYSTEM.md)
-- [Referencia completa de APIs](./BOT_API_REFERENCE.md)
-- [Guía para usuarios finales](./BOT_USER_GUIDE.md)
+## 10. Lectura de imágenes (opcional)
+
+Si el usuario activó acceso a adjuntos, `notification.attachments` contiene metadatos. Para placeholders de WhatsApp:
+
+```javascript
+if (notification.isMediaPlaceholder && Android.hasWhatsAppMediaAccess()) {
+  var img = Android.readLatestWhatsAppImage(notification.timestamp);
+  // img es Base64 JPEG o null
+}
+```
+
+Las respuestas siguen siendo solo texto (`replyText`).
+
+## 11. Recursos
+- [Referencia de APIs](./BOT_API_REFERENCE.md)
+- [Guía para usuarios](./BOT_USER_GUIDE.md)
+- [Arquitectura](./ARCHITECTURE.md)

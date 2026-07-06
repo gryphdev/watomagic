@@ -1,6 +1,6 @@
-# GitHub Actions Migration Guide
+# CI/CD con GitHub Actions
 
-This guide documents the migration from **Codemagic** to **GitHub Actions** for Watomagic CI/CD.
+Watomagic usa **GitHub Actions** como pipeline principal de builds firmados. `codemagic.yaml` permanece como referencia histórica.
 
 ## Overview
 
@@ -124,7 +124,7 @@ base64 -i watomagic-release.keystore | tr -d '\n' | wc -c
 - [x] GitHub environment `watomagic` configured with 4 secrets
 - [ ] First workflow run successful
 - [ ] APK downloaded and verified (signed, installable)
-- [ ] (Optional) Archive `codemagic.yaml`
+- `codemagic.yaml` conservado solo como referencia; no usar para builds nuevos
 
 ## Security Reminder
 

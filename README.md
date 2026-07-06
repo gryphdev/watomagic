@@ -95,7 +95,7 @@ Esta app depende de la función de respuestas rápidas desde notificaciones espe
 - [Guía de desarrollo de bots](./docs/BOT_DEVELOPMENT_GUIDE.md) — Crea tus propios bots JavaScript
 - [API Reference](./docs/BOT_API_REFERENCE.md) — Documentación de APIs disponibles
 - [Arquitectura del sistema](./docs/ARCHITECTURE.md) — Diseño técnico completo
-- [Plan original BotJS](./docs/PLAN_BOTJS_SYSTEM.md) — Roadmap y diseño inicial
+- [CI/CD](./docs/GITHUB_ACTIONS_MIGRATION.md) — Builds firmados con GitHub Actions
 
 ---
 

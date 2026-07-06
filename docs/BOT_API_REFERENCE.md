@@ -1,10 +1,11 @@
 # BotJS API Reference
 
-**Versión del documento:** 0.4 (2025-01-21)
+**Versión del documento:** 0.5 (2026-07-06)
 **JavaScript Engine:** Mozilla Rhino 1.7.15 (ES5 + ES6 parcial)
 **Estado:** ✅ Implementado y funcional
-**Cambios en v0.4:** Corrección de exposición de métodos Android usando `FunctionObject` y `ScriptableObject` personalizado
-**Cambios en v0.3:** Añadido objeto global `localStorage` compatible con API estándar
+**Cambios en v0.5:** APIs de adjuntos y WhatsApp SAF; respuestas solo texto (sin envío de imágenes)
+**Cambios en v0.4:** Exposición de métodos Android con `FunctionObject` y `ScriptableObject`
+**Cambios en v0.3:** Objeto global `localStorage`
 
 ---
 
@@ -19,8 +20,9 @@
 | `body` | `string` | Texto completo del mensaje. |
 | `timestamp` | `number` | Epoch en milisegundos. |
 | `isGroup` | `boolean` | `true` si la notificación pertenece a un chat grupal. |
+| `isMediaPlaceholder` | `boolean` | `true` si el cuerpo es placeholder de media (ej. "📷 Foto"). |
 | `actions` | `string[]` | Lista de Quick Reply actions disponibles. |
-| `attachments` | `AttachmentInfo[]` | Imágenes extraídas de la notificación (requiere activar acceso en BotConfig). |
+| `attachments` | `AttachmentInfo[]` | Imágenes extraídas (requiere **Acceso a imágenes** en BotConfig). |
 
 ### AttachmentInfo
 | Campo | Tipo | Descripción |
@@ -139,6 +141,16 @@ interface HttpRequestOptions {
 ### `Android.getAttachmentThumbnail(id)`
 - Retorna el thumbnail Base64 del adjunto, o `null`.
 
+### `Android.hasWhatsAppMediaAccess()`
+- `true` si el usuario seleccionó la carpeta Media de WhatsApp vía SAF en BotConfig.
+
+### `Android.readLatestWhatsAppImage(notificationTimestamp)`
+- Retorna imagen JPEG en Base64 tomada de la carpeta SAF, o `null`.
+- Usar cuando `isMediaPlaceholder` es `true` y no hay adjunto en la notificación.
+
+### `Android.getenv(key)`
+- Retorna variable de entorno configurada en BotConfig, o `null`.
+
 ---
 
 ## 4.1 Adjuntos (imágenes)
@@ -179,19 +191,17 @@ Para WhatsApp, cuando la notificación solo muestra un placeholder (ej. "📷 Fo
 ---
 
 ## 7. Versionado y compatibilidad
-- **Versión 0.4** (actual): corrección de exposición de métodos Android usando `FunctionObject` explícito.
-- **Versión 0.3**: añadido `localStorage` global.
-- **Versión 0.2**: primera iteración con `Android.storage*`.
-- **Versión 0.1**: primera iteración con `Android.storage*`.
-- Los bots deberían declarar en un comentario superior qué versión de la API esperan:
+- **Versión 0.5** (actual): lectura de adjuntos, SAF WhatsApp, `getenv`.
+- **Versión 0.4**: exposición de métodos Android con `FunctionObject`.
+- **Versión 0.3**: `localStorage` global.
+- Los bots deberían declarar la versión esperada:
   ```javascript
-  // BotJS API: 0.4
+  // BotJS API: 0.5
   ```
-- Cuando exista la versión 0.5+, Watomagic expondrá `Android.getApiVersion()` para permitir degradar funcionalidad.
 
 ---
 
 ## 8. Recursos relacionados
 - [Guía de desarrollo](./BOT_DEVELOPMENT_GUIDE.md)
 - [Guía de usuario](./BOT_USER_GUIDE.md)
-- [Plan maestro y roadmap](./PLAN_BOTJS_SYSTEM.md)
+- [Arquitectura](./ARCHITECTURE.md)
