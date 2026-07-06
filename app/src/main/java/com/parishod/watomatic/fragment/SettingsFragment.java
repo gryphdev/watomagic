@@ -18,7 +18,6 @@ import com.parishod.watomagic.activity.botconfig.BotConfigActivity;
 import com.parishod.watomagic.model.preferences.PreferencesManager;
 import com.parishod.watomagic.flavor.FlavorNavigator;
 import com.parishod.watomagic.model.utils.AutoStartHelper;
-import com.parishod.watomagic.model.utils.ServieUtils;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
