@@ -1,4 +1,4 @@
-package com.parishod.watomatic
+package com.parishod.watomagic
 
 import android.content.Intent
 import android.os.Build
@@ -8,8 +8,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import com.parishod.watomatic.activity.contactselector.ContactSelectorActivity
-import com.parishod.watomatic.model.preferences.PreferencesManager
+import com.parishod.watomagic.activity.contactselector.ContactSelectorActivity
+import com.parishod.watomagic.model.preferences.PreferencesManager
 import org.junit.After
 import org.junit.Assert.assertNotNull
 import org.junit.Before

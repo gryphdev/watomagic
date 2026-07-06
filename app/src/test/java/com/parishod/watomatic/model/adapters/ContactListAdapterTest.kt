@@ -1,10 +1,10 @@
-package com.parishod.watomatic.model.adapters
+package com.parishod.watomagic.model.adapters
 
 import android.app.Application
 import androidx.preference.PreferenceManager
 import androidx.test.core.app.ApplicationProvider
-import com.parishod.watomatic.model.data.ContactHolder
-import com.parishod.watomatic.model.preferences.PreferencesManager
+import com.parishod.watomagic.model.data.ContactHolder
+import com.parishod.watomagic.model.preferences.PreferencesManager
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before

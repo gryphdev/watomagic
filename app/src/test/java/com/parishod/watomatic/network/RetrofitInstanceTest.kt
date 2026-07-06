@@ -1,4 +1,4 @@
-package com.parishod.watomatic.network
+package com.parishod.watomagic.network
 
 import org.junit.Assert.*
 import org.junit.Test

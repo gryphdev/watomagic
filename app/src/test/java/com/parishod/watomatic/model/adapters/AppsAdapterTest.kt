@@ -1,7 +1,7 @@
-package com.parishod.watomatic.model.adapters
+package com.parishod.watomagic.model.adapters
 
-import com.parishod.watomatic.model.data.AppItem
-import com.parishod.watomatic.model.data.DialogListItem
+import com.parishod.watomagic.model.data.AppItem
+import com.parishod.watomagic.model.data.DialogListItem
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith

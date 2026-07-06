@@ -1,9 +1,9 @@
-package com.parishod.watomatic.model.utils
+package com.parishod.watomagic.model.utils
 
 import android.content.ComponentName
 import android.provider.Settings
 import androidx.test.core.app.ApplicationProvider
-import com.parishod.watomatic.service.NotificationService
+import com.parishod.watomagic.service.NotificationService
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
