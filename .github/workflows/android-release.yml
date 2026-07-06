@@ -16,7 +16,8 @@ env:
   JAVA_VERSION: '17'
   GRADLE_VERSION: '8.12'
   PACKAGE_NAME: 'com.parishod.watomagic'
-  BASE_VERSION_CODE: 10000
+  # Legacy CI used 10000+N; Android versionCode is Int32 (max 2147483647), so GITHUB_RUN_ID is too large
+  BASE_VERSION_CODE: 100000
 
 jobs:
   build-release:
@@ -268,9 +269,9 @@ jobs:
         run: |
           echo "🏗️  Building SIGNED Android Release APK (Default flavor)..."
           
-          # Calculate dynamic version code: BASE_VERSION_CODE + GitHub run number
+          # GITHUB_RUN_NUMBER increments per workflow run and fits Android versionCode Int32
           VERSION_CODE=$((BASE_VERSION_CODE + GITHUB_RUN_NUMBER))
-          VERSION_NAME="1.$GITHUB_RUN_NUMBER"
+          VERSION_NAME="${GITHUB_REF_NAME:-1.$GITHUB_RUN_NUMBER}"
           
           echo "📦 Version configuration:"
           echo "   - Version Code: $VERSION_CODE"
@@ -356,7 +357,7 @@ jobs:
           BASE_VERSION_CODE: ${{ env.BASE_VERSION_CODE }}
         run: |
           VERSION_CODE=$((BASE_VERSION_CODE + GITHUB_RUN_NUMBER))
-          VERSION_NAME="1.$GITHUB_RUN_NUMBER"
+          VERSION_NAME="${GITHUB_REF_NAME:-1.$GITHUB_RUN_NUMBER}"
           echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
           echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
           echo "📦 Version Code: $VERSION_CODE"
@@ -453,7 +454,7 @@ jobs:
           echo "✅ Flavor: Default (F-Droid variant)"
           echo "✅ Application ID: $PACKAGE_NAME"
           echo "✅ Version Code: $((BASE_VERSION_CODE + GITHUB_RUN_NUMBER))"
-          echo "✅ Version Name: 1.$GITHUB_RUN_NUMBER"
+          echo "✅ Version Name: ${GITHUB_REF_NAME:-1.$GITHUB_RUN_NUMBER}"
           echo "✅ Signing: ENABLED"
           echo "✅ Runner: ubuntu-latest (Linux - faster & free)"
           echo ""
