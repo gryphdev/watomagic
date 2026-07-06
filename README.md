@@ -1,3 +1,5 @@
+[Español](./README.md) · [English](./README_en.md)
+
 # 🪄 Watomagic - Respuesta automática para apps de mensajería
 
 Watomagic envía una respuesta automática a todos los que te contacten en apps de mensajería. Es especialmente útil si estás planeando migrar de estas apps, pero también podés usarlo como un contestador automático cuando estás de vacaciones.
@@ -8,8 +10,8 @@ Watomagic envía una respuesta automática a todos los que te contacten en apps 
 
 ### 📸 [Capturas de pantalla](./media/screenshots/)
 
-| [<img src="./media/screenshots/1.jpeg" alt="Captura 1">][scr-page-link] | [<img src="./media/screenshots/2.jpeg" alt="Captura 2">][scr-page-link] | [<img src="./media/screenshots/3.png" alt="Captura 3">][scr-page-link] | [<img src="./media/screenshots/4.png" alt="Captura 4">][scr-page-link] |
-|:---:|:---:|:---:|:---:|
+| [<img src="./media/screenshots/3.png" alt="Ajustes Bot JavaScript">][scr-page-link] | [<img src="./media/screenshots/4.png" alt="Configuración de Bots">][scr-page-link] |
+|:---:|:---:|
 
 [**❯ Ver más capturas**](./media/screenshots/)
 
